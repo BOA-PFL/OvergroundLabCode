@@ -78,6 +78,12 @@ hipSagMom = []
 hipFrontMom = []
 ankleFrontAng = []
 ankleSagAng = []
+ankleTransAng = []
+kneeFrontAng = []
+kneeTransAng = []
+hipFrontAng = []
+hipSagAng = [] 
+hipTransAng = []
 ## loop through the selected files
 for file in entries:
     try:
@@ -95,7 +101,7 @@ for file in entries:
         #find the landings and offs of the FP as vectors
         landings = findLandings(forceZ)
         
-        # List comprehension is below & probably faster but not necessary for this code #
+        # List comprehension is written below & probably faster but not necessary for this code #
         #[np.max(dat.RightAnkleMomentSagittal[landing : landing + 50]) for landing in landings] 
         #For each landing, calculate rolling averages and time to stabilize
         
@@ -122,6 +128,12 @@ for file in entries:
                 ## Angles ## 
                 ankleFrontAng.append(np.max(dat.RightAnkleAngleFrontal[landing : landing + tmpStab]))
                 ankleSagAng.append(np.min(dat.RightAnkleAngleSagittal[landing : landing + tmpStab]))
+                ankleTransAng.append(np.min(dat.RightAnkleAngleTransverse[landing : landing + tmpStab]))
+                kneeFrontAng.append(np.max(dat.RightAnkleAngleFrontal[landing : landing + tmpStab]))
+                kneeTransAng.append(np.max(dat.RightKneeAngleTransverse[landing : landing + tmpStab]))
+                hipFrontAng.append(np.max(dat.RightHipAngleFrontal[landing : landing + tmpStab]))
+                hipSagAng.append(np.min(dat.RightHipAngleSagittal[landing : landing + tmpStab]))
+                hipTransAng.append(np.min(dat.RightHipAngleTransverse[landing : landing + tmpStab]))
                 
                 
             except:
@@ -134,6 +146,7 @@ outcomes = pd.DataFrame({'Sub':list(sName), 'Config': list(tmpConfig), 'StabTime
                          'ankleWork': list(ankleWork), 'kneeWork': list(kneeWork),'hipWork': list(hipWork),
                          'ankleSagMom':list(ankleSagMom),'ankleFrontMom': list(ankleFrontMom), 'kneeSagMom':list(kneeSagMom),
                          'kneeFrontMom':list(kneeFrontMom), 'hipSagMom':list(hipSagMom), 'ankleFrontAng':list(ankleFrontAng),
-                         'ankleSagAng':list(ankleSagAng)})
+                         'ankleSagAng':list(ankleSagAng),'kneeFrontAng':list(kneeFrontAng),'kneeTransAng':list(kneeTransAng),
+                         'hipFrontAng':list(hipFrontAng), 'hipSagAng':list(hipSagAng),'hipTransAng':list(hipTransAng)})
     
     
