@@ -15,7 +15,7 @@ fThresh = 100; #below this value will be set to 0.
 writeData = 0; #will write to spreadsheet if 1 entered
 
 # Read in balance file
-fPath = 'C:/Users/Daniel.Feeney/Dropbox (Boa)/EnduranceProtocolWork/BalanceData/'
+fPath = 'C:/Users/Daniel.Feeney/Dropbox (Boa)/EnduranceProtocolWork/BalanceData/Kinetics/'
 entries = os.listdir(fPath)
 
 # list of functions 
@@ -95,11 +95,11 @@ for file in entries:
         #find the landings and offs of the FP as vectors
         landings = findLandings(forceZ)
         
-        
-        [np.max(dat.RightAnkleMomentSagittal[landing : landing + 50]) for landing in landings] 
+        # List comprehension is below & probably faster but not necessary for this code #
+        #[np.max(dat.RightAnkleMomentSagittal[landing : landing + 50]) for landing in landings] 
         #For each landing, calculate rolling averages and time to stabilize
         
-        for landing in range(len(landings)):
+        for landing in landings:
             try:
                 sName.append(subName)
                 tmpConfig.append(config)
@@ -117,7 +117,7 @@ for file in entries:
                 ankleFrontMom.append(np.max(dat.RightAnkleMomentFrontal[landing : landing + tmpStab]))
                 kneeSagMom.append(np.min(dat.RightKneeMomentSagittal[landing : landing + tmpStab]))
                 kneeFrontMom.append(np.min(dat.RightKneeMomentFrontal[landing : landing + tmpStab]))
-                hipSagMom.append(np.max(dat.RightKHipMomentSagittal[landing : landing + tmpStab]))
+                hipSagMom.append(np.max(dat.RightHipMomentSagittal[landing : landing + tmpStab]))
                 hipFrontMom.append(np.max(dat.RightHipMomentFrontal[landing : landing + tmpStab]))
                 ## Angles ## 
                 ankleFrontAng.append(np.max(dat.RightAnkleAngleFrontal[landing : landing + tmpStab]))
@@ -131,6 +131,9 @@ for file in entries:
             print(file)
 
 outcomes = pd.DataFrame({'Sub':list(sName), 'Config': list(tmpConfig), 'StabTime': list(stabilization),
-                         'ankleWork': list(ankleWork), 'kneeWork': list(kneeWork),'hipWork': list(hipWork)})
+                         'ankleWork': list(ankleWork), 'kneeWork': list(kneeWork),'hipWork': list(hipWork),
+                         'ankleSagMom':list(ankleSagMom),'ankleFrontMom': list(ankleFrontMom), 'kneeSagMom':list(kneeSagMom),
+                         'kneeFrontMom':list(kneeFrontMom), 'hipSagMom':list(hipSagMom), 'ankleFrontAng':list(ankleFrontAng),
+                         'ankleSagAng':list(ankleSagAng)})
     
     
