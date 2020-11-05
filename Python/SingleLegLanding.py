@@ -101,8 +101,6 @@ for file in entries:
         #find the landings and offs of the FP as vectors
         landings = findLandings(forceZ)
         
-        # List comprehension is written below & probably faster but not necessary for this code #
-        #[np.max(dat.RightAnkleMomentSagittal[landing : landing + 50]) for landing in landings] 
         #For each landing, calculate rolling averages and time to stabilize
         
         for landing in landings:
@@ -150,3 +148,8 @@ outcomes = pd.DataFrame({'Sub':list(sName), 'Config': list(tmpConfig), 'StabTime
                          'hipFrontAng':list(hipFrontAng), 'hipSagAng':list(hipSagAng),'hipTransAng':list(hipTransAng)})
     
     
+# List comprehension is written below & probably faster but not necessary for this code #
+#        avgF2 = [movAvgForce(forceZ, landing, landing+100, 10) for landing in landings]
+#        sdF2 = [movSDForce(forceZ, landing, landing+100, 10) for landing in landings]
+#        subBW2 = [findBW(avgF2) for forceTrace in avgF2]
+#        ankleSagMom2 = [np.max(dat.RightAnkleMomentSagittal[landing : landing + 50]) for landing in landings] 
