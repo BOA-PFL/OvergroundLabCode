@@ -51,10 +51,9 @@ def movSDForce(force, landing, takeoff, length):
         avgF.append(np.std(newForce[i : i + win_len]))     
     return avgF
 
-
 #estimated stability after 200 indices
 def findBW(force):
-    BW = np.mean(avgF[200:300])
+    BW = np.mean(avgF[100:200])
     return BW
 
 def findStabilization(avgF, sdF):
@@ -71,6 +70,14 @@ kneeWork = []
 hipWork = []
 sName = []
 tmpConfig = []
+ankleSagMom = []
+ankleFrontMom = []
+kneeSagMom = []
+kneeFrontMom = []
+hipSagMom = []
+hipFrontMom = []
+ankleFrontAng = []
+ankleSagAng = []
 ## loop through the selected files
 for file in entries:
     try:
@@ -83,27 +90,43 @@ for file in entries:
         config = fName.split(sep = "_")[2]
         
         # Filter force
-        forceZ = dat.FP3Z * -1
+        forceZ = dat.FP4Z * -1
         forceZ[forceZ<fThresh] = 0
         #find the landings and offs of the FP as vectors
         landings = findLandings(forceZ)
-            
+        
+        
+        [np.max(dat.RightAnkleMomentSagittal[landing : landing + 50]) for landing in landings] 
         #For each landing, calculate rolling averages and time to stabilize
-    
+        
         for landing in range(len(landings)):
             try:
                 sName.append(subName)
                 tmpConfig.append(config)
-                avgF = movAvgForce(forceZ, landings[landing], landings[landing]+200, 10)
-                sdF = movSDForce(forceZ, landings[landing], landings[landing]+200, 10)
+                avgF = movAvgForce(forceZ, landing, landing+200, 10)
+                sdF = movSDForce(forceZ, landing, landing+200, 10)
                 subBW = findBW(avgF)
                 stabilization.append(findStabilization(avgF, sdF))
-                ankleWork.append(sum(abs(dat.RAnklePower[landings[landing]:landings[landing] + stabilization[landing]])))
-                kneeWork.append(sum(abs(dat.RKneePower[landings[landing]:landings[landing] + stabilization[landing]])))
-                hipWork.append(sum(abs(dat.RHipPower[landings[landing]:landings[landing] + stabilization[landing]])))
+                tmpStab = findStabilization(avgF, sdF)
+                ## Work ##
+                ankleWork.append(sum(abs(dat.RAnklePower[landing : landing + tmpStab])))
+                kneeWork.append(sum(abs(dat.RKneePower[landing : landing + tmpStab])))
+                hipWork.append(sum(abs(dat.RHipPower[landing : landing + tmpStab])))
+                ## Pk Moments ##
+                ankleSagMom.append(np.max(dat.RightAnkleMomentSagittal[landing : landing + tmpStab]))
+                ankleFrontMom.append(np.max(dat.RightAnkleMomentFrontal[landing : landing + tmpStab]))
+                kneeSagMom.append(np.min(dat.RightKneeMomentSagittal[landing : landing + tmpStab]))
+                kneeFrontMom.append(np.min(dat.RightKneeMomentFrontal[landing : landing + tmpStab]))
+                hipSagMom.append(np.max(dat.RightKHipMomentSagittal[landing : landing + tmpStab]))
+                hipFrontMom.append(np.max(dat.RightHipMomentFrontal[landing : landing + tmpStab]))
+                ## Angles ## 
+                ankleFrontAng.append(np.max(dat.RightAnkleAngleFrontal[landing : landing + tmpStab]))
+                ankleSagAng.append(np.min(dat.RightAnkleAngleSagittal[landing : landing + tmpStab]))
+                
+                
             except:
                 print(landing)
-        
+            
     except:
             print(file)
 
