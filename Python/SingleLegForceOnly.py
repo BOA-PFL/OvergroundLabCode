@@ -15,7 +15,7 @@ fThresh = 100; #below this value will be set to 0.
 writeData = 0; #will write to spreadsheet if 1 entered
 
 # Read in balance file
-fPath = 'C:/Users/Daniel.Feeney/Dropbox (Boa)/EnduranceProtocolWork/BalanceData/Kinetics/'
+fPath = 'C:/Users/Daniel.Feeney/Dropbox (Boa)/EnduranceProtocolWork/EnduranceProtocolHike/SLForces/'
 entries = os.listdir(fPath)
 
 # list of functions 
@@ -65,28 +65,13 @@ def findStabilization(avgF, sdF):
 
 #Preallocation
 stabilization = []
-ankleWork = []
-kneeWork = []
-hipWork = []
+pkForce = []
 sName = []
 movements = []
 tmpConfig = []
-ankleSagMom = []
-ankleFrontMom = []
-kneeSagMom = []
-kneeFrontMom = []
-#hipSagMom = []
-#hipFrontMom = []
-ankleXAng = []
-ankleYAng = []
-kneeYAng = []
-kneeZAng = []
-kneeXAng = []
-#hipFrontAng = []
-#hipSagAng = [] 
-#hipTransAng = []
+
 ## loop through the selected files
-for file in entries[13:18]:
+for file in entries:
     try:
         
         fName = file #Load one file at a time
@@ -99,7 +84,7 @@ for file in entries[13:18]:
         movement = tmpMove.split(sep= ' - ')[0]
         
         # Filter force
-        forceZ = dat.VertForce * -1
+        forceZ = dat.FP4_ForceZ * -1
         forceZ[forceZ<fThresh] = 0
         #find the landings and offs of the FP as vectors
         landings = findLandings(forceZ)
@@ -116,42 +101,15 @@ for file in entries[13:18]:
                 stabilization.append(findStabilization(avgF, sdF))
                 tmpStab = findStabilization(avgF, sdF)
                 movements.append(movement)
-                ## Work ##
-                ankleWork.append(sum(abs(dat.LAnklePower[landing : landing + tmpStab])))
-                kneeWork.append(sum(abs(dat.LKneePower[landing : landing + tmpStab])))
-                #hipWork.append(sum(abs(dat.LHipPower[landing : landing + tmpStab])))
-                ## Pk Moments ##
-                ankleSagMom.append(np.max(dat.LAnkleMomentx[landing : landing + tmpStab]))
-                ankleFrontMom.append(np.max(dat.LAnkleMomenty[landing : landing + tmpStab]))
-                kneeSagMom.append(np.min(dat.LKneeMomentX[landing : landing + tmpStab]))
-                kneeFrontMom.append(np.min(dat.LKneeMomentY[landing : landing + tmpStab]))
-                #hipSagMom.append(np.max(dat.LeftHipMomentSagittal[landing : landing + tmpStab]))
-                #hipFrontMom.append(np.max(dat.LeftHipMomentFrontal[landing : landing + tmpStab]))
-                ## Angles ## 
-                ankleXAng.append(np.max(dat.LAnkleAngleX[landing : landing + tmpStab]))
-                ankleYAng.append(np.min(dat.LAnkleAngleY[landing : landing + tmpStab]))
-                kneeYAng.append(np.max(dat.LKneeYAngle[landing : landing + tmpStab]))
-                kneeZAng.append(np.max(dat.LKneeZAngle[landing : landing + tmpStab]))
-                kneeXAng.append(np.max(dat.LKneeXAngle[landing : landing + tmpStab]))
-                #hipFrontAng.append(np.max(dat.LeftHipAngleFrontal[landing : landing + tmpStab]))
-                #hipSagAng.append(np.min(dat.LeftHipAngleSagittal[landing : landing + tmpStab]))
-                #hipTransAng.append(np.min(dat.LeftHipAngleTransverse[landing : landing + tmpStab]))
-                
-                
+                pkForce.append(np.max(forceZ[landing:landing+200]))
             except:
                 print(landing)
             
     except:
             print(file)
 
-outcomes = pd.DataFrame({'Sub':list(sName), 'Config': list(tmpConfig),'Movement':list(movements), 'StabTime': list(stabilization),
-                         'ankleWork': list(ankleWork), 'kneeWork': list(kneeWork),
-                         'ankleSagMom':list(ankleSagMom),'ankleFrontMom': list(ankleFrontMom), 'kneeSagMom':list(kneeSagMom),
-                         'kneeFrontMom':list(kneeFrontMom),'ankleYAng':list(ankleYAng),
-                         'ankleXAng':list(ankleXAng),'kneeXAng':list(kneeXAng),'kneeYAng':list(kneeYAng), 'kneeZAng':list(kneeZAng)})#,
-                         #'hipFrontAng':list(hipFrontAng), 'hipSagAng':list(hipSagAng),'hipTransAng':list(hipTransAng), 
-                         #,'hipWork': list(hipWork), 'hipSagMom':list(hipSagMom),})
-    
+outcomes = pd.DataFrame({'Sub':list(sName), 'Config': list(tmpConfig),'Movement':list(movements), 
+                         'StabTime': list(stabilization), 'pkForce':list(pkForce)})
     
 # List comprehension is written below & probably faster but not necessary for this code #
 #        avgF2 = [movAvgForce(forceZ, landing, landing+100, 10) for landing in landings]

@@ -5,6 +5,7 @@ addpath('C:\Users\Daniel.Feeney\Dropbox (Boa)\TMM Files') % add path to source c
 
 % The files should be named sub_balance_Config_trialNo - Forces.txt
 input_dir = 'C:\Users\Daniel.Feeney\Dropbox (Boa)\Hike Work Research\Data\BalanceMeasures';% Change to correct filepath
+input_dir = 'C:\Users\Daniel.Feeney\Dropbox (Boa)\EnduranceProtocolWork\EnduranceProtocolHike\SLForces'
 
 cd(input_dir)
 files = dir('*.txt');
