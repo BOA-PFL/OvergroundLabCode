@@ -15,7 +15,7 @@ fThresh = 100; #below this value will be set to 0.
 writeData = 0; #will write to spreadsheet if 1 entered
 
 # Read in balance file
-fPath = 'C:/Users/Daniel.Feeney/Dropbox (Boa)/EnduranceProtocolWork/EnduranceProtocolHike/SLForces/'
+fPath = 'C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\Hike Work Research\\Work Pilot 2021\\SLL\\'
 entries = os.listdir(fPath)
 
 # list of functions 
@@ -51,11 +51,6 @@ def movSDForce(force, landing, takeoff, length):
         avgF.append(np.std(newForce[i : i + win_len]))     
     return avgF
 
-#estimated stability after 200 indices
-def findBW(force):
-    BW = np.mean(avgF[100:200])
-    return BW
-
 def findStabilization(avgF, sdF):
     stab = []
     for step in range(len(avgF)-1):
@@ -63,6 +58,7 @@ def findStabilization(avgF, sdF):
             stab.append(step + 1)
     return stab[0]
 
+     
 #Preallocation
 stabilization = []
 pkForce = []
@@ -80,12 +76,23 @@ for file in entries:
         #Parse file name into subject and configuration 
         subName = fName.split(sep = "_")[0]
         config = fName.split(sep = "_")[2]
-        tmpMove = fName.split(sep = "_")[3]
-        movement = tmpMove.split(sep= ' - ')[0]
+        config = config.split(" " )[0]
+        movement = fName.split("_")[1]
         
         # Filter force
         forceZ = dat.FP4_ForceZ * -1
         forceZ[forceZ<fThresh] = 0
+        
+        fig, ax = plt.subplots()
+        ax.plot(forceZ, label = 'Right Total Force')
+        fig.legend()
+        print('Select steady portion')
+        pts = np.asarray(plt.ginput(2, timeout=-1))
+        plt.close()
+
+        subBW = np.mean(forceZ[int(np.floor(pts[0,0])) : int(np.floor(pts[1,0]))])
+
+        
         #find the landings and offs of the FP as vectors
         landings = findLandings(forceZ)
         
@@ -95,12 +102,12 @@ for file in entries:
             try:
                 sName.append(subName)
                 tmpConfig.append(config)
+                movements.append(movement)
                 avgF = movAvgForce(forceZ, landing, landing+200, 10)
                 sdF = movSDForce(forceZ, landing, landing+200, 10)
-                subBW = findBW(avgF)
+                subBW = subBW
                 stabilization.append(findStabilization(avgF, sdF))
                 tmpStab = findStabilization(avgF, sdF)
-                movements.append(movement)
                 pkForce.append(np.max(forceZ[landing:landing+200]))
             except:
                 print(landing)
@@ -108,7 +115,7 @@ for file in entries:
     except:
             print(file)
 
-outcomes = pd.DataFrame({'Sub':list(sName), 'Config': list(tmpConfig),'Movement':list(movements), 
+outcomes = pd.DataFrame({'Sub':list(sName), 'Config': list(tmpConfig),'Movement':list(movements),
                          'StabTime': list(stabilization), 'pkForce':list(pkForce)})
     
 # List comprehension is written below & probably faster but not necessary for this code #
