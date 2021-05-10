@@ -16,7 +16,9 @@ writeData = 0; #will write to spreadsheet if 1 entered
 
 # Read in balance file
 fPath = 'C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\Hike Work Research\\Work Pilot 2021\\SLL\\'
-entries = os.listdir(fPath)
+fileExt = r".txt"
+entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
+subBW = 75
 
 # list of functions 
 # finding landings on the force plate once the filtered force exceeds the force threshold
@@ -84,9 +86,9 @@ for file in entries:
         forceZ[forceZ<fThresh] = 0
         
         fig, ax = plt.subplots()
-        ax.plot(forceZ, label = 'Right Total Force')
+        ax.plot(forceZ, label = 'Vertical Force')
         fig.legend()
-        print('Select steady portion')
+        print('Select steady portion of force where subject is mostly still')
         pts = np.asarray(plt.ginput(2, timeout=-1))
         plt.close()
 
@@ -117,7 +119,8 @@ for file in entries:
 
 outcomes = pd.DataFrame({'Sub':list(sName), 'Config': list(tmpConfig),'Movement':list(movements),
                          'StabTime': list(stabilization), 'pkForce':list(pkForce)})
-    
+
+outcomes.to_csv("C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\Hike Work Research\\Work Pilot 2021/SLLForces.csv",mode='a',header=False)
 # List comprehension is written below & probably faster but not necessary for this code #
 #        avgF2 = [movAvgForce(forceZ, landing, landing+100, 10) for landing in landings]
 #        sdF2 = [movSDForce(forceZ, landing, landing+100, 10) for landing in landings]
