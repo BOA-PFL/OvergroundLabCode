@@ -18,7 +18,6 @@ writeData = 0; #will write to spreadsheet if 1 entered
 fPath = 'C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\Hike Work Research\\Work Pilot 2021\\SLL\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
-subBW = 75
 
 # list of functions 
 # finding landings on the force plate once the filtered force exceeds the force threshold
@@ -121,6 +120,7 @@ outcomes = pd.DataFrame({'Sub':list(sName), 'Config': list(tmpConfig),'Movement'
                          'StabTime': list(stabilization), 'pkForce':list(pkForce)})
 
 outcomes.to_csv("C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\Hike Work Research\\Work Pilot 2021/SLLForces.csv",mode='a',header=False)
+
 # List comprehension is written below & probably faster but not necessary for this code #
 #        avgF2 = [movAvgForce(forceZ, landing, landing+100, 10) for landing in landings]
 #        sdF2 = [movSDForce(forceZ, landing, landing+100, 10) for landing in landings]
