@@ -101,14 +101,14 @@ for file in entries:
         
         for landing in landings:
             try:
+                avgF = movAvgForce(forceZ, landing, landing+200, 10)
+                sdF = movSDForce(forceZ, landing, landing+200, 10)
+                stabilization.append(findStabilization(avgF, sdF))
+                tmpStab = findStabilization(avgF, sdF)
                 sName.append(subName)
                 tmpConfig.append(config)
                 movements.append(movement)
-                avgF = movAvgForce(forceZ, landing, landing+200, 10)
-                sdF = movSDForce(forceZ, landing, landing+200, 10)
                 subBW = subBW
-                stabilization.append(findStabilization(avgF, sdF))
-                tmpStab = findStabilization(avgF, sdF)
                 pkForce.append(np.max(forceZ[landing:landing+200]))
             except:
                 print(landing)
