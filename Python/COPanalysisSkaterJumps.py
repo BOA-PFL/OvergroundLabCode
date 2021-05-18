@@ -130,7 +130,7 @@ for file in entries:
                 RFDcon.append( np.min(np.diff(YtotalForce[landing:takeoffs[countVar]])) )
                 
                 COPexcursion.append( np.max(COPy[landing:takeoffs[countVar]]) - COPy[landing] ) 
-                COPtraj.append( np.sum( np.diff((COPy[landing:takeoffs[countVar]])) ) )
+                COPtraj.append( np.sum( abs(np.diff((COPy[landing:takeoffs[countVar]]))) ) )
                 
                 indMaxCOP = np.argmax( COPy[landing:takeoffs[countVar]] ) 
                 indMaxFY = np.argmax( YtotalForce[landing:takeoffs[countVar]] )
