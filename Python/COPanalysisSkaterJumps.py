@@ -91,7 +91,7 @@ for file in entries:
         dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
         #dat = dat.fillna(0)
         
-        if tmpMove == 'Skater':
+        if (tmpMove == 'Skater') or (tmpMove == 'skater'):
             dat = delimitTrialSkate(dat)
             # create vector of force from vertical signal from each file and make low values 0
             totalForce = dat.FP3_RForceZ * -1
