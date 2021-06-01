@@ -15,10 +15,16 @@ fThresh = 80 #below this value will be set to 0.
 stepLen = 50
 
 # Read in balance file
-fPath = 'C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\AgilityPerformance\\BOA_Basketball_Mar2021\\ForceData\\'
+fPath = 'C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\AgilityPerformance\\BOA_overlappingPanels_Jan2021\\FPdata\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
+## need to be modified for each test!
+Shoe = 'Ubersonic 3'
+Brand = 'Adidas'
+Year = '2021'
+Month = 'January'
+##
 # list of functions 
 # finding landings on the force plate once the filtered force exceeds the force threshold
 def findLandings(force):
@@ -81,12 +87,19 @@ timingDiff = []
 subName = []
 config = []
 movements = []
+shoes = []
+months =[]
+years =[]
+brands =[]
+
 ## save configuration names from files
 for file in entries:
     try:
         fName = file #Load one file at a time
-        config1 = fName.split('_')[2].split(' - ')[0]
-        tmpMove = fName.split('_')[3].split(' - ')[0]
+        #config1 = fName.split('_')[2].split(' - ')[0]
+        #tmpMove = fName.split('_')[3].split(' - ')[0]
+        config1 = fName.split('_')[1].split(' - ')[0]
+        tmpMove = fName.split('_')[2].split(' - ')[0]
         
         dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
         #dat = dat.fillna(0)
@@ -94,7 +107,11 @@ for file in entries:
         if (tmpMove == 'Skater') or (tmpMove == 'skater'):
             dat = delimitTrialSkate(dat)
             # create vector of force from vertical signal from each file and make low values 0
-            totalForce = dat.FP3_RForceZ * -1
+            if np.max(dat.FP3_RForceZ) > 100:
+                totalForce = dat.FP3_RForceZ
+            else:
+                totalForce = dat.FP3_RForceZ * -1
+            
             totalForce[totalForce<fThresh] = 0
             XtotalForce = dat.FP3_ForceX
             YtotalForce = dat.FP3_RForceY
@@ -104,7 +121,7 @@ for file in entries:
             landings = findLandings(totalForce)
             takeoffs = findTakeoffs(totalForce)
         
-        elif tmpMove == 'CMJ':
+        elif (tmpMove == 'CMJ') or (tmpMove == 'cmj'):
             
             dat = delimitTrialCMJ(dat)
             
@@ -120,25 +137,29 @@ for file in entries:
             takeoffs = [x - 1 for x in takeoffs]
             
         else:
-            print('movement is not identified')
+            print('movement is not identified in file name correctly')
         
         
         for countVar, landing in enumerate(landings):
             try:
-                CT.append( takeoffs[countVar] - landing)
-                impulse.append( np.sum(YtotalForce[landing:takeoffs[countVar]]) )
-                RFDcon.append( np.min(np.diff(YtotalForce[landing:takeoffs[countVar]])) )
                 
+                RFDcon.append( np.min(np.diff(YtotalForce[landing:takeoffs[countVar]])) )
                 COPexcursion.append( np.max(COPy[landing:takeoffs[countVar]]) - COPy[landing] ) 
                 COPtraj.append( np.sum( abs(np.diff((COPy[landing:takeoffs[countVar]]))) ) )
-                
+                CT.append( takeoffs[countVar] - landing)
+                impulse.append( np.sum(YtotalForce[landing:takeoffs[countVar]]) )
+
                 indMaxCOP = np.argmax( COPy[landing:takeoffs[countVar]] ) 
                 indMaxFY = np.argmax( YtotalForce[landing:takeoffs[countVar]] )
                 timingDiff.append(indMaxCOP - indMaxFY)
                 
                 subName.append(fName.split('_')[0])
-                config.append( fName.split('_')[2] )
+                config.append( config1 )
                 movements.append( tmpMove )
+                shoes.append(Shoe)
+                months.append(Month)
+                years.append(Year)
+                brands.append(Brand)
                 
             except:
                 print(landing)
@@ -146,11 +167,13 @@ for file in entries:
         print(file)
 
 
-outcomes = pd.DataFrame({'Sub':list(subName), 'Config': list(config),'Movement':list(movements),
+outcomes = pd.DataFrame({'Sub':list(subName), 'Brand':list(brands),'Shoe':list(shoes),
+                         'Year':list(years), 'Month':list(months),'Config': list(config), 'Movement':list(movements),
                          'copExc': list(COPexcursion), 'timingDiff':list(timingDiff), 'CT':list(CT),
                          'impulse':list(impulse), 'RFD':list(RFDcon), 'COPtraj':list(COPtraj) })
 
-outcomes.to_csv("C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\AgilityPerformance/COPanalysis.csv")
+outcomes.to_csv("C:\\Users\\Daniel.Feeney\\Boa Technology Inc\\PFL - General\\BigData2021\\BigDataAgility_newMetrics.csv", mode ='a', header = False)
+
 
 
 

@@ -81,7 +81,7 @@ for file in entries:
         movement = fName.split("_")[1]
         
         # Filter force
-        forceZ = dat.FP4_ForceZ * -1
+        forceZ = dat.FP1_ForceZ2 * -1
         forceZ[forceZ<fThresh] = 0
         
         fig, ax = plt.subplots()
