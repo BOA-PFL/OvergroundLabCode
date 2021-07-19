@@ -2,7 +2,7 @@ clear
 clc
 
 addpath('C:\Users\kate.harrison\Documents\GitHub\AgilityAnalysis')
-input_dir = 'C:\Users\kate.harrison\Dropbox (Boa)\AgilityPerformance\BOA_mechanisticStudy\Adidas_Ubersonic_June2021\Forces\CMJ_Skater';
+input_dir = 'C:\Users\kate.harrison\Dropbox (Boa)\AgilityPerformance\BOA_LateralSupport_Jul21\DataWithMoments\CMJ_Skater';
 
 cd(input_dir)
 files = dir('*PerformanceTestData.txt');
@@ -177,7 +177,7 @@ for i = 1:NumbTrials
 end 
 
 Titles = {'SubjectName', 'Shoe', 'Movement', 'ContactTime', 'jumpHeight','VertImpulse', 'HorzImpulse', 'APImpulse', 'CT_VertNorm', 'CT_HorzNorm', 'FzPeak', 'FxPeak', 'FyPeak', 'FyPeakMin', 'peakRankleINV', 'peakRankleEV', 'peakRkneeABD', 'pRanklePower', 'pRkneePower', 'pRhipPower', 'pLanklePower', 'pLkneePower', 'pLhipPower', 'RanklePosWork', 'RankleNegWork', 'peakPFmoment', 'peakEVmoment'};
-data = [contact_time, jumpHeight, Vimpulse, Himpulse, APimpulse, CT_VertNorm, CT_HorzNorm, FzPeak, FxPeak, FyPeak, FyPeakMin, peakRightInversion, peakRightEversion, peakRightKneeAbduction, peakRightAnklePower, peakRightKneePower, peakRightHipPower, peakLeftAnklePower, peakLeftKneePower, peakLeftHipPower, RanklePosWork, RankleNegWork, peakPFmoment, peakEVmoment];
+data = [contact_time, jumpHeight, Vimpulse, Himpulse, APimpulse, CT_VertNorm, CT_HorzNorm, FzPeak, FxPeak, FyPeak, FyPeakMin, RightInversion, peakRightEversion, peakRightKneeAbduction, peakRightAnklePower, peakRightKneePower, peakRightHipPower, peakLeftAnklePower, peakLeftKneePower, peakLeftHipPower, RanklePosWork, RankleNegWork, peakPFmoment, peakEVmoment];
 data = num2cell(data);
 data = horzcat(Subject, Shoe, Movement, data);
 data = vertcat(Titles, data);
