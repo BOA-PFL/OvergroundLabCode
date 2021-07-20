@@ -11,16 +11,17 @@ import os
 
 # Define constants and options
 fThresh = 80 #below this value will be set to 0.
-stepLen = 200
+stepLen = 75
 
 # Read in balance file
 fPath = 'C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\Hike Work Research\\Work Pilot 2021\\SLL\\'
+fPath = 'C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\AgilityPerformance\\Altra_June2021\\Landings\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
-fName = entries[27] #Load one file at a time
-fName2 = entries[28]
-fName3 = entries[29]
+fName = entries[1] #Load one file at a time
+fName2 = entries[4]
+fName3 = entries[7]
 subName = fName.split('_')[0]
 
 # list of functions 
@@ -56,20 +57,20 @@ dat2 = pd.read_csv(fPath+fName2,sep='\t', skiprows = 8, header = 0)
 dat3 = pd.read_csv(fPath+fName3,sep='\t', skiprows = 8, header = 0) 
 
 # create vector of force from vertical signal from each file and make low values 0
-totalForce = dat.FP4_ForceZ * -1
+totalForce = dat.FP3_RForceZ * -1
 totalForce[totalForce<fThresh] = 0
-XtotalForce = dat.FP4_ForceX
-YtotalForce = dat.FP4_ForceY
+XtotalForce = dat.FP3_ForceX
+YtotalForce = dat.FP3_RForceY
 
-totalForce2 = dat2.FP4_ForceZ * -1
+totalForce2 = dat2.FP3_RForceZ * -1
 totalForce2[totalForce2<fThresh] = 0
-XtotalForce2 = dat2.FP4_ForceX
-YtotalForce2 = dat.FP4_ForceY
+XtotalForce2 = dat2.FP3_ForceX
+YtotalForce2 = dat.FP3_RForceY
 
-totalForce3 = dat3.FP4_ForceZ * -1
+totalForce3 = dat3.FP3_RForceZ * -1
 totalForce3[totalForce3<fThresh] = 0
-XtotalForce3 = dat3.FP4_ForceX
-YtotalForce3 = dat.FP4_ForceY
+XtotalForce3 = dat3.FP3_ForceX
+YtotalForce3 = dat.FP3_RForceY
 
 #find the landings from function above
 landings = findLandings(totalForce)
@@ -116,7 +117,7 @@ avgYF3 = np.mean(YforceOut3, axis = 0)
 sdYF3 = np.std(YforceOut3, axis = 0)
 
 #Plot force
-fig, (ax1, ax2, ax3) = plt.subplots(3)
+fig, (ax1, ax2, ax3) = plt.subplots(1,3)
 ax1.plot(x, avgF1, 'k', color='#ECEB1A', label = '{}'.format(config1))
 ax1.plot(x, avgF2, 'k', color='#00966C', label = '{}'.format(config2))
 ax1.plot(x, avgF3, 'k', color='#000000', label = '{}'.format(config3))

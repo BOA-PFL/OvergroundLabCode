@@ -15,7 +15,7 @@ fThresh = 100; #below this value will be set to 0.
 writeData = 0; #will write to spreadsheet if 1 entered
 
 # Read in balance file
-fPath = 'C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\Hike Work Research\\Work Pilot 2021\\SLL\\'
+fPath = 'C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\Hike Work Research\\Hike Pilot 2021\\SLL Landings\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
@@ -68,7 +68,7 @@ movements = []
 tmpConfig = []
 
 ## loop through the selected files
-for file in entries[54:60]:
+for file in entries[42:46]:
     try:
         
         fName = file #Load one file at a time
@@ -81,7 +81,7 @@ for file in entries[54:60]:
         movement = fName.split("_")[1]
         
         # Filter force
-        forceZ = dat.FP4_ForceZ * -1
+        forceZ = dat.FP1_ForceZ2 * -1
         forceZ[forceZ<fThresh] = 0
         
         fig, ax = plt.subplots()
@@ -119,7 +119,7 @@ for file in entries[54:60]:
 outcomes = pd.DataFrame({'Sub':list(sName), 'Config': list(tmpConfig),'Movement':list(movements),
                          'StabTime': list(stabilization), 'pkForce':list(pkForce)})
 
-outcomes.to_csv("C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\Hike Work Research\\Work Pilot 2021/SLLForces.csv",mode='a',header=False)
+#outcomes.to_csv("C:\\Users\\Daniel.Feeney\\Boa Technology Inc\\PFL - General\\HikePilot_2021\\Hike Pilot 2021\\SLLForces.csv",mode='a',header=False)
 
 # List comprehension is written below & probably faster but not necessary for this code #
 #        avgF2 = [movAvgForce(forceZ, landing, landing+100, 10) for landing in landings]
