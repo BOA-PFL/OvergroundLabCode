@@ -16,14 +16,15 @@ stepLen = 50
 
 # Read in balance file
 fPath = 'C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\AgilityPerformance\\BOA_overlappingPanels_Jan2021\\FPdata\\'
+fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL - General\\AgilityPerformanceData\\BOA_LiNing_July21\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
 ## need to be modified for each test!
-Shoe = 'Ubersonic 3'
-Brand = 'Adidas'
+Shoe = 'WoW'
+Brand = 'Li Ning'
 Year = '2021'
-Month = 'January'
+Month = 'July'
 ##
 # list of functions 
 # finding landings on the force plate once the filtered force exceeds the force threshold
@@ -59,7 +60,7 @@ def forceMatrix(inputForce, landings, noSteps, stepLength):
 def delimitTrialSkate(inputDF):
     # generic function to plot and start/end trial #
     fig, ax = plt.subplots()
-    ax.plot(inputDF.FP3_RForceZ, label = 'Total Force')
+    ax.plot(inputDF.FP4_Z, label = 'Total Force')
     fig.legend()
     pts = np.asarray(plt.ginput(2, timeout=-1))
     plt.close()
@@ -70,7 +71,7 @@ def delimitTrialSkate(inputDF):
 def delimitTrialCMJ(inputDF):
     # generic function to plot and start/end trial #
     fig, ax = plt.subplots()
-    ax.plot(inputDF.FP2_ForceZ2, label = 'Total Force')
+    ax.plot(inputDF.FP2_Z, label = 'Total Force')
     fig.legend()
     pts = np.asarray(plt.ginput(2, timeout=-1))
     plt.close()
@@ -98,8 +99,8 @@ for file in entries:
         fName = file #Load one file at a time
         #config1 = fName.split('_')[2].split(' - ')[0]
         #tmpMove = fName.split('_')[3].split(' - ')[0]
-        config1 = fName.split('_')[1].split(' - ')[0]
-        tmpMove = fName.split('_')[2].split(' - ')[0]
+        config1 = fName.split('_')[2].split(' - ')[0]
+        tmpMove = fName.split('_')[3].split(' - ')[0]
         
         dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
         #dat = dat.fillna(0)
@@ -107,15 +108,15 @@ for file in entries:
         if (tmpMove == 'Skater') or (tmpMove == 'skater'):
             dat = delimitTrialSkate(dat)
             # create vector of force from vertical signal from each file and make low values 0
-            if np.max(dat.FP3_RForceZ) > 100:
-                totalForce = dat.FP3_RForceZ
+            if np.max(dat.FP4_Z) > 100:
+                totalForce = dat.FP4_Z
             else:
-                totalForce = dat.FP3_RForceZ * -1
+                totalForce = dat.FP4_Z * -1
             
             totalForce[totalForce<fThresh] = 0
-            XtotalForce = dat.FP3_ForceX
-            YtotalForce = dat.FP3_RForceY
-            COPy = dat.FP3_COPy
+            XtotalForce = dat.FP4_X
+            YtotalForce = dat.FP4_Y
+            COPy = dat.FP4_COP_Y
             
             #find the landings from function above
             landings = findLandings(totalForce)
@@ -125,9 +126,9 @@ for file in entries:
             
             dat = delimitTrialCMJ(dat)
             
-            totalForce = dat.FP2_ForceZ2 * -1
+            totalForce = dat.FP2_Z * -1
             totalForce[totalForce<fThresh] = 0
-            COPy = dat.FP2_COPy2
+            COPy = dat.FP2_COP_Y
             YtotalForce = totalForce #This is out of convenience to calculate impulse below even though this is not the Y force
             
             landings = findLandings(totalForce)
@@ -172,7 +173,7 @@ outcomes = pd.DataFrame({'Sub':list(subName), 'Brand':list(brands),'Shoe':list(s
                          'copExc': list(COPexcursion), 'timingDiff':list(timingDiff), 'CT':list(CT),
                          'impulse':list(impulse), 'RFD':list(RFDcon), 'COPtraj':list(COPtraj) })
 
-outcomes.to_csv("C:\\Users\\Daniel.Feeney\\Boa Technology Inc\\PFL - General\\BigData2021\\BigDataAgility_newMetrics.csv", mode ='a', header = False)
+outcomes.to_csv("C:\\Users\\Daniel.Feeney\\Boa Technology Inc\\PFL - General\\BigData2021\\BigDataAgilityNew.csv", mode ='a', header = False)
 
 
 
