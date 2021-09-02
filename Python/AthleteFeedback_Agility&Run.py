@@ -47,6 +47,7 @@ LkneeAngleFrontal = []
 RankleAngleFrontal = []
 LankleAngleFrontal = []
 
+print('Open one of the agility data TTM exports for the subject')
 filename = askopenfilename()
 
 dat = pd.read_csv(filename, sep='\t', skiprows = 7, header = 0)
@@ -58,7 +59,8 @@ dat = pd.read_csv(filename, sep='\t', skiprows = 7, header = 0)
 forceTot = (dat.FP1_Z + dat.FP2_Z)*-1
 
 plt.plot(forceTot)
-print('Click a zero point/starting time point on the plot')
+print('--\nClick starting time point on the plot, followed by ending timepoint')
+
 minClick = plt.ginput(1)
 endClick = plt.ginput(1) # click AFTER last landing (i.e not while the force is 0) 
 plt.close()
@@ -248,6 +250,7 @@ abdSym = 1 - abs(peakRkneeAbd - peakLkneeAbd)/((peakRkneeAbd + peakLkneeAbd)/2)
 L_vlr = []
 R_vlr = []
 
+print('--\nOpen one file with TMM run data export for subject')
 filename = askopenfilename()
 
 rundat = pd.read_csv(filename, sep='\t', skiprows = 7, header = 0)
@@ -301,9 +304,9 @@ output_PageOne = pd.DataFrame([[peakLanklePower, peakRanklePower, anklePowerSym]
 
 output_PageTwo = pd.DataFrame([[peakLkneeAbd, peakRkneeAbd, abdSym], [peakLinv, peakRinv, invSym], [LeftVLR, RightVLR, VLRsym]], columns = ['Left', 'Right', 'Symmetery'], index = ['Knee Alignment', 'Ankle inversion', 'Impact'])
 
-print('Copy contactTime, jumpHeight and data from output_PageOne and output_PageTwo into feedback sheet')
+print('--\nCopy contactTime, jumpHeight and data from output_PageOne and output_PageTwo into feedback sheet')
 
-print(contactTime)
-print(jumpHeight)
+print('Contact Time:', contactTime)
+print('Jump Height:', jumpHeight)
 print(output_PageOne)
 print(output_PageTwo)
