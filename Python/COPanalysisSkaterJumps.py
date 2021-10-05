@@ -14,17 +14,16 @@ import os
 fThresh = 80 #below this value will be set to 0.
 stepLen = 50
 
-# Read in balance file
-fPath = 'C:\\Users\\Daniel.Feeney\\Dropbox (Boa)\\AgilityPerformance\\BOA_overlappingPanels_Jan2021\\FPdata\\'
-fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL - General\\AgilityPerformanceData\\BOA_LiNing_July21\\'
+# Read in folder with agility data
+fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL - General\\AgilityPerformanceData\\BOA_PairedGuide_August2021\\Overground\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
 ## need to be modified for each test!
-Shoe = 'WoW'
-Brand = 'Li Ning'
+Shoe = 'Ubersonic'
+Brand = 'Adidas'
 Year = '2021'
-Month = 'July'
+Month = 'August'
 ##
 # list of functions 
 # finding landings on the force plate once the filtered force exceeds the force threshold
