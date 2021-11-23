@@ -32,7 +32,7 @@ for fName in entries:
         subName = fName.split(sep = "_")[0]
         ConfigTmp = fName.split(sep="_")[2]
 
-        dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 'infer')
+        dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 18, header = 'infer')
 
         dat.columns = ['Time', 'RearHeel_Force', 'RearHeel_MaxP', 'RearHeel_MeanP', 'RearHeel_Pct', 
                        'RearMedial_Force', 'RearMedial_MaxP', 'RearMedial_MeanP', 'RearMedial_Pct',
