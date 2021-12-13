@@ -15,7 +15,7 @@ fThresh = 100; #below this value will be set to 0.
 writeData = 0; #will write to spreadsheet if 1 entered
 
 # Read in balance file
-fPath = 'C:/Users/Daniel.Feeney/Dropbox (Boa)/Hike Work Research/Data/BalanceMeasures/July2020/'
+fPath = 'C:/Users/kate.harrison/Boa Technology Inc/PFL - Documents/General/PowerPerformance/Ecco_Nov2021/KineticsKinematics/Balance/'
 entries = os.listdir(fPath)
 
 # list of functions 
@@ -78,50 +78,60 @@ def findStabilization(avgF, sdF):
     return stab[0]
 
 #Preallocation
-stabilization = []
-ankleWork = []
-kneeWork = []
-hipWork = []
+#stabilization = []
+sdFz = []
+#ankleWork = []
+#kneeWork = []
+#hipWork = []
 sName = []
 tmpConfig = []
 ## loop through the selected files
 for file in entries:
     try:
         
-        fName = file #Load one file at a time
+        #file = entries[0]
         
-        dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
+        dat = pd.read_csv(fPath+file,sep='\t', skiprows = 8, header = 0)
         #Parse file name into subject and configuration 
-        subName = fName.split(sep = "_")[0]
-        config = fName.split(sep = "_")[2]
+        subName = file.split(sep = "_")[0]
+        config = file.split(sep = "_")[1]
         
         # Filter force
-        forceZ = dat.FP3Z * -1
+        forceZ = (dat.FP3_Z + dat.FP4_Z + dat.FP2_Z + dat.FP1_Z) * -1
         forceZ[forceZ<fThresh] = 0
         #find the landings and offs of the FP as vectors
-        landings = findLandings(forceZ)
-        takeoffs = findTakeoffs(forceZ)
-            
+        # landings = findLandings(forceZ)
+        # takeoffs = findTakeoffs(forceZ)
+        # landings[:] = [x for x in landings if x < takeoffs[-1]]
+        # takeoffs[:] = [x for x in takeoffs if x > landings[0]]
         #For each landing, calculate rolling averages and time to stabilize
     
+        landings = [5, 10, 15, 20]
+        takeoffs = [10, 15, 20, 25]
         for landing in range(len(landings)):
             try:
-                sName.append(subName)
-                tmpConfig.append(config)
+                #landing = 0
                 avgF = movAvgForce(forceZ, landings[landing], takeoffs[landing], 10)
                 sdF = movSDForce(forceZ, landings[landing], takeoffs[landing], 10)
                 subBW = findBW(avgF)
-                stabilization.append(findStabilization(avgF, sdF))
-                ankleWork.append(sum(abs(dat.RAnklePower[landings[landing]:landings[landing] + stabilization[landing]])))
-                kneeWork.append(sum(abs(dat.RKneePower[landings[landing]:landings[landing] + stabilization[landing]])))
-                hipWork.append(sum(abs(dat.RHipPower[landings[landing]:landings[landing] + stabilization[landing]])))
+                
+                #stabilization.append(findStabilization(avgF, sdF))
+                sdFz.append(np.std(forceZ[landings[landing] +100 : landings[landing] +400]))
+                #ankleWork.append(sum(abs(dat.LeftAnklePower[landings[landing]:landings[landing] + stabilization[landing]])))
+                #kneeWork.append(sum(abs(dat.LeftKneePower[landings[landing]:landings[landing] + stabilization[landing]])))
+                #hipWork.append(sum(abs(dat.LeftHipPower[landings[landing]:landings[landing] + stabilization[landing]])))
+                
+                sName.append(subName)
+                tmpConfig.append(config)
+                
             except:
-                print(landing)
+                print(file, landing)
         
     except:
             print(file)
 
-outcomes = pd.DataFrame({'Sub':list(sName), 'Config': list(tmpConfig), 'StabTime': list(stabilization),
-                         'ankleWork': list(ankleWork), 'kneeWork': list(kneeWork),'hipWork': list(hipWork)})
+outcomes = pd.DataFrame({'Subject':list(sName), 'Config': list(tmpConfig), 'steadiness':list(sdFz)
+                         })
     
-    
+outFileName = fPath + 'CompiledBalanceData.csv'
+outcomes.to_csv(outFileName, index = False)
