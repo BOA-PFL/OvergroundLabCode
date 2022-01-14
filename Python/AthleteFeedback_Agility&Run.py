@@ -47,9 +47,10 @@ LkneeAngleFrontal = []
 RankleAngleFrontal = []
 LankleAngleFrontal = []
 
-print('Open one of the agility data TTM exports for the subject')
+print('Open one of the CMJ TTM .txt exports for the subject')
 filename = askopenfilename()
-
+##Example file 
+# C:/Users/kate.harrison/Boa Technology Inc/PFL - Documents/General/AgilityPerformanceData/2021 Tests/BOA_PairedGuide_August2021/Overground/Brendan Hoskens_PairedGuide_Paired_CMJ - PerformanceTestData.txt
 dat = pd.read_csv(filename, sep='\t', skiprows = 7, header = 0)
 
 
@@ -252,6 +253,9 @@ R_vlr = []
 
 print('--\nOpen one file with TMM run data export for subject')
 filename = askopenfilename()
+
+### Example File
+#C:/Users/kate.harrison/Boa Technology Inc/PFL - Documents/General/AgilityPerformanceData/2021 Tests/BOA_PairedGuide_August2021/TM/Brendan Hoskens_PairedGuide_Paired - Forces.txt
 
 rundat = pd.read_csv(filename, sep='\t', skiprows = 7, header = 0)
 
