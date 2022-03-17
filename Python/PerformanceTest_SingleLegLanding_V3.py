@@ -137,7 +137,7 @@ for fName in entries:
         tmpMove = fName.split(sep = "_")[3] 
         movement = tmpMove.split(sep= ' _ ')[0]
         # Filter force
-        forceZ = dat.FP1_GRF_Z * -1
+        forceZ = dat.FP1_GRF_Z 
         forceZ[forceZ<fThresh] = 0 
         
         ## find the landings and offs of the FP as vectors
