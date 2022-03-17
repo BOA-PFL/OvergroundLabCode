@@ -173,11 +173,11 @@ for fName in entries:
                
                 ###   ---- Pk Moments ---- ##
                 
-                LankleABDMom.append(max(dat.LAnkleMoment_Frontal[landing : landing + 200]))
-                LankleADDMom.append(min(dat.LAnkleMoment_Frontal[landing : landing + 200]))
+                LankleADDMom.append(max(dat.LAnkleMoment_Frontal[landing : landing + 200]))
+                LankleABDMom.append(min(dat.LAnkleMoment_Frontal[landing : landing + 200]))
                
-                LkneeADDMom.append(min(dat.LKneeMoment_Frontal[landing : landing + 200]))
-                LkneeABDMom.append(max(dat.LKneeMoment_Frontal[landing : landing + 200]))
+                LkneeABDMom.append(min(dat.LKneeMoment_Frontal[landing : landing + 200]))
+                LkneeADDMom.append(max(dat.LKneeMoment_Frontal[landing : landing + 200]))
                 
                
                
