@@ -134,7 +134,7 @@ for fName in entries:
         
         ##Parse file name into subject and configuration 
         config = fName.split(sep = "_")[2]
-        tmpMove = fName.split(sep = "_")[3] 
+        tmpMove = fName.split(sep = "_")[1] 
         movement = tmpMove.split(sep= ' _ ')[0]
         # Filter force
         forceZ = dat.FP1_GRF_Z 
