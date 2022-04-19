@@ -53,29 +53,6 @@ def findLandings(force, fThresh):
     return lic
 
 
-# def trimLandings(landings, takeoffs):
-    """
-    This function is used to trim falsely detected landings if the last
-    landing occured after the last takeoff
-    
-    Parameters
-    ----------
-    landings : Series
-        Indices of ground contact obtained from findLandings function
-    takeoffs: Series
-        Indices of takeoffs from findTakeoffs function
-
-    Returns
-    -------
-    trimTakeoffs : list
-        Indices of takeoffs excluding any potential takeoffs before 1st
-        landing
-    
-    """
-#     trimTakeoffs = landings
-#     if len(takeoffs) > len(landings) and takeoffs[0] > landings[0]:
-#         del(trimTakeoffs[0])
-#     return(trimTakeoffs)
 
 def findTakeoffs(force, fThresh):
     """
