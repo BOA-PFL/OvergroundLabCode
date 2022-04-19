@@ -20,25 +20,84 @@ entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
 
 # list of functions 
-# finding landings on the force plate once the filtered force exceeds the force threshold
-def findLandings(force):
-    lic = []
+def findLandings(force, fThresh):
+    """
+    This function finds the landings from force plate data
+    it uses a heuristic to determine landings from when the smoothed force is
+    0 and then breaches a threshold
+    
+    Parameters
+    ----------
+    force : Pandas Series
+        Vertical force from force plate.
+    fThresh: integer
+        Value force has to be greater than to count as a takeoff/landing
+
+    Returns
+    -------
+    lic : list
+        Indices of landings.
+
+    """
+    lic = [] 
+    
     for step in range(len(force)-1):
-        if force[step] == 0 and force[step + 1] >= fThresh:
-            lic.append(step)
+        if len(lic) == 0: 
+            
+            if force[step] == 0 and force[step + 1] >= fThresh and force [step + 10 ] > 300:
+                lic.append(step)
+    
+        else:
+        
+            if force[step] == 0 and force[step + 1] >= fThresh and step > lic[-1] + 300 and force [step + 10] > 300:
+                lic.append(step)
     return lic
 
-#Find takeoff from FP when force goes from above thresh to 0
-def findTakeoffs(force):
+
+
+def findTakeoffs(force, fThresh):
+    """
+    This function calculates the takeoffs using a heuristic 
+
+    Parameters
+    ----------
+    force : Pandas Series
+        vertical force from force plate.
+    
+    fThresh: integer
+        Value force has to be greater than to count as a takeoff/landing
+    Returns
+    -------
+    lto : list
+        indices of takeoffs obtained from force data. Takeoffs here mean
+        the moment a force signal was > a threshold and then goes to 0
+
+    """
     lto = []
     for step in range(len(force)-1):
-        if force[step] >= fThresh and force[step + 1] == 0:
+        if force[step] >= fThresh and force[step + 1] == 0 and force[step + 5] == 0 and force[step + 10] == 0:
             lto.append(step + 1)
     return lto
 
 
 
-def delimitTrialSkate(inputDF):
+def delimitTrialSkate(inputDF, zForce):
+    """
+     This function uses ginput to delimit the start and end of a trial
+    You will need to indicate on the plot when to start/end the trial. 
+    You must use tkinter or plotting outside the console to use this function
+    Parameters
+    ----------
+    inputDF : Pandas DataFrame
+        DF containing all desired output variables.
+    zForce : numpy array 
+        of force data from which we will subset the dataframe
+
+    Returns
+    -------
+    outputDat: dataframe subset to the beginning and end of jumps.
+
+    """
     # generic function to plot and start/end trial #
     fig, ax = plt.subplots()
     ax.plot(ZForce, label = 'Total Force')
@@ -50,6 +109,22 @@ def delimitTrialSkate(inputDF):
     return(outputDat)
 
 def delimitTrialCMJ(inputDF):
+    """
+     This function uses ginput to delimit the start and end of a trial
+    You will need to indicate on the plot when to start/end the trial. 
+    You must use tkinter or plotting outside the console to use this function
+    Parameters
+    ----------
+    inputDF : Pandas DataFrame
+        DF containing all desired output variables.
+    zForce : numpy array 
+        of force data from which we will subset the dataframe
+
+    Returns
+    -------
+    outputDat: dataframe subset to the beginning and end of jumps.
+
+    """
     # generic function to plot and start/end trial #
     fig, ax = plt.subplots()
     ax.plot(ZForce, label = 'Total Force')
