@@ -20,7 +20,7 @@ fThresh = 40; #below this value will be set to 0.
 writeData = 0; #will write to spreadsheet if 1 entered
 
 # Read in balance file
-fPath = 'C:/Users/bethany.kilpatrick/Boa Technology Inc/PFL - General/WorkWear_Performance/Elten_Jan2022/Overground_reexport/'
+fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\\WorkWear_Performance\\Elten_Jan2022\\Overground\\Export_V1_ Used for report\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
@@ -30,6 +30,20 @@ entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 # list of functions 
 # finding landings on the force plate once the filtered force exceeds the force threshold
 def findLandings(force):
+    """
+    
+    
+    Parameters
+    ----------
+    force : Pandas Series
+        Vertical force from force plate.
+
+    Returns
+    -------
+    lic : list
+        Indices of landings.
+
+    """
     lic = [] 
     
     for step in range(len(force)-1):
@@ -44,25 +58,45 @@ def findLandings(force):
                 lic.append(step)
     return lic
 
-# def findLandings(force):
-#     lic = []
-#     for step in range(len(force)-1):
-#         if force[step] == 0 and force[step + 1] >= fThresh:
-#             lic.append(step)
-#     return lic
-
-
-
-
-
 
 # def trimLandings(landings, takeoffs):
+    """
+    
+    Parameters
+    ----------
+    landings : Series
+        Indices of ground contact obtained from findLandings function
+    takeoffs: Series
+        Indices of takeoffs from findTakeoffs function
+
+    Returns
+    -------
+    trimTakeoffs : list
+        Indices of takeoffs excluding any potential takeoffs before 1st
+        landing
+    
+    """
 #     trimTakeoffs = landings
 #     if len(takeoffs) > len(landings) and takeoffs[0] > landings[0]:
 #         del(trimTakeoffs[0])
 #     return(trimTakeoffs)
 
 def findTakeoffs(force):
+    """
+    
+
+    Parameters
+    ----------
+    force : Pandas Series
+        vertical force from force plate.
+
+    Returns
+    -------
+    lto : list
+        indices of takeoffs obtained from force data. Takeoffs here mean
+        the moment a force signal was > a threshold and then goes to 0
+
+    """
     lto = []
     for step in range(len(force)-1):
         if force[step] >= fThresh and force[step + 1] == 0 and force[step + 5] == 0 and force[step + 10] == 0:
@@ -79,6 +113,24 @@ def findTakeoffs(force):
 
 #Moving average of length specified in function
 def movAvgForce(force, landing, takeoff, length):
+    """
+    Parameters
+    ----------
+    force : Pandas series
+        pandas series of force from force plate.
+    landing : List
+        list of landings calcualted from findLandings.
+    takeoff : List
+        list of takeoffs from findTakeoffs.
+    length : Integer
+        length of time in indices to calculate the moving average.
+
+    Returns
+    -------
+    avgF : list
+        smoothed average force .
+
+    """
     newForce = np.array(force)
     win_len = length; #window length for steady standing
     avgF = []
@@ -88,6 +140,24 @@ def movAvgForce(force, landing, takeoff, length):
 
 #moving SD as calcualted above
 def movSDForce(force, landing, takeoff, length):
+    """
+    Parameters
+    ----------
+    force : Pandas series
+        pandas series of force from force plate.
+    landing : List
+        list of landings calcualted from findLandings.
+    takeoff : List
+        list of takeoffs from findTakeoffs.
+    length : Integer
+        length of time in indices to calculate the moving average.
+
+    Returns
+    -------
+    avgF : list
+        smoothed rolling SD of forces
+
+    """
     newForce = np.array(force)
     win_len = length; #window length for steady standing
     avgF = []
@@ -97,10 +167,38 @@ def movSDForce(force, landing, takeoff, length):
 
 #estimated stability after 200 indices
 def findBW(force):
+    """
+    Parameters
+    ----------
+    force : Pandas series
+        DESCRIPTION.
+
+    Returns
+    -------
+    BW : floating point number
+        estimate of body weight of the subject to find stabilized weight
+        in Newtons
+
+    """
     BW = np.mean(avgF[100:200])
     return BW
 
 def findStabilization(avgF, sdF):
+    """
+    Parameters
+    ----------
+    avgF : list, calculated using movAvgForce 
+        rolling average of force.
+    sdF : list, calcualted using movSDForce above
+        rolling SD of force.
+
+    Returns
+    -------
+    floating point number
+        Time to stabilize using the heuristic: force is within +/- 5% of subject
+        mass and the rolling standrd deviation is below 20
+
+    """
     stab = []
     for step in range(len(avgF)-1):
         if avgF[step] >= (subBW - 0.05*subBW) and avgF[step] <= (subBW + 0.05*subBW) and sdF[step] < 20:
@@ -124,12 +222,14 @@ LankleADDMom = []
 LkneeABDMom = []
 LkneeADDMom = []
 
-## loop through the selected files
+
 for fName in entries:
     try:
-        
-        fName = entries [1] #Load one file at a time
-        
+        """
+        loop through the selected files and obtain values for stabilization time
+        Start by looping through files and getting meta data
+        Then loop through landings on the force plate for stabilization time
+        """
         dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
         
         ##Parse file name into subject and configuration 
@@ -137,7 +237,7 @@ for fName in entries:
         tmpMove = fName.split(sep = "_")[1] 
         movement = tmpMove.split(sep= ' _ ')[0]
         # Filter force
-        forceZ = dat.FP1_GRF_Z 
+        forceZ = dat.FP1_Z 
         forceZ[forceZ<fThresh] = 0 
         
         ## find the landings and offs of the FP as vectors
