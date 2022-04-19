@@ -29,14 +29,18 @@ entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
 # list of functions 
 # finding landings on the force plate once the filtered force exceeds the force threshold
-def findLandings(force):
+def findLandings(force, fThresh):
     """
-    
+    This function finds the landings from force plate data
+    it uses a heuristic to determine landings from when the smoothed force is
+    0 and then breaches a threshold
     
     Parameters
     ----------
     force : Pandas Series
         Vertical force from force plate.
+    fThresh: integer
+        Value force has to be greater than to count as a takeoff/landing
 
     Returns
     -------
@@ -61,6 +65,8 @@ def findLandings(force):
 
 # def trimLandings(landings, takeoffs):
     """
+    This function is used to trim falsely detected landings if the last
+    landing occured after the last takeoff
     
     Parameters
     ----------
@@ -81,15 +87,17 @@ def findLandings(force):
 #         del(trimTakeoffs[0])
 #     return(trimTakeoffs)
 
-def findTakeoffs(force):
+def findTakeoffs(force, fThresh):
     """
-    
+    This function calculates the takeoffs using a heuristic 
 
     Parameters
     ----------
     force : Pandas Series
         vertical force from force plate.
-
+    
+    fThresh: integer
+        Value force has to be greater than to count as a takeoff/landing
     Returns
     -------
     lto : list
@@ -114,6 +122,10 @@ def findTakeoffs(force):
 #Moving average of length specified in function
 def movAvgForce(force, landing, takeoff, length):
     """
+    In order to estimate when someone stabilized, we calcualted the moving
+    average force and SD of the force signal. This is one of many published 
+    methods to calcualte when someone is stationary. 
+    
     Parameters
     ----------
     force : Pandas series
@@ -141,6 +153,9 @@ def movAvgForce(force, landing, takeoff, length):
 #moving SD as calcualted above
 def movSDForce(force, landing, takeoff, length):
     """
+    This function calculates a rolling standard deviation over an input
+    window length
+    
     Parameters
     ----------
     force : Pandas series
@@ -168,6 +183,11 @@ def movSDForce(force, landing, takeoff, length):
 #estimated stability after 200 indices
 def findBW(force):
     """
+    If you do not have the subject's body weight or want to find from the 
+    steady portion of force, this may be used. This is highly conditional on 
+    the data and how it was collected. The below assumes quiet standing from
+    100 to 200 indices. 
+    
     Parameters
     ----------
     force : Pandas series
@@ -185,6 +205,9 @@ def findBW(force):
 
 def findStabilization(avgF, sdF):
     """
+    Using the rolling average and SD values, this calcualtes when the 
+    actual stabilized force occurs. 
+    
     Parameters
     ----------
     avgF : list, calculated using movAvgForce 
