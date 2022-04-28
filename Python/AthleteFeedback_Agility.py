@@ -17,8 +17,8 @@ fThresh = 40 #below this value will be set to 0.
 #stepLen = 45 #Set value to look forward 
 # list of functions 
 # finding landings on the force plate once the filtered force exceeds the force threshold
-def findLandings(force, fThresh):
-    """
+# def findLandings(force, fThresh):
+"""
     This function finds the landings from force plate data
     it uses a heuristic to determine landings from when the smoothed force is
     0 and then breaches a threshold
@@ -35,9 +35,10 @@ def findLandings(force, fThresh):
     lic : list
         Indices of landings.
 
-    """
+""" 
+def findLandings(force, fThresh):    
     lic = [] 
-    
+    fThresh = 40
     for step in range(len(force)-1):
         if len(lic) == 0: 
             
@@ -52,7 +53,7 @@ def findLandings(force, fThresh):
 
 
 
-def findTakeoffs(force, fThresh):
+# def findTakeoffs(force, fThresh):
     """
     This function calculates the takeoffs using a heuristic 
 
@@ -69,8 +70,10 @@ def findTakeoffs(force, fThresh):
         indices of takeoffs obtained from force data. Takeoffs here mean
         the moment a force signal was > a threshold and then goes to 0
 
-    """
-    lto = []
+    """ 
+def findTakeoffs(force, fThresh):    
+    lto = [] 
+    fThresh = 40
     for step in range(len(force)-1):
         if force[step] >= fThresh and force[step + 1] == 0 and force[step + 5] == 0 and force[step + 10] == 0:
             lto.append(step + 1)
@@ -85,9 +88,9 @@ LkneePower = []
 RhipPower = []
 LhipPower = []
 RkneeAngleFrontal = []
-#LkneeAngleFrontal = []
+LkneeAngleFrontal = []
 RankleAngleFrontal = []
-#LankleAngleFrontal = []
+LankleAngleFrontal = []
 
 filename = askopenfilename()
 
@@ -97,8 +100,9 @@ dat = pd.read_csv(filename, sep='\t', skiprows = 7, header = 0)
 ## Might add some filtering in here to smooth out curves.
 
 
-forceTot = (dat.FP1_Z + dat.FP2_Z)*-1
+forceTot = (dat.FP1_GRF_Z + dat.FP2_GRF_Z)*1
 
+#  Once the plot pops up, click a starting point and click an ending point
 plt.plot(forceTot)
 print('Click a zero point/starting time point on the plot')
 minClick = plt.ginput(1)
@@ -117,9 +121,9 @@ forceTot[forceTot<fThresh] = 0
         
     
 #find the landings and offs of the FP as vector
-landings = findLandings(forceTot)
+landings = findLandings(forceTot, fThresh)
 landings[:] = [x for x in landings if x > begin] # remove landings before the start point specified on graph
-takeoffs = findTakeoffs(forceTot)
+takeoffs = findTakeoffs(forceTot, fThresh)
 takeoffs[:] = [x for x in takeoffs if x > landings[0]] # remove takeoffs before first landing
 landings[:] = [x for x in landings if x < finish]
 
@@ -135,12 +139,12 @@ for i in range(len(landings)):
     LanklePower.append(dat.LeftAnklePower[landings[i]: landings[i] + stepLen])
     RkneePower.append(dat.RightKneePower[landings[i]: landings[i] + stepLen])
     LkneePower.append(dat.LeftKneePower[landings[i]: landings[i] + stepLen])
-    RhipPower.append(dat.RightHipPower[landings[i]: landings[i] + stepLen])
-    LhipPower.append(dat.LeftHipPower[landings[i]: landings[i] + stepLen])
-    RkneeAngleFrontal.append(dat.RightKneeAngleY[landings[i]: landings[i] + stepLen])
-    #LkneeAngleFrontal.append(dat.LeftKneeAngleY[landings[i]: landings[i] + stepLen])
-    RankleAngleFrontal.append(dat.RightAnkleAngle_Y[landings[i]: landings[i] + stepLen])
-    #LankleAngleFrontal.append(dat.LeftAnkleAngleY[landings[i]: landings[i] + stepLen])
+    RhipPower.append(dat.RHipPower[landings[i]: landings[i] + stepLen])
+    LhipPower.append(dat.LHipPower[landings[i]: landings[i] + stepLen])
+    RkneeAngleFrontal.append(dat.RKneeAngle_Frontal[landings[i]: landings[i] + stepLen])
+    LkneeAngleFrontal.append(dat.LKneeAngle_Frontal[landings[i]: landings[i] + stepLen])
+    RankleAngleFrontal.append(dat.RAnkleAngle_Frontal[landings[i]: landings[i] + stepLen])
+    LankleAngleFrontal.append(dat.LAnkleAngle_Frontal[landings[i]: landings[i] + stepLen])
     
 RanklePower = np.stack(RanklePower, axis = 0)  
 LanklePower = np.stack(LanklePower, axis = 0)
@@ -149,9 +153,9 @@ LkneePower = np.stack(LkneePower, axis = 0)
 RhipPower = np.stack(RhipPower, axis = 0)
 LhipPower = np.stack(LhipPower, axis = 0)
 RkneeAngleFrontal = np.stack(RkneeAngleFrontal, axis = 0)
-#LkneeAngleFrontal = np.stack(LkneeAngleFrontal, axis = 0)
+LkneeAngleFrontal = np.stack(LkneeAngleFrontal, axis = 0)
 RankleAngleFrontal = np.stack(RankleAngleFrontal, axis = 0)
-#LankleAngleFrontal = np.stack(LankleAngleFrontal, axis = 0)
+LankleAngleFrontal = np.stack(LankleAngleFrontal, axis = 0)
 
 RanklePowerMean = np.mean(RanklePower, axis = 0)
 LanklePowerMean = np.mean(LanklePower, axis = 0)
@@ -160,9 +164,9 @@ LkneePowerMean = np.mean(LkneePower, axis = 0)
 RhipPowerMean = np.mean(RhipPower, axis = 0)
 LhipPowerMean = np.mean(LhipPower, axis = 0)
 RkneeAngleFrontalMean = np.mean(RkneeAngleFrontal, axis = 0)
-#LkneeAngleFrontalMean = np.mean(LkneeAngleFrontal, axis = 0)
+LkneeAngleFrontalMean = np.mean(LkneeAngleFrontal, axis = 0)
 RankleAngleFrontalMean = np.mean(RankleAngleFrontal, axis = 0)
-#LankleAngleFrontalMean = np.mean(LankleAngleFrontal, axis = 0)
+LankleAngleFrontalMean = np.mean(LankleAngleFrontal, axis = 0)
 
     
 ## Plot Ankle Power
@@ -269,12 +273,12 @@ peakRhipPower = np.mean(np.nanmax(RhipPower, axis = 0))
 peakLhipPower = np.mean(np.nanmax(LhipPower, axis = 0))
 hipPowerSym = 1 - abs(peakRhipPower - peakLhipPower)/((peakRhipPower + peakLhipPower)/2)
 
-peakRinv = np.mean(np.nanmax(RankleAngleFrontal, axis = 0))
-#peakLinv = np.mean(np.nanmax(LankleAngleFrontal, axis = 0))
-#invSym = 1 - abs(peakRinv - peakLinv)/((peakRinv + peakLinv)/2)
+peakRAnkleinv = np.mean(np.nanmax(RankleAngleFrontal, axis = 0))
+peakLAnkleinv = np.mean(np.nanmax(LankleAngleFrontal, axis = 0))
+AnkleinvSym = 1 - abs(peakRinv - peakLinv)/((peakRinv + peakLinv)/2)
 
-peakRkneeAbd = np.mean(np.nanmax(RankleAngleFrontal, axis = 0)) ## Is this actually a max or min??
-#peakLkneeAbd = np.mean(np.nanmax(LankleAngleFrontal)), axis = 0)) ## Is this actually a max or min??
-#abdSym = 1 - abs(peakRabd - peakLabd)/((peakRabd + peakLabd)/2)
+peakRKneeAbd = np.mean(np.nanmax(RkneeAngleFrontal, axis = 0))
+peakLKneeAbd = np.mean(np.nanmax(LkneeAngleFrontal, axis = 0)) 
+abdSym =1 - abs(peakRKneeAbd - peakLKneeAbd)/((peakRKneeAbd + peakLKneeAbd)/2)
 
-output = pd.DataFrame([[peakLanklePower, peakRanklePower, anklePowerSym], [peakLkneePower, peakRkneePower, kneePowerSym],[peakLhipPower, peakRhipPower, hipPowerSym]], columns = ['Left', 'Right','Symmetry'], index = ['Ankle Power', 'Knee Power', 'Hip Power'])
+output = pd.DataFrame([[peakLanklePower, peakRanklePower, anklePowerSym], [peakLkneePower, peakRkneePower, kneePowerSym],[peakLhipPower, peakRhipPower, hipPowerSym],[peakRAnkleinv,peakLAnkleinv, AnkleinvSym ],[peakRKneeAbd, peakLKneeAbd,abdSym ]], columns = ['Left', 'Right','Symmetry'], index = ['Ankle Power', 'Knee Power', 'Hip Power','Ankle Abd Angle','Knee Abd Angle'])
