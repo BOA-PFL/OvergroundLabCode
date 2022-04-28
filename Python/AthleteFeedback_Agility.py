@@ -54,7 +54,7 @@ def findLandings(force, fThresh):
 
 
 # def findTakeoffs(force, fThresh):
-    """
+"""
     This function calculates the takeoffs using a heuristic 
 
     Parameters
@@ -70,7 +70,7 @@ def findLandings(force, fThresh):
         indices of takeoffs obtained from force data. Takeoffs here mean
         the moment a force signal was > a threshold and then goes to 0
 
-    """ 
+""" 
 def findTakeoffs(force, fThresh):    
     lto = [] 
     fThresh = 40
@@ -275,7 +275,7 @@ hipPowerSym = 1 - abs(peakRhipPower - peakLhipPower)/((peakRhipPower + peakLhipP
 
 peakRAnkleinv = np.mean(np.nanmax(RankleAngleFrontal, axis = 0))
 peakLAnkleinv = np.mean(np.nanmax(LankleAngleFrontal, axis = 0))
-AnkleinvSym = 1 - abs(peakRinv - peakLinv)/((peakRinv + peakLinv)/2)
+AnkleinvSym = 1 - abs(peakRAnkleinv - peakLAnkleinv)/((peakRAnkleinv + peakLAnkleinv)/2)
 
 peakRKneeAbd = np.mean(np.nanmax(RkneeAngleFrontal, axis = 0))
 peakLKneeAbd = np.mean(np.nanmax(LkneeAngleFrontal, axis = 0)) 
