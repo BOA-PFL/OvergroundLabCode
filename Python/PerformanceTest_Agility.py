@@ -230,25 +230,6 @@ for fName in entries:
         print(fName)
 
 
-## Plot Knee angle
-# plt.figure()
-
-# for i in range(len(landings)):
-#     plt.plot(RkneeAngleFrontal[i,:], 'b', linewidth = 0.1)
-    
-# plt.plot(RkneeAngleFrontalMean, 'b', linewidth = 3)
-
-       
-# # for i in range(len(landings)):
-# #     plt.plot(LkneeAngleFrontalPower[i,:], 'r', linewidth = 0.1)
-    
-# # plt.plot(LkneeAngleFrontalMean, 'r', linewidth = 3)
-    
-# plt.title('Frontal Plane Knee Angle (Blue = right, Red = Left)')
-# plt.xlabel('Ground contact time (ms)')
-# plt.ylabel('Angle (degrees)')
-
-
 
 
 
