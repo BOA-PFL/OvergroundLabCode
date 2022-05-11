@@ -208,19 +208,14 @@ LHipAngleFrontal_variation = []
 #Setting up plots 
 plt.figure(1) # Initializing plot
 cc = 1 # Initiate subject counter
+   
+
 
 ## save configuration names from files
 for ii, fName in enumerate(entries):
     try:
         
-        #fName = entries[2]
-         
-        # if ii > 0 and subName[ii] != subName[ii-1]:
-        #   cc = cc+1
-        #   plt.figure(cc)
-        
-     
-
+        #fName = entries[2] # Loading in one file at a time
         
         config1 = fName.split('_')[1]
         tmpMove = fName.split('_')[2].split(' ')[0]
@@ -251,8 +246,8 @@ for ii, fName in enumerate(entries):
             landings = findLandings(ZForce, fThresh)
             takeoffs = findTakeoffs(ZForce, fThresh)
         
-            # landings[:] = [x for x in landings if x < takeoffs[-1]]
-            # takeoffs[:] = [x for x in takeoffs if x > landings[0]] 
+            landings[:] = [x for x in landings if x < takeoffs[-1]]
+            takeoffs[:] = [x for x in takeoffs if x > landings[0]] 
 
         
         elif (tmpMove == 'CMJ') or (tmpMove == 'cmj'):
