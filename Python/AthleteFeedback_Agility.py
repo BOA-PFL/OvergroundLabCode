@@ -92,7 +92,7 @@ LkneeAngleFrontal = []
 RankleAngleFrontal = []
 LankleAngleFrontal = []
 
-filename = askopenfilename()
+filename = askopenfilename() # Open CMJ file
 
 dat = pd.read_csv(filename, sep='\t', skiprows = 7, header = 0)
 
@@ -231,10 +231,10 @@ for i in range(len(landings)):
 plt.plot(RankleAngleFrontalMean, 'b', linewidth = 3)
 
        
-# for i in range(len(landings)):
-#     plt.plot(LankleAngleFrontal[i,:], 'r', linewidth = 0.1)
+for i in range(len(landings)):
+    plt.plot(LankleAngleFrontal[i,:], 'r', linewidth = 0.1)
     
-# plt.plot(LankleAngleFrontalMean, 'r', linewidth = 3)
+plt.plot(LankleAngleFrontalMean, 'r', linewidth = 3)
     
 plt.title('Frontal Plane Ankle Angle (Blue = right, Red = Left)')
 plt.xlabel('Ground contact time (ms)')
@@ -249,10 +249,10 @@ for i in range(len(landings)):
 plt.plot(RkneeAngleFrontalMean, 'b', linewidth = 3)
 
        
-# for i in range(len(landings)):
-#     plt.plot(LkneeAngleFrontalPower[i,:], 'r', linewidth = 0.1)
+for i in range(len(landings)):
+    plt.plot(LkneeAngleFrontal[i,:], 'r', linewidth = 0.1)
     
-# plt.plot(LkneeAngleFrontalMean, 'r', linewidth = 3)
+plt.plot(LkneeAngleFrontalMean, 'r', linewidth = 3)
     
 plt.title('Frontal Plane Knee Angle (Blue = right, Red = Left)')
 plt.xlabel('Ground contact time (ms)')
@@ -279,6 +279,6 @@ AnkleinvSym = 1 - abs(peakRAnkleinv - peakLAnkleinv)/((peakRAnkleinv + peakLAnkl
 
 peakRKneeAbd = np.mean(np.nanmax(RkneeAngleFrontal, axis = 0))
 peakLKneeAbd = np.mean(np.nanmax(LkneeAngleFrontal, axis = 0)) 
-abdSym =1 - abs(peakRKneeAbd - peakLKneeAbd)/((peakRKneeAbd + peakLKneeAbd)/2)
+abdSym =  1 - abs(peakRKneeAbd - peakLKneeAbd)/((peakRKneeAbd + peakLKneeAbd)/2)
 
 output = pd.DataFrame([[peakLanklePower, peakRanklePower, anklePowerSym], [peakLkneePower, peakRkneePower, kneePowerSym],[peakLhipPower, peakRhipPower, hipPowerSym],[peakRAnkleinv,peakLAnkleinv, AnkleinvSym ],[peakRKneeAbd, peakLKneeAbd,abdSym ]], columns = ['Left', 'Right','Symmetry'], index = ['Ankle Power', 'Knee Power', 'Hip Power','Ankle Abd Angle','Knee Abd Angle'])
