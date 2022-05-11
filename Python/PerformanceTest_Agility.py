@@ -158,43 +158,58 @@ for fName in entries:
         if (tmpMove == 'Skater') or (tmpMove == 'skater'):
             
             # create vector of force from vertical signal from each file and make low values 0
-            if np.max(abs(dat.FP3_Z)) > np.max(abs(dat.FP4_Z)):
-                ZForce = dat.FP3_Z *-1
-                XForce = dat.FP3_Y
+            if np.max(abs(dat.FP3_GRF_Z)) > np.max(abs(dat.FP4_GRF_Z)):
+                ZForce = dat.FP3_GRF_Z*1
+                YForce = dat.FP3_GRF_Y
                 
             else:
-                ZForce = dat.FP4_Z * -1
-                XForce = dat.FP4_Y 
+                ZForce = dat.FP4_GRF_Z *1
+                YForce = dat.FP4_GRF_Y 
                 
-            if abs(np.min(XForce)) > abs(np.max(XForce)):
-                XForce = XForce * -1
-                         
+            if abs(np.min(YForce)) > abs(np.max(YForce)): 
+                
+                YForce = YForce * 1
+            ZForce = dat.FP4_GRF_Z *1  
             ZForce[ZForce<fThresh] = 0
             
-            dat = delimitTrialSkate(dat)
+            # dat = delimitTrialSkate(dat, ZForce)
             #find the landings from function above
-            landings = findLandings(ZForce)
-            takeoffs = findTakeoffs(ZForce)
+            landings = findLandings(ZForce, fThresh)
+            takeoffs = findTakeoffs(ZForce, fThresh)
+        
+            landings[:] = [x for x in landings if x < takeoffs[-1]]
+            takeoffs[:] = [x for x in takeoffs if x > landings[0]] 
+
         
         elif (tmpMove == 'CMJ') or (tmpMove == 'cmj'):
             
             
+            # dat = delimitTrialCMJ(dat)
             
-            ZForce = dat.FP2_Z * -1
+            ZForce = dat.FP2_GRF_Z *1 
             ZForce[ZForce<fThresh] = 0
             
-            XForce = ZForce #This is out of convenience to calculate impulse below even though this is not the Y force
+            YForce = ZForce  #This is out of convenience to calculate impulse below even though this is not the Y force
             
-            dat = delimitTrialCMJ(dat)
+            XForce = dat.FP2_GRF_X *1 
             
-            landings = findLandings(ZForce)
-            takeoffs = findTakeoffs(ZForce)
+            
+            landings = findLandings(ZForce, fThresh )
+            takeoffs = findTakeoffs(ZForce, fThresh)
+            
+            
+            # landings = trimLandings(landings, takeoffs)
+            # takeoffs = trimTakeoffs(landings, takeoffs)
             
             landings[:] = [x for x in landings if x < takeoffs[-1]]
-            takeoffs[:] = [x for x in takeoffs if x > landings[0]]
+            takeoffs[:] = [x for x in takeoffs if x > landings[0]] 
+             
             
+
+           
         else:
             print('this movement is not included in Performance Test Analysis')
+        
         
         
         for countVar, landing in enumerate(landings):
