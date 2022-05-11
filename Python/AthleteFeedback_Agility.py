@@ -97,7 +97,7 @@ filename = askopenfilename() # Open CMJ file
 dat = pd.read_csv(filename, sep='\t', skiprows = 7, header = 0)
 
 
-## Might add some filtering in here to smooth out curves.
+## Might add some filtering in here to smooth out curves. 
 
 
 forceTot = (dat.FP1_GRF_Z + dat.FP2_GRF_Z)*1
