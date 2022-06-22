@@ -14,12 +14,12 @@ import os
 fThresh = 80 #below this value will be set to 0.
 
 # Read in balance file
-fPath = 'C:/Users/kate.harrison/Boa Technology Inc/PFL - Documents/General/AgilityPerformanceData/BOA_DualPanel_Sept2021/Overground/'
+fPath = 'C:\\Users\\bethany.kilpatrick\\Boa Technology Inc\\PFL - General\\Testing Segments\\agilityPerformanceData\\CPDMech_PanelLength_June2022\\Overground\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
 
-# list of functions 
+
 def findLandings(force, fThresh):
     """
     This function finds the landings from force plate data
@@ -44,12 +44,12 @@ def findLandings(force, fThresh):
     for step in range(len(force)-1):
         if len(lic) == 0: 
             
-            if force[step] == 0 and force[step + 1] >= fThresh and force [step + 10 ] > 300:
+            if force[step] == 0 and force[step + 1] >= fThresh and force [step + 10 ] > 100:
                 lic.append(step)
     
         else:
         
-            if force[step] == 0 and force[step + 1] >= fThresh and step > lic[-1] + 300 and force [step + 10] > 300:
+            if force[step] == 0 and force[step + 1] >= fThresh and step > lic[-1] + 100 and force [step + 10] > 100:
                 lic.append(step)
     return lic
 
@@ -75,15 +75,15 @@ def findTakeoffs(force, fThresh):
     """
     lto = []
     for step in range(len(force)-1):
-        if force[step] >= fThresh and force[step + 1] == 0 and force[step + 5] == 0 and force[step + 10] == 0:
+        if force[step] >= fThresh and force[step + 1] == 0 :
             lto.append(step + 1)
-    return lto
+    return lto 
 
 
 
-def delimitTrialSkate(inputDF, zForce):
+def delimitTrialSkate(inputDF, ZForce):
     """
-     This function uses ginput to delimit the start and end of a trial
+      This function uses ginput to delimit the start and end of a trial
     You will need to indicate on the plot when to start/end the trial. 
     You must use tkinter or plotting outside the console to use this function
     Parameters
@@ -110,7 +110,7 @@ def delimitTrialSkate(inputDF, zForce):
 
 def delimitTrialCMJ(inputDF):
     """
-     This function uses ginput to delimit the start and end of a trial
+      This function uses ginput to delimit the start and end of a trial
     You will need to indicate on the plot when to start/end the trial. 
     You must use tkinter or plotting outside the console to use this function
     Parameters
@@ -123,6 +123,7 @@ def delimitTrialCMJ(inputDF):
     Returns
     -------
     outputDat: dataframe subset to the beginning and end of jumps.
+    
 
     """
     # generic function to plot and start/end trial #
@@ -147,10 +148,10 @@ movements = []
 for fName in entries:
     try:
         
-        #fName = entries[0]
+        # fName = entries[1]
         
-        config1 = fName.split('_')[2]
-        tmpMove = fName.split('_')[3].split(' ')[0]
+        config1 = fName.split('_')[1]
+        tmpMove = fName.split('_')[2].split(' ')[0]
         
         dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
         #dat = dat.fillna(0)
@@ -168,7 +169,7 @@ for fName in entries:
                 
             if abs(np.min(YForce)) > abs(np.max(YForce)): 
                 
-                YForce = YForce * 1
+             YForce = YForce * 1
             ZForce = dat.FP4_GRF_Z *1  
             ZForce[ZForce<fThresh] = 0
             
@@ -184,14 +185,15 @@ for fName in entries:
         elif (tmpMove == 'CMJ') or (tmpMove == 'cmj'):
             
             
-            # dat = delimitTrialCMJ(dat)
-            
+          
             ZForce = dat.FP2_GRF_Z *1 
             ZForce[ZForce<fThresh] = 0
             
             YForce = ZForce  #This is out of convenience to calculate impulse below even though this is not the Y force
             
             XForce = dat.FP2_GRF_X *1 
+            
+            # dat = delimitTrialCMJ(dat)
             
             
             landings = findLandings(ZForce, fThresh )
@@ -234,12 +236,13 @@ for fName in entries:
 
 
 outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movement':list(movements),
-                         'CT':list(CT), 'impulse':list(impulse) })
+                          'CT':list(CT), 'impulse':list(impulse) })
 
 outfileName = fPath + 'CompiledAgilityData.csv'
 outcomes.to_csv(outfileName, index = False)
 
 
 
+# outcomes.to_csv("C:\\Users\\bethany.kilpatrick\\Boa Technology Inc\\PFL - General\\Testing Segments\\agilityPerformanceData\\CPDMech_PanelLength_June2022\\Overground\\CompiledAgilityData.csv", mode ='a', header = True)
 
 
