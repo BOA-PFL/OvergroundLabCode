@@ -5,18 +5,22 @@ Created on Fri Apr 29 14:17:19 2022
 @author: Bethany.Kilpatrick
 """
 
+### This code only looks at CMJ ###
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import scipy.signal as sig
 import seaborn as sns 
+from scipy.signal import find_peaks_cwt 
+
 
 # Define constants and options
 fThresh = 40 #below this value will be set to 0.
 
 # Read in balance file
-fPath = 'C:/Users/bethany.kilpatrick/Boa Technology Inc/PFL - General/Testing Segments/AgilityPerformanceData/DialLocation_CPDMech_April2022 (NOBULL)/Overground/'
+fPath = "C:\\Users\\bethany.kilpatrick\\Boa Technology Inc\\PFL - General\\Testing Segments\\agilityPerformanceData\\CPDMech_PanelLength_June2022\\Overground\\"
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
@@ -143,33 +147,6 @@ def delimitTrialSkate(inputDF, ZForce):
     outputDat = outputDat.reset_index()
     return(outputDat)
 
-# def delimitTrialCMJ(inputDF):
-#     """
-#      This function uses ginput to delimit the start and end of a trial
-#     You will need to indicate on the plot when to start/end the trial. 
-#     You must use tkinter or plotting outside the console to use this function
-#     Parameters
-#     ----------
-#     inputDF : Pandas DataFrame
-#         DF containing all desired output variables.
-#     zForce : numpy array 
-#         of force data from which we will subset the dataframe
-
-#     Returns
-#     -------
-#     outputDat: dataframe subset to the beginning and end of jumps.
-
-#     """
-#     # generic function to plot and start/end trial #
-#     fig, ax = plt.subplots()
-#     ax.plot(ZForce, label = 'Total Force')
-#     fig.legend()
-#     pts = np.asarray(plt.ginput(2, timeout=-1))
-#     plt.close()
-#     outputDat = dat.iloc[int(np.floor(pts[0,0])) : int(np.floor(pts[1,0])),:]
-#     outputDat = outputDat.reset_index()
-#     return(outputDat)
-
 
 # Setting up variable arrays
 ct = []
@@ -179,31 +156,70 @@ subName = []
 config = []
 movements = []
 
-PkLankleABDMom = []
-PkLankleADDMom = [] 
-LAnkleMomentFrontal_variation = [] 
+PkRankleABDMom = []
+PkRankleADDMom = [] 
+RAnkleMomentFrontal_excursion = [] 
 
-PkLankleABDAngle = [] 
-PkLankleADDAngle = [] 
-LAnkleAngleFrontal_variation = []
+PkRankleABDAngle = [] 
+PkRankleADDAngle = [] 
+RAnkleAngleFrontal_excursion = []
 
+PkRankSagAng =[]
+RAnkSagAng_IC = []
+RAnkleAngleSagittal_excursion = []
 
-PkLkneeABDAng = [] 
-PkLkneeADDAng = [] 
-LkneeAngleFrontal_variation = []
+RAnkSagMome_IC = [] 
+PkAnkSagMom =[] 
+RAnkMomentSagittal_excursion = []
 
-
-PkLkneeABDMom = []
-PkLkneeADDMom = [] 
-LKneeMomentFrontal_variation = []
-
-PkLHipABDAng = [] 
-PkLHipADDAng = [] 
-LHipAngleFrontal_variation = [] 
+PkRkneeABDAng = [] 
+PkRkneeADDAng = [] 
 
 
+PkRkneeSagAng = []
+RKneeSagAng_IC = [] 
 
 
+RKneeSagMome_IC = []
+PkRkneeSagMom =[]
+RKneeMomentSagittal_excursion = []
+
+
+PkRkneeABDMom = []
+PkRkneeADDMom = [] 
+RKneeMomentFrontal_excursion = []
+
+RKneeFrontMome_IC =[] 
+RKneeFrontAng_IC = []
+
+RAnkFrontMome_IC =[] 
+RAnkFrontAng_IC = []
+
+PkAnkPwr = []
+
+PosAnkWork = [] 
+NegAnkWork = []
+
+# PkRkneeADDMom_Mean = []
+# PkRkneeADDMom_SD = [] 
+
+# RAnkleFrontMom_Mean = [] 
+# RRAnkleFrontMom_SD = []
+
+
+# RKneeFrontMom_Mean = [] 
+# RKneeFrontMom_SD = []
+
+
+# PkRAnkADDMom_Mean = [] 
+# PkRAnkADDMom_SD = [] 
+
+# x =[]
+RKMF =[]
+idx =[] 
+
+RKMF_Max = []
+PkAnkPwr = []
 
 #Setting up plots 
 plt.figure(1) # Initializing plot
@@ -214,15 +230,14 @@ cc = 1 # Initiate subject counter
 ## save configuration names from files
 for ii, fName in enumerate(entries):
     try:
+              
         
-        #fName = entries[2] # Loading in one file at a time
-        
+        fName = entries [1]
         config1 = fName.split('_')[1]
         tmpMove = fName.split('_')[2].split(' ')[0]
         
         dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
-        #dat = dat.fillna(0)
-        around_contact = np.argmax(dat.FP1_GRF_Z)
+
 
         if (tmpMove == 'Skater') or (tmpMove == 'skater'):
             
@@ -241,7 +256,7 @@ for ii, fName in enumerate(entries):
             ZForce = dat.FP4_GRF_Z *1  
             ZForce[ZForce<fThresh] = 0
             
-            # dat = delimitTrialSkate(dat, ZForce)
+            dat = delimitTrialSkate(dat, ZForce)
             #find the landings from function above
             landings = findLandings(ZForce, fThresh)
             takeoffs = findTakeoffs(ZForce, fThresh)
@@ -249,8 +264,15 @@ for ii, fName in enumerate(entries):
             landings[:] = [x for x in landings if x < takeoffs[-1]]
             takeoffs[:] = [x for x in takeoffs if x > landings[0]] 
 
+
+        # fName = entries[1] # Loading in one file at a time
         
-        elif (tmpMove == 'CMJ') or (tmpMove == 'cmj'):
+        # config1 = fName.split('_')[1]
+        # tmpMove = fName.split('_')[2].split(' ')[0]
+        
+        # dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
+        
+        if (tmpMove == 'CMJ') or (tmpMove == 'cmj'):
             
             
             # dat = delimitTrialCMJ(dat)
@@ -267,8 +289,6 @@ for ii, fName in enumerate(entries):
             takeoffs = findTakeoffs(ZForce, fThresh)
             
             
-            # landings = trimLandings(landings, takeoffs)
-            # takeoffs = trimTakeoffs(landings, takeoffs)
             
             landings[:] = [x for x in landings if x < takeoffs[-1]]
             takeoffs[:] = [x for x in takeoffs if x > landings[0]] 
@@ -291,36 +311,100 @@ for ii, fName in enumerate(entries):
                 config.append( config1 )
                 movements.append( tmpMove )
                 
-               #Peak L Ankle Angles 
-                PkLankleABDAngle.append( min(dat.LAnkleAngle_Frontal[landing  : landing + 300]))
-                PkLankleADDAngle.append( max(dat.LAnkleAngle_Frontal[landing : landing + 300]))
+               #Peak R Ankle Angles at landing
+                PkRankleABDAngle.append( min( dat.RAnkleAngle_Frontal[landing:takeoffs[countVar]]))
+                PkRankleADDAngle.append( max( dat.RAnkleAngle_Frontal[landing:takeoffs[countVar]])) 
+                PkRankSagAng.append( max( dat.RAnkleAngle_Sagittal[landing:takeoffs[countVar]])) 
                 
-               #Peak L Ankle Moments
-                PkLankleABDMom.append( min(dat.LAnkleMoment_Frontal[landing  : landing + 300]))
-                PkLankleADDMom.append( max(dat.LAnkleMoment_Frontal[landing : landing + 300]))
+               #Peak R Ankle Mom  at landing
+                PkRankleABDMom.append( min( dat.RAnkleMoment_Frontal[landing:takeoffs[countVar]]))
+                PkRankleADDMom.append( max( dat.RAnkleMoment_Frontal[landing : takeoffs[countVar]]))
+                PkAnkSagMom.append( max( dat.RAnkleMoment_Sagittal[landing: takeoffs[countVar]]))
+                
+                #Peak R Knee Angles at landing
+                PkRkneeABDAng.append( max( dat.RKneeAngle_Frontal[landing : takeoffs[countVar]]))
+                PkRkneeADDAng.append( min( dat.RKneeAngle_Frontal[landing  : takeoffs[countVar]]))
+                PkRkneeSagAng.append( max( dat.RKneeAngle_Sagittal[landing : takeoffs[countVar]]))
+                
+                
+                #Peak R Knee Moments at landing
+                PkRkneeADDMom.append( max( dat.RKneeMoment_Frontal[landing:takeoffs[countVar]]))
+                PkRkneeABDMom.append( min( dat.RKneeMoment_Frontal[landing  : takeoffs[countVar]]))
+                PkRkneeSagMom.append( max( dat.RKneeMoment_Sagittal[landing  : takeoffs[countVar]]))
+               
+               
+              #Peak Power @ ankle
+                PkAnkPwr.append( max( dat.RightAnklePower[landing  : takeoffs[countVar]]))
+               
+                 
+               #Work -  Pos and Neg @ ankle             
+                PosAnkWork.append(sum(dat.RightAnklePower[landing  : takeoffs[countVar]] > 0)/200)
+                NegAnkWork.append(sum(dat.RightAnklePower[landing  : takeoffs[countVar]] < 0)/200)
+              
+               # ---  Knee and ankle moments and angles at initial contact (IC) 
+               # Knee Frontal mom and angs
+                RKneeFrontMome_IC.append(dat.RKneeMoment_Frontal[landings[countVar]])
+                RKneeFrontAng_IC.append( dat.RKneeAngle_Frontal[landings[countVar]]) 
+             
+                # Knee sagittal moment and angs
+                RKneeSagAng_IC.append(dat.RKneeAngle_Sagittal[landings[countVar]])
+                RKneeSagMome_IC.append(dat.RKneeMoment_Sagittal[landings[countVar]])
+                
+                #Ankle moments and angles at IC  
+                RAnkFrontMome_IC.append(dat.RAnkleMoment_Frontal[landings[countVar]]) 
+                RAnkFrontAng_IC.append(dat.RAnkleAngle_Frontal[landings[countVar]])
+                # Sagittal
+                RAnkSagAng_IC.append(dat.RAnkleAngle_Sagittal[landings[countVar]])
+                RAnkSagMome_IC.append(dat.RAnkleMoment_Sagittal[landings[countVar]])
+
+
+                
+                
+                # --- Excursion of knee Frontal and sagittal plane Moments and angles  
+                   # Defining excursion as Pk knee sag angle minus angle at IC (Perraton et al.,2019 ) 
+                   
+                RKneeMomentFrontal_excursion = np.array(PkRkneeABDMom) - np.array(RKneeFrontMome_IC)  
+                RKneeADDAngleFrontal_excursion = np.array(PkRkneeADDAng) - np.array(RKneeFrontAng_IC)
+               
+                RKneeAngleSagittal_excursion =  np.array(PkRkneeSagAng) - np.array(RKneeSagAng_IC) 
+                RKneeMomentSagittal_excursion = np.array(PkRkneeSagMom) - np.array (RKneeSagMome_IC)
+               
+                # Excursion of Ankle moments and angles
+                RAnkleMomentFrontal_excursion =  np.array(PkRankleADDMom) - np.array(RAnkFrontMome_IC)
+                RAnkleAngleFrontal_excursion = np.array(PkRankleADDAngle) - np.array(RAnkFrontAng_IC)
+               
+                RAnkleAngleSagittal_excursion = np.array(PkRankSagAng) - np.array(RAnkSagAng_IC)
+                RAnkMomentSagittal_excursion = np.array(PkAnkSagMom) - np.array(RAnkSagMome_IC)
                
                 
-                #Peak L Knee Angles
-                PkLkneeABDAng.append(max(dat.LKneeAngle_Frontal[landing : landing + 300]))
-                PkLkneeADDAng.append(min(dat.LKneeAngle_Frontal[landing : landing + 300]))
+               ### Turning an arrays to a lists #---- 
+                RKneeMomentFrontal_excursion = RKneeMomentFrontal_excursion.tolist()
+                RKneeADDAngleFrontal_excursion = RKneeADDAngleFrontal_excursion.tolist() 
+               
                 
-                #Peak L Knee Moments
-                PkLkneeADDMom.append(max(dat.LKneeMoment_Frontal[landing : landing + 300]))
-                PkLkneeABDMom.append(min(dat.LKneeMoment_Frontal[landing : landing + 300]))
+                RKneeAngleSagittal_excursion = RKneeAngleSagittal_excursion.tolist()
+                RKneeMomentSagittal_excursion = RKneeMomentSagittal_excursion.tolist()
                 
                 
-                #Variation of knee Frontal Moments and angles 
-                LKneeMomentFrontal_variation =  (np.array(PkLkneeADDMom) - np.array(PkLankleABDMom))
-                LKneeAngleFrontal_variation = (np.array(PkLkneeABDAng) - np.array(PkLkneeADDAng))  
+                RAnkleMomentFrontal_excursion = RAnkleMomentFrontal_excursion.tolist()
+                RAnkleAngleFrontal_excursion = RAnkleAngleFrontal_excursion.tolist() 
+     
+                
+                RAnkleAngleSagittal_excursion = RAnkleAngleSagittal_excursion.tolist()
+                RAnkMomentSagittal_excursion = RAnkMomentSagittal_excursion.tolist()
+                
+                
+                # # Findinding meand and SDs for plots
+                # RKneeFrontMom_Mean = np.mean(dat.RKneeMoment_Frontal[landing - 20 :landing + 75]) 
+                # RKneeFrontMom_SD = np.std(dat.RKneeMoment_Frontal[landing - 20 :landing + 75]) 
+                
+
                  
-                
-                # Variation of L Ankle moments and angles
-                LAnkleMomentFrontal_variation =  (np.array(PkLankleADDMom) - np.array(PkLankleABDMom))
-                LAnkleAngleFrontal_variation = (np.array(PkLankleABDAngle) - np.array(PkLankleADDAngle))
-                 
-                
-                
-                
+                RKMF =  (dat.RKneeMoment_Frontal[landing - 20 :landing + 75])
+        
+                idx = np.argmax(dat.RKneeMoment_Frontal)
+        
+        
             except:
                 print(fName, landing) 
              
@@ -331,11 +415,21 @@ for ii, fName in enumerate(entries):
                   cc = cc+1
                   plt.figure(cc)
         
-        # L Knee Moment Plot
-        plt.plot(range(len(dat.FP1_GRF_Z[landing - 50 :landing + 50])), dat.LKneeAngle_Frontal[landing - 50 :landing + 50]) 
+        # R Knee Moment Plot
+        plt.plot(range(len(dat.FP2_GRF_Z[landing - 20 :landing + 75])), dat.RKneeMoment_Frontal[landing - 20 :landing + 75]) # marker="o", ms = 3) 
         plt.title('Frontal Plane Knee Moment at Landing ')
-        plt.xlabel('Ground contact time (ms)')
         plt.ylabel('Moment (Nm)')
+        plt.xlabel('Ground contact time (ms)')
+        # plt.ylabel('Moment (Nm)')
+        
+        
+        
+        # fig, ax1 = plt.subplots() 
+        # ax1.plot( RKMF, color = 'red')
+        # ax1.plot(idx,RKMF[idx], 'x') 
+        # ax1.set_xlabel('Ground contact time (ms)')
+        # ax1.set_ylabel('Moment (Nm)', color = 'Green')  
+        
         
         # GRF Plot
         # plt.plot(range(len(dat.FP1_GRF_Z[around_contact-50:around_contact+50])),dat.FP1_GRF_Z[around_contact-50:around_contact+50]) 
@@ -346,14 +440,27 @@ for ii, fName in enumerate(entries):
         print(fName)
 
 
-outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movement':list(movements),
-                         'CT':list(ct), 'impulse':list(impulse) })
+# fig = plt.figure(cc)
 
-outfileName = fPath + 'CompiledAgilityData.csv'
-outcomes.to_csv(outfileName, index = False)
+# fig, axs = plt.subplots(2, 3) 
+
+# axs[0,0].plot(x, dat.RKneeMoment_Frontal[landing - 20 :landing + 75],'k', color='#CC4F1B')
+# axs[0,0].set_title('RKneeFrontMom') 
+# axs[0,0].fill_between(x, RKneeFrontMom_Mean-RKneeFrontMom_SD, RKneeFrontMom_Mean+RKneeFrontMom_SD,
+#     alpha=0.5, edgecolor='#CC4F1B', facecolor='#FF9848') 
+
+# plt.show() 
+# plt.tight_layout() 
 
 
-outcomes.to_csv("C:/Users/bethany.kilpatrick/Boa Technology Inc/PFL - General/WorkWear_Performance/Elten_Jan2022/Overground/CompiledOvergroundData.csv"
-                      ,mode='a',header=True) 
+
+# outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movement':list(movements),
+#                           'PK_R_ABD_KneeMome':list(PkRkneeABDMom), 'PkRkneeADDAng':list(PkRkneeADDAng), 'RAnkAngFront_Excursion':list( RAnkleAngleFrontal_excursion), '':list(RKneeAngleFrontal_excursion),
+#                           'PosAnkWork':list(PosAnkWork)
+#                           })
+
+# outfileName = fPath + 'CompiledAgilityData.csv'
+# outcomes.to_csv(outfileName, index = False)
+
 
 
