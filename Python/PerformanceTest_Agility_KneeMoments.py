@@ -47,16 +47,24 @@ def findLandings(force, fThresh):
     """
     lic = [] 
     
-    for step in range(len(force)-1):
-        if len(lic) == 0: 
+    # for step in range(len(force)-1):
+    #     if len(lic) == 0: 
             
-            if force[step] == 0 and force[step + 1] >= fThresh and force [step + 10 ] > 100:
+    #         if force[step] == 0 and force[step + 1] >= fThresh and force [step + 10 ] > 100:
+    #             lic.append(step)
+    
+    #     else:
+        
+    #         if force[step] == 0 and force[step + 1] >= fThresh and step > lic[-1] + 100 and force [step + 10] > 100:
+    #             lic.append(step)
+    # return lic
+    for step in range(len(force)-1):
+    
+            
+            if force[step] == 0 and force[step + 1] >= fThresh :
                 lic.append(step)
     
-        else:
         
-            if force[step] == 0 and force[step + 1] >= fThresh and step > lic[-1] + 100 and force [step + 10] > 100:
-                lic.append(step)
     return lic
 
 
@@ -80,11 +88,15 @@ def findTakeoffs(force, fThresh):
 
     """
     lto = []
+    # for step in range(len(force)-1):
+    #     if force[step] >= fThresh and force[step + 1] == 0 and force[step + 5] == 0 and force[step + 10] == 0:
+    #         lto.append(step + 1)
+    # return lto 
+
     for step in range(len(force)-1):
-        if force[step] >= fThresh and force[step + 1] == 0 and force[step + 5] == 0 and force[step + 10] == 0:
+        if force[step] >= fThresh and force[step + 1] == 0 :
             lto.append(step + 1)
     return lto 
-
 
 
 def trimLandings(landings, takeoffs):
@@ -164,12 +176,12 @@ PkRankleABDAngle = []
 PkRankleADDAngle = [] 
 RAnkleAngleFrontal_excursion = []
 
-PkRankSagAng =[]
+PkRankPlantartAng =[]
 RAnkSagAng_IC = []
 RAnkleAngleSagittal_excursion = []
 
 RAnkSagMome_IC = [] 
-PkAnkSagMom =[] 
+PkAnkPlantMom =[] 
 RAnkMomentSagittal_excursion = []
 
 PkRkneeABDAng = [] 
@@ -200,25 +212,6 @@ PkAnkPwr = []
 PosAnkWork = [] 
 NegAnkWork = []
 
-# PkRkneeADDMom_Mean = []
-# PkRkneeADDMom_SD = [] 
-
-# RAnkleFrontMom_Mean = [] 
-# RRAnkleFrontMom_SD = []
-
-
-# RKneeFrontMom_Mean = [] 
-# RKneeFrontMom_SD = []
-
-
-# PkRAnkADDMom_Mean = [] 
-# PkRAnkADDMom_SD = [] 
-
-# x =[]
-RKMF =[]
-idx =[] 
-
-RKMF_Max = []
 PkAnkPwr = []
 
 #Setting up plots 
@@ -264,13 +257,6 @@ for ii, fName in enumerate(entries):
             landings[:] = [x for x in landings if x < takeoffs[-1]]
             takeoffs[:] = [x for x in takeoffs if x > landings[0]] 
 
-
-        # fName = entries[1] # Loading in one file at a time
-        
-        # config1 = fName.split('_')[1]
-        # tmpMove = fName.split('_')[2].split(' ')[0]
-        
-        # dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
         
         if (tmpMove == 'CMJ') or (tmpMove == 'cmj'):
             
@@ -304,8 +290,8 @@ for ii, fName in enumerate(entries):
             try:
                 
                 
-                ct.append(takeoffs[countVar] - landing)
-                impulse.append(np.sum(YForce[landing:takeoffs[countVar]]) )
+                ct.append((takeoffs[countVar] - landing)/200)
+                impulse.append(np.sum(YForce[landing:takeoffs[countVar]])/200 )
 
                 subName.append(fName.split('_')[0])
                 config.append( config1 )
@@ -314,12 +300,12 @@ for ii, fName in enumerate(entries):
                #Peak R Ankle Angles at landing
                 PkRankleABDAngle.append( min( dat.RAnkleAngle_Frontal[landing:takeoffs[countVar]]))
                 PkRankleADDAngle.append( max( dat.RAnkleAngle_Frontal[landing:takeoffs[countVar]])) 
-                PkRankSagAng.append( max( dat.RAnkleAngle_Sagittal[landing:takeoffs[countVar]])) 
+                PkRankPlantartAng.append( min( dat.RAnkleAngle_Sagittal[landing:takeoffs[countVar]])) 
                 
                #Peak R Ankle Mom  at landing
                 PkRankleABDMom.append( min( dat.RAnkleMoment_Frontal[landing:takeoffs[countVar]]))
                 PkRankleADDMom.append( max( dat.RAnkleMoment_Frontal[landing : takeoffs[countVar]]))
-                PkAnkSagMom.append( max( dat.RAnkleMoment_Sagittal[landing: takeoffs[countVar]]))
+                PkAnkPlantMom.append( max( dat.RAnkleMoment_Sagittal[landing: takeoffs[countVar]]))
                 
                 #Peak R Knee Angles at landing
                 PkRkneeABDAng.append( max( dat.RKneeAngle_Frontal[landing : takeoffs[countVar]]))
@@ -338,8 +324,8 @@ for ii, fName in enumerate(entries):
                
                  
                #Work -  Pos and Neg @ ankle             
-                PosAnkWork.append(sum(dat.RightAnklePower[landing  : takeoffs[countVar]] > 0)/200)
-                NegAnkWork.append(sum(dat.RightAnklePower[landing  : takeoffs[countVar]] < 0)/200)
+                PosAnkWork.append(sum(i for i in dat.RightAnklePower[landing:takeoffs[countVar]] if i  > 0)/200)
+                NegAnkWork.append(sum(i for i in dat.RightAnklePower[landing:takeoffs[countVar]] if i < 0)/200)
               
                # ---  Knee and ankle moments and angles at initial contact (IC) 
                # Knee Frontal mom and angs
@@ -373,8 +359,8 @@ for ii, fName in enumerate(entries):
                 RAnkleMomentFrontal_excursion =  np.array(PkRankleADDMom) - np.array(RAnkFrontMome_IC)
                 RAnkleAngleFrontal_excursion = np.array(PkRankleADDAngle) - np.array(RAnkFrontAng_IC)
                
-                RAnkleAngleSagittal_excursion = np.array(PkRankSagAng) - np.array(RAnkSagAng_IC)
-                RAnkMomentSagittal_excursion = np.array(PkAnkSagMom) - np.array(RAnkSagMome_IC)
+                # RAnkleAngleSagittal_excursion = np.array(PkRankSagAng) - np.array(RAnkSagAng_IC)
+                RAnkMomentSagittal_excursion = np.array(PkAnkPlantMom) - np.array(RAnkSagMome_IC)
                
                 
                ### Turning an arrays to a lists #---- 
@@ -424,11 +410,11 @@ for ii, fName in enumerate(entries):
         
         
         
-        # fig, ax1 = plt.subplots() 
-        # ax1.plot( RKMF, color = 'red')
+        fig, ax1 = plt.subplots() 
+        ax1.plot(dat.RKneeMoment_Frontal[landing:takeoffs[countVar]] , color = 'red')
         # ax1.plot(idx,RKMF[idx], 'x') 
-        # ax1.set_xlabel('Ground contact time (ms)')
-        # ax1.set_ylabel('Moment (Nm)', color = 'Green')  
+        ax1.set_xlabel('Ground contact time (ms)')
+        ax1.set_ylabel('Moment (Nm)', color = 'Green')  
         
         
         # GRF Plot
@@ -440,23 +426,67 @@ for ii, fName in enumerate(entries):
         print(fName)
 
 
-# fig = plt.figure(cc)
+# Plots 
 
-# fig, axs = plt.subplots(2, 3) 
+#------ Knee and Ankle Moments and Angles
+fig, axs = plt.subplots(2, 2) 
+fig.suptitle('R Knee and Ankle Moments and Angles')
+axs[0, 0].plot(dat.RKneeMoment_Frontal[landing:takeoffs[countVar]])
+axs[0, 0].set_title('R Knee Front Mome.in Landing') 
+axs[0, 0].set_xlabel('Ground Contact Time (ms)') 
+axs[0, 0].set_ylabel(' Moment (Nm)')
 
-# axs[0,0].plot(x, dat.RKneeMoment_Frontal[landing - 20 :landing + 75],'k', color='#CC4F1B')
-# axs[0,0].set_title('RKneeFrontMom') 
-# axs[0,0].fill_between(x, RKneeFrontMom_Mean-RKneeFrontMom_SD, RKneeFrontMom_Mean+RKneeFrontMom_SD,
-#     alpha=0.5, edgecolor='#CC4F1B', facecolor='#FF9848') 
-
-# plt.show() 
-# plt.tight_layout() 
+axs[0, 1].plot( dat.RKneeAngle_Frontal[landing : takeoffs[countVar]], 'tab:green')
+axs[0, 1].set_title('R Knee Front. Ang. in Landing')
+axs[0, 1].set_xlabel('Ground Contact Time (ms)') 
+axs[0, 1].set_ylabel('Ang (deg)')
 
 
+axs[1, 0].plot(dat.RAnkleMoment_Frontal[landing:takeoffs[countVar]], 'tab:orange')
+axs[1, 0].set_title('R Ankle Front Mome.in Landing')
+axs[1, 0].set_xlabel('Ground Contact Time (ms)') 
+axs[1, 0].set_ylabel(' Moment (Nm)')
 
-# outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movement':list(movements),
-#                           'PK_R_ABD_KneeMome':list(PkRkneeABDMom), 'PkRkneeADDAng':list(PkRkneeADDAng), 'RAnkAngFront_Excursion':list( RAnkleAngleFrontal_excursion), '':list(RKneeAngleFrontal_excursion),
-#                           'PosAnkWork':list(PosAnkWork)
+
+axs[1, 1].plot(dat.RAnkleAngle_Frontal[landing:takeoffs[countVar]], 'tab:red')
+axs[1, 1].set_title('R Ankle Front Angle in Landing')
+axs[1, 1].set_xlabel('Ground Contact Time (ms)') 
+axs[1, 1].set_ylabel('Angle (deg)') 
+
+
+# Knee and Ankle Sagittal Moments and Angles 
+
+
+
+
+
+
+# Knee and Ankle Excursions 
+
+# Power and Work 
+fig, axs = plt.subplots(2, 2)
+axs[0, 0].plot(dat.RightAnklePower)
+axs[0, 0].set_title('R Ankle Power in Landing') 
+axs[0, 0].set_xlabel('Ground Contact Time (ms)') 
+axs[0, 0].set_ylabel('R Ankle Power [Watts]') 
+
+x = range(8)
+axs[0, 1].bar(x, PosAnkWork, width=2, color='lightgreen', label="Pos Ankle Work") 
+axs[0, 1].bar(x, NegAnkWork, width=2, color='orangered', label="Neg Ankle Work")    
+axs[0, 1].set_title('Negative and Positive Ankle Work') 
+axs[0, 1].set_xlabel('Number of Jumps') 
+axs[0, 1].set_ylabel('Work (W kg−1)') 
+
+        
+
+
+
+
+
+# outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movement':list(movements), 'CT':list(CT), 'impulse':list(impulse),
+#                           'PK_R_ABD_KneeMome':list(PkRkneeABDMom), 'PkRkneeADDAng':list(PkRkneeADDAng), 
+#                           'PkAnkPwr':list(PkAnkPwr), 'PosAnkWork':list(PosAnkWork),  ' NegAnkWork':list(NegAnkWork),
+#                           
 #                           })
 
 # outfileName = fPath + 'CompiledAgilityData.csv'
