@@ -42,15 +42,12 @@ def findLandings(force, fThresh):
     lic = [] 
     
     for step in range(len(force)-1):
-        if len(lic) == 0: 
+    
             
-            if force[step] == 0 and force[step + 1] >= fThresh and force [step + 10 ] > 100:
+            if force[step] == 0 and force[step + 1] >= fThresh :
                 lic.append(step)
     
-        else:
         
-            if force[step] == 0 and force[step + 1] >= fThresh and step > lic[-1] + 100 and force [step + 10] > 100:
-                lic.append(step)
     return lic
 
 
@@ -72,13 +69,18 @@ def findTakeoffs(force, fThresh):
         indices of takeoffs obtained from force data. Takeoffs here mean
         the moment a force signal was > a threshold and then goes to 0
 
-    """
+    # """
     lto = []
     for step in range(len(force)-1):
         if force[step] >= fThresh and force[step + 1] == 0 :
             lto.append(step + 1)
     return lto 
 
+    # lto = []
+    # for step in range(len(force)-1):
+    #     if force[step] >= fThresh and force[step + 1] == 0 and force[step + 5] == 0 and force[step + 10] == 0:
+    #         lto.append(step + 1)
+    # return lto 
 
 
 def delimitTrialSkate(inputDF, ZForce):
@@ -148,7 +150,7 @@ movements = []
 for fName in entries:
     try:
         
-        # fName = entries[1]
+        # fName = entries[2]
         
         config1 = fName.split('_')[1]
         tmpMove = fName.split('_')[2].split(' ')[0]
@@ -193,8 +195,7 @@ for fName in entries:
             
             XForce = dat.FP2_GRF_X *1 
             
-            # dat = delimitTrialCMJ(dat)
-            
+            # dat = delimitTrialCMJ(dat)          
             
             landings = findLandings(ZForce, fThresh )
             takeoffs = findTakeoffs(ZForce, fThresh)
@@ -218,8 +219,8 @@ for fName in entries:
             try:
                 
                 
-                CT.append(takeoffs[countVar] - landing)
-                impulse.append(np.sum(XForce[landing:takeoffs[countVar]]) )
+                CT.append((takeoffs[countVar] - landing)/200)
+                impulse.append(np.sum(XForce[landing:takeoffs[countVar]])/200 )
 
                 subName.append(fName.split('_')[0])
                 config.append( config1 )
