@@ -102,18 +102,14 @@ for fName in entries:
             if np.max(abs(dat.FP3_GRF_Z)) > np.max(abs(dat.FP4_GRF_Z)):
                 ZForce = dat.FP3_GRF_Z
 
-                XForce = dat.FP3_GRF_Y
-                
-            else:
-                ZForce = dat.FP4_GRF_Z
-                XForce = dat.FP4_GRF_Y 
-
                 XForce = dat.FP3_GRF_X
                 
             else:
                 ZForce = dat.FP4_GRF_Z
                 XForce = dat.FP4_GRF_X 
 
+
+        
                 
             if abs(np.min(XForce)) > abs(np.max(XForce)):
                 XForce = XForce * -1
@@ -139,11 +135,6 @@ for fName in entries:
             
             XForce = dat.FP2_GRF_X 
 
-            
-            ZForce = dat.FP2_GRF_Z
-            ZForce[ZForce<fThresh] = 0
-            
-            XForce = ZForce #This is out of convenience to calculate impulse below even though this is not the Y force
             
             #dat = delimitTrialCMJ(dat)
 
@@ -181,22 +172,8 @@ for fName in entries:
                 
                 
 
-        for i in range(len(landings) - 1):
-            try:
-                
-                impulse.append(np.sum(XForce[landings[i]:takeoffs[i]]) )
-                CT.append(takeoffs[i] - landings[i])
-                jumpTime.append((landings[i+1] - landings[i])/100)
-            
-
-
-                subName.append(fName.split('_')[0])
-                config.append( config1 )
-                movements.append( tmpMove )
-                
+                     
             except:
-
-                print(landings[i])
 
                 print(fName + str(i))
 
@@ -209,7 +186,7 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movem
                          'CT':list(CT), 'impulse_Z':list(impulseZ), 'impulse_X':list(impulseX), 'peakGRF_Z':list(peakGRFz), 'peakGRF_X':list(peakGRFx), 'peakPFmom':list(peakPFmom),
                          'peakINVmom':list(peakINVmom), 'peakKneeEXTmom':list(peakKneeEXTmom), 'kneeABDrom':list(kneeABDrom), 'eccWork':list(eccWork), 'peakPower':list(peakPower) })
 
-                         'CT':list(CT), 'impulse':list(impulse), 'jumpTime':list(jumpTime) })
+                       
 
 
 outfileName = fPath + 'CompiledAgilityData.csv'
