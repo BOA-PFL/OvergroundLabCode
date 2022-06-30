@@ -50,7 +50,7 @@ for i in range(len(filename)):
 
    
     plt.figure()
-    plt.plot(dat.Power)
+    plt.plot(dat.power)
     
     print('click the start of as many steady state periods are recorded in the file. Press enter when done')
     steadyStart = plt.ginput(-1)

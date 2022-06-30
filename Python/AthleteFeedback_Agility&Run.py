@@ -18,6 +18,19 @@ fThresh = 80 #below this value will be set to 0.
 # list of functions 
 # finding landings on the force plate once the filtered force exceeds the force threshold
 def findLandings(force):
+    """
+    Parameters
+    ----------
+    force : Pandas Series
+        Vertical force from force plate.
+    fThresh: integer
+        Value force has to be greater than to count as a takeoff/landing
+
+    Returns
+    -------
+    lic : list
+        Indices of landings.
+    """
     lic = []
     for step in range(len(force)-1):
         if force[step] == 0 and force[step + 1] >= fThresh:
@@ -25,7 +38,24 @@ def findLandings(force):
     return lic
 
 #Find takeoff from FP when force goes from above thresh to 0
-def findTakeoffs(force):
+def findTakeoffs(force, fThresh):
+    """
+
+    Parameters
+    ----------
+    force : Pandas Series
+        vertical force from force plate.
+    fThresh: integer
+        Value force has to be greater than to count as a takeoff/landing
+
+    Returns
+    -------
+    lto : list
+        indices of takeoffs obtained from force data. Takeoffs here mean
+        the moment a force signal was > a threshold and then goes to 0
+
+
+    """
     lto = []
     for step in range(len(force)-1):
         if force[step] >= fThresh and force[step + 1] == 0:
