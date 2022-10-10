@@ -48,7 +48,7 @@ GyroDegree = []
 
 Subject = []
 subName =[]
-swingcount = []
+throwcount = []
 
 Config = []
 
@@ -65,7 +65,7 @@ for fName in entries:
        
        """
 
-
+        # fName = entries[1]
 
 
 
@@ -75,8 +75,8 @@ for fName in entries:
         
         dat = pd.read_csv(fPath + "\\" + fName, sep =',', skiprows = 3, header = 0)
          
-        dat.columns = ['StrikeZoneSide', 'StrikeZoneHt', 'Velocity', 'TotalSpin', 'TrueSpin','SpinEfficiency', 'SpinDirection', 
-                       'VB_Spin', 'HB_Spin','HorizontalAng', 'ReleaseAng', 'ReleaseHt', 'ReleaseSide', 'GyroDegree'
+        dat.columns = ['No', 'Date', 'PitchID','PitchType','isStrike', 'StrikeZoneSide', 'StrikeZoneHt', 'Velocity', 'TotalSpin', 'TrueSpin','SpinEfficiency', 'SpinDirection', 'SpinConfidence',
+                       'VB_Spin', 'HB_Spin','HorizontalAng', 'ReleaseAng', 'ReleaseHt', 'ReleaseSide', 'GyroDegree', 'UniqueID', 'DeviceSerialNumber'
                            
                             ]
         
