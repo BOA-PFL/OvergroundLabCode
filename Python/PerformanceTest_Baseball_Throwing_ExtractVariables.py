@@ -75,6 +75,8 @@ for fName in entries:
         
         dat = pd.read_csv(fPath + "\\" + fName, sep =',', skiprows = 3, header = 0)
          
+        
+         #Defining new variable names bc the CSV has spaces and characters
         dat.columns = ['No', 'Date', 'PitchID','PitchType','isStrike', 'StrikeZoneSide', 'StrikeZoneHt', 'Velocity', 'TotalSpin', 'TrueSpin','SpinEfficiency', 'SpinDirection', 'SpinConfidence',
                        'VB_Spin', 'HB_Spin','HorizontalAng', 'ReleaseAng', 'ReleaseHt', 'ReleaseSide', 'GyroDegree', 'UniqueID', 'DeviceSerialNumber'
                            
