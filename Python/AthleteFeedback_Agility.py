@@ -16,9 +16,9 @@ from tkinter.filedialog import askopenfilename
 fThresh = 40 #below this value will be set to 0.
 #stepLen = 45 #Set value to look forward 
 # list of functions 
-# finding landings on the force plate once the filtered force exceeds the force threshold
-# def findLandings(force, fThresh):
-"""
+ 
+def findLandings(force, fThresh):
+    """
     This function finds the landings from force plate data
     it uses a heuristic to determine landings from when the smoothed force is
     0 and then breaches a threshold
@@ -35,26 +35,22 @@ fThresh = 40 #below this value will be set to 0.
     lic : list
         Indices of landings.
 
-""" 
-def findLandings(force, fThresh):    
+    """
     lic = [] 
-    fThresh = 40
+    
     for step in range(len(force)-1):
-        if len(lic) == 0: 
+    
             
-            if force[step] == 0 and force[step + 1] >= fThresh and force [step + 10 ] > 300:
+            if force[step] == 0 and force[step + 1] >= fThresh :
                 lic.append(step)
     
-        else:
         
-            if force[step] == 0 and force[step + 1] >= fThresh and step > lic[-1] + 300 and force [step + 10] > 300:
-                lic.append(step)
     return lic
 
 
 
-# def findTakeoffs(force, fThresh):
-"""
+def findTakeoffs(force, fThresh):
+    """
     This function calculates the takeoffs using a heuristic 
 
     Parameters
@@ -70,14 +66,18 @@ def findLandings(force, fThresh):
         indices of takeoffs obtained from force data. Takeoffs here mean
         the moment a force signal was > a threshold and then goes to 0
 
-""" 
-def findTakeoffs(force, fThresh):    
-    lto = [] 
-    fThresh = 40
+    # """
+    lto = []
     for step in range(len(force)-1):
-        if force[step] >= fThresh and force[step + 1] == 0 and force[step + 5] == 0 and force[step + 10] == 0:
+        if force[step] >= fThresh and force[step + 1] == 0 :
             lto.append(step + 1)
-    return lto
+    return lto 
+
+    # lto = []
+    # for step in range(len(force)-1):
+    #     if force[step] >= fThresh and force[step + 1] == 0 and force[step + 5] == 0 and force[step + 10] == 0:
+    #         lto.append(step + 1)
+    # return lto 
 
 # Initiate arrays for time series
 
@@ -164,7 +164,7 @@ LkneePowerMean = np.mean(LkneePower, axis = 0)
 RhipPowerMean = np.mean(RhipPower, axis = 0)
 LhipPowerMean = np.mean(LhipPower, axis = 0)
 RkneeAngleFrontalMean = np.mean(RkneeAngleFrontal, axis = 0)
-LkneeAngleFrontalMean = np.mean(LkneeAngleFrontal, axis = 0)
+LkneeAngleFrontalMean = np.mean(((LkneeAngleFrontal)), axis = 0)
 RankleAngleFrontalMean = np.mean(RankleAngleFrontal, axis = 0)
 LankleAngleFrontalMean = np.mean(LankleAngleFrontal, axis = 0)
 
