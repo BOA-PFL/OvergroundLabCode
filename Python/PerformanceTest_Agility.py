@@ -127,9 +127,8 @@ def delimitTrial(inputDF):
     return(outputDat)
 
 def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
-    """
     
-
+    """
     Parameters
     ----------
     inputDF : Pandas DF
@@ -145,55 +144,55 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
 
     """
     fig, (ax, ax1) = plt.subplots(1,2)
-    ax.plot(inputDF.RAnkleAngle_Sagittal[inputLandings[0]:inputTakeoffs[3]], label = 'Right Sagittal')
-    ax.plot(inputDF.LAnkleAngle_Sagittal[inputLandings[0]:inputTakeoffs[3]], label = 'Left Sagittal')
-    ax.plot(inputDF.RAnkleAngle_Frontal[inputLandings[0]:inputTakeoffs[3]], label = 'Right Frontal')
-    ax.plot(inputDF.LAnkleAngle_Frontal[inputLandings[0]:inputTakeoffs[3]], label = 'Left Frontal')
-    ax.vlines(x = inputLandings[0:3], ymin = 0, ymax = np.max(inputDF.RAnkleAngle_Sagittal[inputLandings[0:3]]),
-       color = 'red', label = 'Landings',linewidth=3.0, ls='--')
-    ax.vlines(x = inputTakeoffs[0:3], ymin = 0, ymax = np.max(inputDF.RAnkleAngle_Sagittal[inputLandings[0:3]]),
-       color = 'green', label = 'Takeoffs',linewidth=3.0, ls='--')
+    ax.plot(inputDF.RAnkleAngle_Sagittal[inputLandings[1]:inputTakeoffs[5]], label = 'Right Sagittal')
+    ax.plot(inputDF.LAnkleAngle_Sagittal[inputLandings[1]:inputTakeoffs[5]], label = 'Left Sagittal')
+    ax.plot(inputDF.RAnkleAngle_Frontal[inputLandings[1]:inputTakeoffs[5]], label = 'Right Frontal')
+    ax.plot(inputDF.LAnkleAngle_Frontal[inputLandings[1]:inputTakeoffs[5]], label = 'Left Frontal')
+    ax.vlines(x = inputLandings[1:5], ymin = 0, ymax = np.max(inputDF.RAnkleAngle_Sagittal[inputLandings[0]:inputTakeoffs[3]]),
+       color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
+    ax.vlines(x = inputTakeoffs[1:5], ymin = 0, ymax = np.max(inputDF.RAnkleAngle_Sagittal[inputLandings[0]:inputTakeoffs[3]]),
+       color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
     ax.set_xlabel('Indices')
     ax.set_title('Ankle')
     ax.set_ylabel('Angle (Deg)')
-    ax.legend()
-    ax1.plot(inputDF.RKneeAngle_Frontal[inputLandings[0]:inputTakeoffs[3]], label = 'Right Frontal')
-    ax1.plot(inputDF.LKneeAngle_Frontal[inputLandings[0]:inputTakeoffs[3]], label = 'Left Frontal')
-    ax1.vlines(x = inputLandings[0:3], ymin = 0, ymax = np.max(inputDF.RKneeAngle_Frontal[inputLandings[0:3]]),
-       color = 'red', label = 'Landings',linewidth=3.0, ls='--')
-    ax1.vlines(x = inputTakeoffs[0:3], ymin = 0, ymax = np.max(inputDF.RKneeAngle_Frontal[inputLandings[0:3]]),
-       color = 'green', label = 'Takeoffs',linewidth=3.0, ls='--')
+    ax.legend(bbox_to_anchor =(0.5,-0.27), loc='lower center')
+    ax1.plot(inputDF.RKneeAngle_Frontal[inputLandings[1]:inputTakeoffs[5]], label = 'Right Frontal')
+    ax1.plot(inputDF.LKneeAngle_Frontal[inputLandings[1]:inputTakeoffs[5]], label = 'Left Frontal')
+    ax1.vlines(x = inputLandings[1:5], ymin = 0, ymax = np.max(inputDF.RKneeAngle_Frontal[inputLandings[0]:inputTakeoffs[3]]),
+       color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
+    ax1.vlines(x = inputTakeoffs[1:5], ymin = 0, ymax = np.max(inputDF.RKneeAngle_Frontal[inputLandings[0]:inputTakeoffs[3]]),
+       color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
     ax1.set_xlabel('Indices') 
     ax1.set_title('Knee')
     ax1.set_ylabel('Angle (Deg)')
     plt.tight_layout()
-    ax1.legend()
+    ax1.legend(bbox_to_anchor =(0.5,-0.27), loc='lower center')
     plt.show()
     
-    fig2, (ax, ax1) = plt.subplots(1,2)
-    ax.plot(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[3]], label = 'Right Sagittal')
-    ax.plot(inputDF.LAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[3]], label = 'Left Sagittal')
-    ax.plot(inputDF.RAnkleMoment_Frontal[inputLandings[0]:inputTakeoffs[3]], label = 'Right Frontal ')
-    ax.plot(inputDF.LAnkleMoment_Frontal[inputLandings[0]:inputTakeoffs[3]], label = 'Left Frontal ')
-    ax.vlines(x = inputLandings[0:3], ymin = 0, ymax = np.max(inputDF.RAnkleMoment_Sagittal[inputLandings[0:3]]),
-       color = 'red', label = 'Landings',linewidth=3.0, ls='--')
-    ax.vlines(x = inputTakeoffs[0:3], ymin = 0, ymax = np.max(inputDF.RAnkleMoment_Sagittal[inputLandings[0:3]]),
-       color = 'green', label = 'Takeoffs',linewidth=3.0, ls='--')
-    ax.set_xlabel('Indices')
-    ax.set_title('Ankle')
-    ax.set_ylabel('Moment (Nm)')
-    ax.legend()
-    ax1.plot(inputDF.RKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[3]], label = 'Right Sagittal')
-    ax1.plot(inputDF.LKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[3]], label = 'Left Sagittal')
-    ax1.set_xlabel('Indices')
-    ax1.set_title('Knee')
-    ax1.set_ylabel('Moment (Nm)')
+    fig2, (ax3, ax4) = plt.subplots(1,2)
+    ax3.plot(inputDF.RAnkleMoment_Sagittal[inputLandings[1]:inputTakeoffs[5]], label = 'Right Sagittal')
+    ax3.plot(inputDF.LAnkleMoment_Sagittal[inputLandings[1]:inputTakeoffs[5]], label = 'Left Sagittal')
+    ax3.plot(inputDF.RAnkleMoment_Frontal[inputLandings[1]:inputTakeoffs[5]], label = 'Right Frontal ')
+    ax3.plot(inputDF.LAnkleMoment_Frontal[inputLandings[1]:inputTakeoffs[5]], label = 'Left Frontal ')
+    ax3.vlines(x = inputLandings[1:5], ymin = 0, ymax = np.nanmax(inputDF.RAnkleMoment_Frontal[inputLandings[0]:inputTakeoffs[3]]),
+       color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
+    ax3.vlines(x = inputTakeoffs[1:5], ymin = 0, ymax = np.nanmax(inputDF.RAnkleMoment_Frontal[inputLandings[0]:inputTakeoffs[3]]),
+       color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
+    ax3.set_xlabel('Indices')
+    ax3.set_title('Ankle')
+    ax3.set_ylabel('Moment (Nm)')
+    ax3.legend(bbox_to_anchor =(0.5,-0.27), loc='lower center')
+    ax4.plot(inputDF.RKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[3]], label = 'Right Sagittal')
+    ax4.plot(inputDF.LKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[3]], label = 'Left Sagittal')
+    ax4.set_xlabel('Indices')
+    ax4.set_title('Knee')
+    ax4.set_ylabel('Moment (Nm)')
     plt.tight_layout()
-    ax1.legend()
-    ax1.vlines(x = inputLandings[0:3], ymin = 0, ymax = np.max(inputDF.RKneeMoment_Sagittal[inputLandings[0:3]]),
-       color = 'red', label = 'Landings',linewidth=3.0, ls='--')
-    ax1.vlines(x = inputTakeoffs[0:3], ymin = 0, ymax = np.max(inputDF.RKneeMoment_Sagittal[inputLandings[0:3]]),
-       color = 'green', label = 'Takeoffs',linewidth=3.0, ls='--')
+    ax4.legend(bbox_to_anchor =(0.5,-0.27), loc='lower center')
+    ax4.vlines(x = inputLandings[1:5], ymin = 0, ymax = np.max(inputDF.RKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[3]]),
+       color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
+    ax4.vlines(x = inputTakeoffs[1:5], ymin = 0, ymax = np.max(inputDF.RKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[3]]),
+       color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
     plt.show()
     
     # fig3, ax = plt.subplots(1,1)
@@ -201,7 +200,8 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
     # ax.set_ylabel('Power (W)')
     # ax.set_title('COM Power')
     # plt.show()
-
+    
+#makeVizPlot(dat, landings, takeoffs)
 
 CT = []
 
