@@ -117,7 +117,7 @@ def delimitTrial(inputDF):
     # generic function to plot and start/end trial #
     fig, ax = plt.subplots()
     totForce = dat.FP1_GRF_Z + dat.FP2_GRF_Z + dat.FP3_GRF_Z + dat.FP4_GRF_Z
-    print('Select a point on the plot to represent the beginning & end of trial where Y-value is near 0')
+    print('Select a point on the plot to represent the beginning & end of trial')
     ax.plot(totForce, label = 'Total Force')
     fig.legend()
     pts = np.asarray(plt.ginput(2, timeout=-1))
@@ -143,48 +143,49 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
     No variables; just a plot to inspect for clean kinematic/kinetic data.
 
     """
-    fig, (ax, ax1, ax2, ax3) = plt.subplots(1,2, 3, 4)
-    ax.plot(inputDF.RAnkleMoment_Sagittal[inputLandings[1]:inputTakeoffs[-1]])
-    ax.vlines(x = inputLandings[1:], ymin = np.min(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.max(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]),
-       color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
-    ax.vlines(x = inputTakeoffs[1:], ymin = np.min(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.max(inputDF.RAnkleAngle_Sagittal[inputLandings[0]:inputTakeoffs[-1]]),
-       color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
+    fig, ((ax, ax1), (ax2, ax3)) = plt.subplots(2, 2)
+    ax.plot(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]], 'k')
+    # ax.vlines(x = inputLandings[1:], ymin = np.min(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.max(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]),
+    #    color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
+    # ax.vlines(x = inputTakeoffs[1:], ymin = np.min(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.max(inputDF.RAnkleAngle_Sagittal[inputLandings[0]:inputTakeoffs[-1]]),
+    #    color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
+    for i in range(len(inputLandings)):
+
+        ax.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
+    
+    ax.set_ylim(-250, 10)
     ax.set_xlabel('Indices')
     ax.set_title('Ankle Sagittal Moment')
     ax.set_ylabel('Moment (Nm)')
-    ax.legend(bbox_to_anchor =(0.5,-0.27), loc='lower center')
-    ax1.plot(inputDF.RKneeMoment_Sagittal[inputLandings[1]:inputTakeoffs[-1]])
-    ax1.vlines(x = inputLandings[1:-1], ymin = np.min(inputDF.RKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.max(inputDF.RKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]),
-       color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
-    ax1.vlines(x = inputTakeoffs[1:-1], ymin = np.min(inputDF.RKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.max(inputDF.RKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]),
-       color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
+    ax1.plot(inputDF.RKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]], 'k')
+    for i in range(len(inputLandings)):
+
+        ax1.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
+    ax1.set_ylim(-25, 250)
     ax1.set_xlabel('Indices') 
     ax1.set_title('Knee Sagittal Moment')
     ax1.set_ylabel('Moment (Nm)')
     plt.tight_layout()
-    ax1.legend(bbox_to_anchor =(0.5,-0.27), loc='lower center')
     plt.show()
     
 
-    ax2.plot(inputDF.RAnkleMoment_Frontal[inputLandings[1]:inputTakeoffs[-1]])
-    ax2.vlines(x = inputLandings[1:-1], ymin = np.nanmin(inputDF.RAnkleMoment_Frontal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.nanmax(inputDF.RAnkleMoment_Frontal[inputLandings[0]:inputTakeoffs[-1]]),
-       color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
-    ax2.vlines(x = inputTakeoffs[1:-1], ymin = np.nanmin(inputDF.RAnkleMoment_Frontal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.nanmax(inputDF.RAnkleMoment_Frontal[inputLandings[0]:inputTakeoffs[-1]]),
-       color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
+    ax2.plot(inputDF.RAnkleMoment_Frontal[inputLandings[0]:inputTakeoffs[-1]], 'k')
+    for i in range(len(inputLandings)):
+
+        ax2.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
+    ax2.set_ylim(-50, 150)
     ax2.set_xlabel('Indices')
     ax2.set_title('Ankle Frontal Moment')
     ax2.set_ylabel('Moment (Nm)')
-    ax2.legend(bbox_to_anchor =(0.5,-0.27), loc='lower center')
-    ax3.plot(inputDF.RKneeMoment_Frontal[inputLandings[1]:inputTakeoffs[-1]])
+    ax3.plot(inputDF.RKneeMoment_Frontal[inputLandings[0]:inputTakeoffs[-1]], 'k')
+    ax3.set_ylim(-100, 100)
     ax3.set_xlabel('Indices')
     ax3.set_title('Knee Frontal Moment')
     ax3.set_ylabel('Moment (Nm)')
     plt.tight_layout()
-    ax3.legend(bbox_to_anchor =(0.5,-0.27), loc='lower center')
-    ax3.vlines(x = inputLandings[1:-1], ymin = np.min(inputDF.RKneeMoment_Frontal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.max(inputDF.RKneeMoment_Frontal[inputLandings[0]:inputTakeoffs[-1]]),
-       color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
-    ax3.vlines(x = inputTakeoffs[1:-1], ymin = np.min(inputDF.RKneeMoment_Frontal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.max(inputDF.RKneeMoment_Frontal[inputLandings[0]:inputTakeoffs[-1]]),
-       color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
+    for i in range(len(inputLandings)):
+
+        ax3.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
     plt.show()
     
     # fig3, ax = plt.subplots(1,1)
@@ -221,7 +222,8 @@ badFileList = []
 ## save configuration names from files
 for fName in entries:
     try:
-
+        
+        #fName = entries[1]
         config1 = fName.split('_')[1]
         tmpMove = fName.split('_')[2]
 
