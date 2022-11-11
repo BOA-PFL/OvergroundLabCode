@@ -204,9 +204,12 @@ peakGRFz = []
 peakGRFx = []
 peakPFmom = []
 peakINVmom = []
+peakEVmom = []
 peakKneeEXTmom = []
+peakKneeADDmom = [] # Internal
 kneeABDrom = []
 eccWork = []
+conWork = []
 peakPower = []
 
 impulse = []
@@ -318,11 +321,16 @@ for fName in entries:
                     
                         peakPFmom.append(np.min(dat.RAnkleMoment_Sagittal[landings[i]:takeoffs[i]])*-1)
                         peakINVmom.append(np.max(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
+                        peakEVmom.append(np.min(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
+                        peakKneeADDmom.append(np.min(dat.RKneeMoment_Frontal[landings[i]:takeoffs[i]])) # looking at an INTERNAL moment, so this is the peak external ABD moment
                         peakKneeEXTmom.append(np.max(dat.RKneeMoment_Sagittal[landings[i]:takeoffs[i]]))
                         kneeABDrom.append(np.max(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]) - np.min(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]))
                         negpower = copy.deepcopy(dat.COM_Power)
                         negpower[negpower>0] = 0
                         eccWork.append(np.sum(negpower[landings[i]:takeoffs[i]])/200*-1)
+                        pospower = copy.deepcopy(dat.COM_Power)
+                        pospower[negpower<0] = 0
+                        conWork.append(np.sum(pospower[landings[i]:takeoffs[i]])/200)
                         peakPower.append(np.max(dat.COM_Power[landings[i]:takeoffs[i]]))
                         
         
@@ -346,7 +354,7 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movem
 
 
                          'CT':list(CT), 'impulse_Z':list(impulseZ), 'impulse_X':list(impulseX), 'peakGRF_Z':list(peakGRFz), 'peakGRF_X':list(peakGRFx), 'peakPFmom':list(peakPFmom),
-                         'peakINVmom':list(peakINVmom), 'peakKneeEXTmom':list(peakKneeEXTmom), 'kneeABDrom':list(kneeABDrom), 'eccWork':list(eccWork), 'peakPower':list(peakPower) })
+                         'peakINVmom':list(peakINVmom), 'peakEVmom':list(peakEVmom), 'peakKneeADDmom':list(peakKneeADDmom), 'peakKneeEXTmom':list(peakKneeEXTmom), 'kneeABDrom':list(kneeABDrom), 'eccWork':list(eccWork), 'conWork':list(conWork), 'peakPower':list(peakPower) })
 
                        
 
