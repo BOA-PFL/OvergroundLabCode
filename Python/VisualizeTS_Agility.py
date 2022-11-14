@@ -319,7 +319,7 @@ def calcFullTrialStarts(fileName, filePath):
         
         if answer == True:
             plt.close('all')
-            print('Estimating point estimates')
+            print('Moving onto plotting')
 
 
     result = JumpStarts(tmpMove, config1, landings, takeoffs, dat)
@@ -362,4 +362,7 @@ ax2.set_ylabel('Moment (Nm)')
 ax2.set_xlabel('Index')
 plt.tight_layout()
 
-## TODO: extend plots to include all variables by making plot a function
+## TODO: extend plots to include:
+### sagittal moments & COM power by making plot a function. 
+### Extend to skater jump for force plate swap
+### Extend to a third model
