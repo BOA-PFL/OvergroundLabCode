@@ -118,8 +118,11 @@ def delimitTrial(inputDF):
 
     # generic function to plot and start/end trial #
     fig, ax = plt.subplots()
+
     totForce = inputDF.FP1_GRF_Z + inputDF.FP2_GRF_Z + inputDF.FP3_GRF_Z + inputDF.FP4_GRF_Z
     print('Select a point on the plot to represent the beginning & end of trial where Y-value is near 0')
+
+
     ax.plot(totForce, label = 'Total Force')
     fig.legend()
     pts = np.asarray(plt.ginput(2, timeout=-1))
@@ -145,56 +148,49 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
     No variables; just a plot to inspect for clean kinematic/kinetic data.
 
     """
-    fig, (ax, ax1) = plt.subplots(1,2)
-    ax.plot(inputDF.RAnkleAngle_Sagittal[inputLandings[1]:inputTakeoffs[5]], label = 'Right Sagittal')
-    ax.plot(inputDF.LAnkleAngle_Sagittal[inputLandings[1]:inputTakeoffs[5]], label = 'Left Sagittal')
-    ax.plot(inputDF.RAnkleAngle_Frontal[inputLandings[1]:inputTakeoffs[5]], label = 'Right Frontal')
-    ax.plot(inputDF.LAnkleAngle_Frontal[inputLandings[1]:inputTakeoffs[5]], label = 'Left Frontal')
-    ax.vlines(x = inputLandings[1:5], ymin = 0, ymax = np.max(inputDF.RAnkleAngle_Sagittal[inputLandings[0]:inputTakeoffs[3]]),
-       color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
-    ax.vlines(x = inputTakeoffs[1:5], ymin = 0, ymax = np.max(inputDF.RAnkleAngle_Sagittal[inputLandings[0]:inputTakeoffs[3]]),
-       color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
+    fig, ((ax, ax1), (ax2, ax3)) = plt.subplots(2, 2)
+    ax.plot(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]], 'k')
+    # ax.vlines(x = inputLandings[1:], ymin = np.min(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.max(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]),
+    #    color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
+    # ax.vlines(x = inputTakeoffs[1:], ymin = np.min(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.max(inputDF.RAnkleAngle_Sagittal[inputLandings[0]:inputTakeoffs[-1]]),
+    #    color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
+    for i in range(len(inputLandings)):
+
+        ax.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
+    
+    ax.set_ylim(-250, 10)
     ax.set_xlabel('Indices')
-    ax.set_title('Ankle')
-    ax.set_ylabel('Angle (Deg)')
-    ax.legend(bbox_to_anchor =(0.5,-0.27), loc='lower center')
-    ax1.plot(inputDF.RKneeAngle_Frontal[inputLandings[1]:inputTakeoffs[5]], label = 'Right Frontal')
-    ax1.plot(inputDF.LKneeAngle_Frontal[inputLandings[1]:inputTakeoffs[5]], label = 'Left Frontal')
-    ax1.vlines(x = inputLandings[1:5], ymin = 0, ymax = np.max(inputDF.RKneeAngle_Frontal[inputLandings[0]:inputTakeoffs[3]]),
-       color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
-    ax1.vlines(x = inputTakeoffs[1:5], ymin = 0, ymax = np.max(inputDF.RKneeAngle_Frontal[inputLandings[0]:inputTakeoffs[3]]),
-       color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
+    ax.set_title('Ankle Sagittal Moment')
+    ax.set_ylabel('Moment (Nm)')
+    ax1.plot(inputDF.RKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]], 'k')
+    for i in range(len(inputLandings)):
+
+        ax1.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
+    ax1.set_ylim(-25, 250)
     ax1.set_xlabel('Indices') 
-    ax1.set_title('Knee')
-    ax1.set_ylabel('Angle (Deg)')
+    ax1.set_title('Knee Sagittal Moment')
+    ax1.set_ylabel('Moment (Nm)')
     plt.tight_layout()
-    ax1.legend(bbox_to_anchor =(0.5,-0.27), loc='lower center')
     plt.show()
     
-    fig2, (ax3, ax4) = plt.subplots(1,2)
-    ax3.plot(inputDF.RAnkleMoment_Sagittal[inputLandings[1]:inputTakeoffs[5]], label = 'Right Sagittal')
-    ax3.plot(inputDF.LAnkleMoment_Sagittal[inputLandings[1]:inputTakeoffs[5]], label = 'Left Sagittal')
-    ax3.plot(inputDF.RAnkleMoment_Frontal[inputLandings[1]:inputTakeoffs[5]], label = 'Right Frontal ')
-    ax3.plot(inputDF.LAnkleMoment_Frontal[inputLandings[1]:inputTakeoffs[5]], label = 'Left Frontal ')
-    ax3.vlines(x = inputLandings[1:5], ymin = 0, ymax = np.nanmax(inputDF.RAnkleMoment_Frontal[inputLandings[0]:inputTakeoffs[3]]),
-       color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
-    ax3.vlines(x = inputTakeoffs[1:5], ymin = 0, ymax = np.nanmax(inputDF.RAnkleMoment_Frontal[inputLandings[0]:inputTakeoffs[3]]),
-       color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
+
+    ax2.plot(inputDF.RAnkleMoment_Frontal[inputLandings[0]:inputTakeoffs[-1]], 'k')
+    for i in range(len(inputLandings)):
+
+        ax2.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
+    ax2.set_ylim(-50, 150)
+    ax2.set_xlabel('Indices')
+    ax2.set_title('Ankle Frontal Moment')
+    ax2.set_ylabel('Moment (Nm)')
+    ax3.plot(inputDF.RKneeMoment_Frontal[inputLandings[0]:inputTakeoffs[-1]], 'k')
+    ax3.set_ylim(-100, 100)
     ax3.set_xlabel('Indices')
-    ax3.set_title('Ankle')
+    ax3.set_title('Knee Frontal Moment')
     ax3.set_ylabel('Moment (Nm)')
-    ax3.legend(bbox_to_anchor =(0.5,-0.27), loc='lower center')
-    ax4.plot(inputDF.RKneeMoment_Sagittal[inputLandings[1]:inputTakeoffs[5]], label = 'Right Sagittal')
-    ax4.plot(inputDF.LKneeMoment_Sagittal[inputLandings[1]:inputTakeoffs[5]], label = 'Left Sagittal')
-    ax4.set_xlabel('Indices')
-    ax4.set_title('Knee')
-    ax4.set_ylabel('Moment (Nm)')
     plt.tight_layout()
-    ax4.legend(bbox_to_anchor =(0.5,-0.27), loc='lower center')
-    ax4.vlines(x = inputLandings[1:5], ymin = 0, ymax = np.max(inputDF.RKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[3]]),
-       color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
-    ax4.vlines(x = inputTakeoffs[1:5], ymin = 0, ymax = np.max(inputDF.RKneeMoment_Sagittal[inputLandings[0]:inputTakeoffs[3]]),
-       color = 'cyan', label = 'Takeoffs',linewidth=3.0, ls='--')
+    for i in range(len(inputLandings)):
+
+        ax3.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
     plt.show()
     
     # fig3, ax = plt.subplots(1,1)
@@ -213,9 +209,12 @@ peakGRFz = []
 peakGRFx = []
 peakPFmom = []
 peakINVmom = []
+peakEVmom = []
 peakKneeEXTmom = []
+peakKneeADDmom = [] # Internal
 kneeABDrom = []
 eccWork = []
+conWork = []
 peakPower = []
 
 impulse = []
@@ -231,7 +230,8 @@ badFileList = []
 ## save configuration names from files
 for fName in entries:
     try:
-
+        
+        #fName = entries[1]
         config1 = fName.split('_')[1]
         tmpMove = fName.split('_')[2]
 
@@ -326,11 +326,16 @@ for fName in entries:
                     
                         peakPFmom.append(np.min(dat.RAnkleMoment_Sagittal[landings[i]:takeoffs[i]])*-1)
                         peakINVmom.append(np.max(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
+                        peakEVmom.append(np.min(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
+                        peakKneeADDmom.append(np.min(dat.RKneeMoment_Frontal[landings[i]:takeoffs[i]])) # looking at an INTERNAL moment, so this is the peak external ABD moment
                         peakKneeEXTmom.append(np.max(dat.RKneeMoment_Sagittal[landings[i]:takeoffs[i]]))
                         kneeABDrom.append(np.max(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]) - np.min(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]))
                         negpower = copy.deepcopy(dat.COM_Power)
                         negpower[negpower>0] = 0
                         eccWork.append(np.sum(negpower[landings[i]:takeoffs[i]])/200*-1)
+                        pospower = copy.deepcopy(dat.COM_Power)
+                        pospower[negpower<0] = 0
+                        conWork.append(np.sum(pospower[landings[i]:takeoffs[i]])/200)
                         peakPower.append(np.max(dat.COM_Power[landings[i]:takeoffs[i]]))
                         
         
@@ -355,6 +360,8 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movem
                          'peakGRF_Z':list(peakGRFz), 'peakGRF_X':list(peakGRFx), 'peakPFmom':list(peakPFmom),
                          'peakINVmom':list(peakINVmom), 'peakKneeEXTmom':list(peakKneeEXTmom), 
                          'kneeABDrom':list(kneeABDrom), 'eccWork':list(eccWork), 'peakPower':list(peakPower) })
+
+
 
                        
 
