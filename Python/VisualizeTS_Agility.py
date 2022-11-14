@@ -27,10 +27,11 @@ entries = os.listdir(fPath)
 
 # Choose two files to compare
 fName1 = entries[1]
-fName2 = entries[2]
+fName2 = entries[8]
 fThresh = 40
 
-stepLen = 100
+stepLen = 150
+x = np.linspace(0,stepLen,stepLen)
 
 ### set plot font size ###
 SMALL_SIZE = 14
@@ -329,16 +330,36 @@ trial1 = calcFullTrialStarts(fName1, fPath)
 trial2 = calcFullTrialStarts(fName2, fPath)
 
 ### calculating ensemble mean and SD ###
-x = np.linspace(0,stepLen,stepLen)
 
 ## Calculating averaged data ## 
 ## need to fix function to calculate right value for the given movement ##
-forcesTrial1 = calcEnsembleData(trial1.df.FP4_GRF_Z, trial1.landings, stepLen)
-forcesTrial2 = calcEnsembleData(trial2.df.FP4_GRF_Z, trial2.landings, stepLen)
+forcesTrial1 = calcEnsembleData(trial1.df.FP2_GRF_Z, trial1.landings, stepLen)
+forcesTrial2 = calcEnsembleData(trial2.df.FP2_GRF_Z, trial2.landings, stepLen)
+
+momTrial1 = calcEnsembleData(trial1.df.RAnkleMoment_Frontal, trial1.landings, stepLen)
+momTrial2 = calcEnsembleData(trial2.df.RAnkleMoment_Frontal, trial2.landings, stepLen)
 
 ### plotting ###
 fig, (ax1, ax2) = plt.subplots(2)
 ax1.plot(x, forcesTrial1.meanData, 'k', color='#DC582A')
 ax1.fill_between(x,forcesTrial1.meanData-forcesTrial1.sdData, forcesTrial1.meanData+forcesTrial1.sdData,
     alpha=0.5, edgecolor='#DC582A', facecolor='#DC582A', label = trial1.config)
-#ax1.plot(x, trial2.meanData, 'k', color='#00966C')
+ax1.plot(x, forcesTrial2.meanData, 'k', color='#00966C')
+ax1.fill_between(x,forcesTrial2.meanData-forcesTrial2.sdData, forcesTrial2.meanData+forcesTrial2.sdData,
+    alpha=0.5, edgecolor='#00966C', facecolor='#00966C', label = trial2.config)
+ax1.set_title('Vertical Forces')
+ax1.set_ylabel('Force (N)')
+ax1.legend()
+ax2.plot(x, momTrial1.meanData, 'k', color='#DC582A')
+ax2.fill_between(x,momTrial1.meanData-momTrial1.sdData, momTrial1.meanData+momTrial1.sdData,
+    alpha=0.5, edgecolor='#DC582A', facecolor='#DC582A', label = trial1.config)
+ax2.plot(x, momTrial2.meanData, 'k', color='#00966C')
+ax2.fill_between(x,momTrial2.meanData-momTrial2.sdData, momTrial2.meanData+momTrial2.sdData,
+    alpha=0.5, edgecolor='#00966C', facecolor='#00966C', label = trial2.config)
+ax2.legend()
+ax2.set_title('Frontal Moments')
+ax2.set_ylabel('Moment (Nm)')
+ax2.set_xlabel('Index')
+plt.tight_layout()
+
+## TODO: extend plots to include all variables by making plot a function
