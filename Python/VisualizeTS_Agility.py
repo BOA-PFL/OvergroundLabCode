@@ -11,7 +11,6 @@ Visualizing time series plots of common varibales for agility data
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import signal
 import os
 from tkinter import messagebox
 from dataclasses import dataclass
@@ -25,12 +24,12 @@ fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 entries = os.listdir(fPath)
 
-# Choose two files to compare
+# Choose two files to compare averaged for data 
 fName1 = entries[1]
 fName2 = entries[8]
 fThresh = 40
 
-stepLen = 150
+stepLen = 150 #this is how far forward you will look to average data
 x = np.linspace(0,stepLen,stepLen)
 
 ### set plot font size ###
@@ -363,6 +362,7 @@ ax2.set_xlabel('Index')
 plt.tight_layout()
 
 ## TODO: extend plots to include:
-### sagittal moments & COM power by making plot a function. 
+### Make a new plot for Sagittal moments & COM power 
+### Making plot a function that uses the same format
 ### Extend to skater jump for force plate swap
-### Extend to a third model
+### Extend to a third model (afer the above 3 are done)
