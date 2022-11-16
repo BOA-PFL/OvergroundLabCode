@@ -19,7 +19,7 @@ from dataclasses import dataclass
 
 # select files
 
-fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
+fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 entries = os.listdir(fPath)
@@ -27,6 +27,8 @@ entries = os.listdir(fPath)
 # Choose two files to compare averaged for data 
 fName1 = entries[1]
 fName2 = entries[8]
+fName3 = entries[4]
+fName4 = entries[9]
 fThresh = 40
 
 stepLen = 150 #this is how far forward you will look to average data
@@ -327,6 +329,8 @@ def calcFullTrialStarts(fileName, filePath):
 
 trial1 = calcFullTrialStarts(fName1, fPath)
 trial2 = calcFullTrialStarts(fName2, fPath)
+trial3 = calcFullTrialStarts(fName3, fPath)
+trial4 = calcFullTrialStarts(fName4, fPath)
 
 ### calculating ensemble mean and SD ###
 
@@ -337,6 +341,24 @@ forcesTrial2 = calcEnsembleData(trial2.df.FP2_GRF_Z, trial2.landings, stepLen)
 
 momTrial1 = calcEnsembleData(trial1.df.RAnkleMoment_Frontal, trial1.landings, stepLen)
 momTrial2 = calcEnsembleData(trial2.df.RAnkleMoment_Frontal, trial2.landings, stepLen)
+
+
+#COMPowerTrial1 = calcEnsembleData(trial1.df.COMPower, trial1.landings, stepLen)
+sagmomTrial1 = calcEnsembleData(trial1.df.RAnkleMoment_Sagittal, trial1.landings, stepLen)
+sagmomTrial2 = calcEnsembleData(trial2.df.RAnkleMoment_Sagittal, trial2.landings, stepLen)
+
+skateforcesTrial1 = calcEnsembleData(trial3.df.FP4_GRF_Z, trial3.landings, stepLen)
+skateforcesTrial2 = calcEnsembleData(trial4.df.FP4_GRF_Z, trial4.landings, stepLen)
+
+skatemomTrial1 = calcEnsembleData(trial3.df.RAnkleMoment_Frontal, trial3.landings, stepLen)
+skatemomTrial2 = calcEnsembleData(trial4.df.RAnkleMoment_Frontal, trial4.landings, stepLen)
+
+
+#COMPowerTrial1 = calcEnsembleData(trial1.df.COMPower, trial1.landings, stepLen)
+skatesagmomTrial1 = calcEnsembleData(trial3.df.RAnkleMoment_Sagittal, trial3.landings, stepLen)
+skatesagmomTrial2 = calcEnsembleData(trial4.df.RAnkleMoment_Sagittal, trial4.landings, stepLen)
+
+
 
 ### plotting ###
 fig, (ax1, ax2) = plt.subplots(2)
@@ -361,6 +383,79 @@ ax2.set_ylabel('Moment (Nm)')
 ax2.set_xlabel('Index')
 plt.tight_layout()
 
+fig, (ax3, ax4) = plt.subplots(2)
+ax3.plot(x, forcesTrial1.meanData, 'k', color='#DC582A')
+ax3.fill_between(x,forcesTrial1.meanData-forcesTrial1.sdData, forcesTrial1.meanData+forcesTrial1.sdData,
+    alpha=0.5, edgecolor='#DC582A', facecolor='#DC582A', label = trial1.config)
+ax3.plot(x, forcesTrial2.meanData, 'k', color='#00966C')
+ax3.fill_between(x,forcesTrial2.meanData-forcesTrial2.sdData, forcesTrial2.meanData+forcesTrial2.sdData,
+    alpha=0.5, edgecolor='#00966C', facecolor='#00966C', label = trial2.config)
+ax3.set_title('Vertical Forces')
+ax3.set_ylabel('Force (N)')
+ax3.legend()
+ax4.plot(x, sagmomTrial1.meanData, 'k', color='#DC582A')
+ax4.fill_between(x,sagmomTrial1.meanData-sagmomTrial1.sdData, sagmomTrial1.meanData+sagmomTrial1.sdData,
+    alpha=0.5, edgecolor='#DC582A', facecolor='#DC582A', label = trial1.config)
+ax4.plot(x, sagmomTrial2.meanData, 'k', color='#00966C')
+ax4.fill_between(x,sagmomTrial2.meanData-sagmomTrial2.sdData, sagmomTrial2.meanData+sagmomTrial2.sdData,
+    alpha=0.5, edgecolor='#00966C', facecolor='#00966C', label = trial2.config)
+ax4.legend()
+ax4.set_title('Sagittal Moments')
+ax4.set_ylabel('Moment (Nm)')
+ax4.set_xlabel('Index')
+plt.tight_layout()
+
+
+def makecoolsagittalplots(forcedatas1, sagmomentdatas1, forcedatas2, sagmomentdatas2, trials1, trials2):
+    fig, (ax5, ax6) = plt.subplots(2)
+    ax5.plot(x, forcedatas1.meanData, 'k', color='#DC582A')
+    ax5.fill_between(x,forcedatas1.meanData-forcedatas1.sdData, forcedatas1.meanData+forcedatas1.sdData,
+        alpha=0.5, edgecolor='#DC582A', facecolor='#DC582A', label = trials1.config)
+    ax5.plot(x, forcedatas2.meanData, 'k', color='#00966C')
+    ax5.fill_between(x,forcedatas2.meanData-forcedatas2.sdData, forcesTrial2.meanData+forcedatas2.sdData,
+        alpha=0.5, edgecolor='#00966C', facecolor='#00966C', label = trials2.config)
+    ax5.set_title('Vertical Forces')
+    ax5.set_ylabel('Force (N)')
+    ax5.legend()
+    ax6.plot(x, sagmomentdatas1.meanData, 'k', color='#DC582A')
+    ax6.fill_between(x,sagmomentdatas1.meanData-sagmomentdatas1.sdData, sagmomentdatas1.meanData+sagmomentdatas1.sdData,
+        alpha=0.5, edgecolor='#DC582A', facecolor='#DC582A', label = trials1.config)
+    ax6.plot(x, sagmomentdatas2.meanData, 'k', color='#00966C')
+    ax6.fill_between(x,sagmomentdatas2.meanData-sagmomentdatas2.sdData, sagmomentdatas2.meanData+sagmomentdatas2.sdData,
+        alpha=0.5, edgecolor='#00966C', facecolor='#00966C', label = trials2.config)
+    ax6.legend()
+    ax6.set_title('Sagittal Moments')
+    ax6.set_ylabel('Moment (Nm)')
+    ax6.set_xlabel('Index')
+    plt.tight_layout()
+    
+def makecoolfrontalplots(forcedatas1, frontmomdatas1, forcedatas2, frontmomdatas2, trials1, trials2):
+    fig, (ax5, ax6) = plt.subplots(2)
+    ax5.plot(x, forcedatas1.meanData, 'k', color='#DC582A')
+    ax5.fill_between(x,forcedatas1.meanData-forcedatas1.sdData, forcedatas1.meanData+forcedatas1.sdData,
+        alpha=0.5, edgecolor='#DC582A', facecolor='#DC582A', label = trials1.config)
+    ax5.plot(x, forcedatas2.meanData, 'k', color='#00966C')
+    ax5.fill_between(x,forcedatas2.meanData-forcedatas2.sdData, forcesTrial2.meanData+forcedatas2.sdData,
+        alpha=0.5, edgecolor='#00966C', facecolor='#00966C', label = trials2.config)
+    ax5.set_title('Vertical Forces')
+    ax5.set_ylabel('Force (N)')
+    ax5.legend()
+    ax6.plot(x, frontmomdatas1.meanData, 'k', color='#DC582A')
+    ax6.fill_between(x,frontmomdatas1.meanData-frontmomdatas1.sdData, frontmomdatas1.meanData+frontmomdatas1.sdData,
+        alpha=0.5, edgecolor='#DC582A', facecolor='#DC582A', label = trials1.config)
+    ax6.plot(x, frontmomdatas2.meanData, 'k', color='#00966C')
+    ax6.fill_between(x,frontmomdatas2.meanData-frontmomdatas2.sdData, frontmomdatas2.meanData+frontmomdatas2.sdData,
+        alpha=0.5, edgecolor='#00966C', facecolor='#00966C', label = trials2.config)
+    ax6.legend()
+    ax6.set_title('Frontal Moments')
+    ax6.set_ylabel('Moment (Nm)')
+    ax6.set_xlabel('Index')
+    plt.tight_layout()
+  
+    
+#makecoolsagittalplots(forcesTrial1, sagmomTrial1, forcesTrial2, sagmomTrial2, trial1, trial2)
+makecoolsagittalplots(skateforcesTrial1, skatesagmomTrial1, skateforcesTrial2, skatesagmomTrial2, trial3, trial4)
+makecoolfrontalplots(skateforcesTrial1, skatemomTrial1, skateforcesTrial2, skatemomTrial2, trial3, trial4)
 ## TODO: extend plots to include:
 ### Make a new plot for Sagittal moments & COM power 
 ### Making plot a function that uses the same format
