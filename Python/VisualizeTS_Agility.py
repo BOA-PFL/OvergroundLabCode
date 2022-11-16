@@ -364,5 +364,5 @@ plt.tight_layout()
 ## TODO: extend plots to include:
 ### Make a new plot for Sagittal moments & COM power 
 ### Making plot a function that uses the same format
-### Extend to skater jump for force plate swap
+### Extend to skater jump for force plate swap. This requires inputting the right data in calcEnsembleData
 ### Extend to a third model (afer the above 3 are done)
