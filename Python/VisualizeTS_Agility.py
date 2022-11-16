@@ -19,7 +19,7 @@ from dataclasses import dataclass
 
 # select files
 
-fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
+fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 entries = os.listdir(fPath)
@@ -337,6 +337,9 @@ forcesTrial2 = calcEnsembleData(trial2.df.FP2_GRF_Z, trial2.landings, stepLen)
 
 momTrial1 = calcEnsembleData(trial1.df.RAnkleMoment_Frontal, trial1.landings, stepLen)
 momTrial2 = calcEnsembleData(trial2.df.RAnkleMoment_Frontal, trial2.landings, stepLen)
+#COMPowerTrial1 = calcEnsembleData(trial1.df.COMPower, trial1.landings, stepLen)
+sagmomTrial1 = calcEnsembleData(trial1.df.RAnkleMoment_Sagittal, trial1.landings, stepLen)
+sagmomTrial2 = calcEnsembleData(trial2.df.RAnkleMoment_Sagittal, trial1.landings, stepLen)
 
 ### plotting ###
 fig, (ax1, ax2) = plt.subplots(2)
@@ -359,6 +362,28 @@ ax2.legend()
 ax2.set_title('Frontal Moments')
 ax2.set_ylabel('Moment (Nm)')
 ax2.set_xlabel('Index')
+plt.tight_layout()
+
+fig, (ax3, ax4) = plt.subplots(2)
+ax3.plot(x, forcesTrial1.meanData, 'k', color='#DC582A')
+ax3.fill_between(x,forcesTrial1.meanData-forcesTrial1.sdData, forcesTrial1.meanData+forcesTrial1.sdData,
+    alpha=0.5, edgecolor='#DC582A', facecolor='#DC582A', label = trial1.config)
+ax3.plot(x, forcesTrial2.meanData, 'k', color='#00966C')
+ax3.fill_between(x,forcesTrial2.meanData-forcesTrial2.sdData, forcesTrial2.meanData+forcesTrial2.sdData,
+    alpha=0.5, edgecolor='#00966C', facecolor='#00966C', label = trial2.config)
+ax3.set_title('Vertical Forces')
+ax3.set_ylabel('Force (N)')
+ax3.legend()
+ax4.plot(x, sagmomTrial1.meanData, 'k', color='#DC582A')
+ax4.fill_between(x,sagmomTrial1.meanData-sagmomTrial1.sdData, sagmomTrial1.meanData+sagmomTrial1.sdData,
+    alpha=0.5, edgecolor='#DC582A', facecolor='#DC582A', label = trial1.config)
+ax4.plot(x, sagmomTrial2.meanData, 'k', color='#00966C')
+ax4.fill_between(x,sagmomTrial2.meanData-sagmomTrial2.sdData, sagmomTrial2.meanData+sagmomTrial2.sdData,
+    alpha=0.5, edgecolor='#00966C', facecolor='#00966C', label = trial2.config)
+ax4.legend()
+ax4.set_title('Sagittal Moments')
+ax4.set_ylabel('Moment (Nm)')
+ax4.set_xlabel('Index')
 plt.tight_layout()
 
 ## TODO: extend plots to include:
