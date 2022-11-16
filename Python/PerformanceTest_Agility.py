@@ -19,6 +19,8 @@ pd.options.mode.chained_assignment = None  # default='warn' set to warn for a lo
 
 # Define constants and options
 fThresh = 80 #below this force value will be set to 0.
+save_on = 0 # turn this on for automatic saving of csv!!!! 
+#fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
 
 fPath = 'C:/Users/Kate.Harrison/Boa Technology Inc/PFL Team - General/Testing Segments/AgilityPerformanceData/CPD_TongueLocatedDial_Oct2022/Overground/'
 
@@ -116,13 +118,16 @@ def delimitTrial(inputDF):
 
     # generic function to plot and start/end trial #
     fig, ax = plt.subplots()
-    totForce = dat.FP1_GRF_Z + dat.FP2_GRF_Z + dat.FP3_GRF_Z + dat.FP4_GRF_Z
-    print('Select a point on the plot to represent the beginning & end of trial')
+
+    totForce = inputDF.FP1_GRF_Z + inputDF.FP2_GRF_Z + inputDF.FP3_GRF_Z + inputDF.FP4_GRF_Z
+    print('Select a point on the plot to represent the beginning & end of trial where Y-value is near 0')
+
+
     ax.plot(totForce, label = 'Total Force')
     fig.legend()
     pts = np.asarray(plt.ginput(2, timeout=-1))
     plt.close()
-    outputDat = dat.iloc[int(np.floor(pts[0,0])) : int(np.floor(pts[1,0])),:]
+    outputDat = inputDF.iloc[int(np.floor(pts[0,0])) : int(np.floor(pts[1,0])),:]
     outputDat = outputDat.reset_index()
     return(outputDat)
 
@@ -351,19 +356,21 @@ for fName in entries:
 
 
 outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movement':list(movements),
+                         'CT':list(CT), 'impulse_Z':list(impulseZ), 'impulse_X':list(impulseX), 
+                         'peakGRF_Z':list(peakGRFz), 'peakGRF_X':list(peakGRFx), 'peakPFmom':list(peakPFmom),
+                         'peakINVmom':list(peakINVmom), 'peakKneeEXTmom':list(peakKneeEXTmom), 
+                         'kneeABDrom':list(kneeABDrom), 'eccWork':list(eccWork), 'peakPower':list(peakPower) })
 
 
-                         'CT':list(CT), 'impulse_Z':list(impulseZ), 'impulse_X':list(impulseX), 'peakGRF_Z':list(peakGRFz), 'peakGRF_X':list(peakGRFx), 'peakPFmom':list(peakPFmom),
-                         'peakINVmom':list(peakINVmom), 'peakEVmom':list(peakEVmom), 'peakKneeADDmom':list(peakKneeADDmom), 'peakKneeEXTmom':list(peakKneeEXTmom), 'kneeABDrom':list(kneeABDrom), 'eccWork':list(eccWork), 'conWork':list(conWork), 'peakPower':list(peakPower) })
 
                        
 
 
 
 
-
-outfileName = fPath + 'CompiledAgilityDataTest.csv'
-outcomes.to_csv(outfileName, index = False)
+if save_on == 1:
+    outfileName = fPath + 'CompiledAgilityDataTest.csv'
+    outcomes.to_csv(outfileName, index = False)
 
 
 
