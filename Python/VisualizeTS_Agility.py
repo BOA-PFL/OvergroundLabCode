@@ -386,6 +386,32 @@ ax4.set_ylabel('Moment (Nm)')
 ax4.set_xlabel('Index')
 plt.tight_layout()
 
+
+def makecoolsagittalplots(forcedatas1, sagmomentdatas1, forcedatas2, sagmomentdatas2, trials1, trials2):
+    fig, (ax5, ax6) = plt.subplots(2)
+    ax5.plot(x, forcedatas1.meanData, 'k', color='#DC582A')
+    ax5.fill_between(x,forcedatas1.meanData-forcedatas1.sdData, forcedatas1.meanData+forcedatas1.sdData,
+        alpha=0.5, edgecolor='#DC582A', facecolor='#DC582A', label = trials1.config)
+    ax5.plot(x, forcedatas2.meanData, 'k', color='#00966C')
+    ax5.fill_between(x,forcedatas2.meanData-forcedatas2.sdData, forcesTrial2.meanData+forcedatas2.sdData,
+        alpha=0.5, edgecolor='#00966C', facecolor='#00966C', label = trials2.config)
+    ax5.set_title('Vertical Forces')
+    ax5.set_ylabel('Force (N)')
+    ax5.legend()
+    ax6.plot(x, sagmomentdatas1.meanData, 'k', color='#DC582A')
+    ax6.fill_between(x,sagmomentdatas1.meanData-sagmomentdatas1.sdData, sagmomentdatas1.meanData+sagmomentdatas1.sdData,
+        alpha=0.5, edgecolor='#DC582A', facecolor='#DC582A', label = trials1.config)
+    ax6.plot(x, sagmomentdatas2.meanData, 'k', color='#00966C')
+    ax6.fill_between(x,sagmomentdatas2.meanData-sagmomentdatas2.sdData, sagmomentdatas2.meanData+sagmomentdatas2.sdData,
+        alpha=0.5, edgecolor='#00966C', facecolor='#00966C', label = trials2.config)
+    ax6.legend()
+    ax6.set_title('Sagittal Moments')
+    ax6.set_ylabel('Moment (Nm)')
+    ax6.set_xlabel('Index')
+    plt.tight_layout()
+  
+    
+makecoolsagittalplots(forcesTrial1, sagmomTrial1, forcesTrial2, sagmomTrial2, trial1, trial2)
 ## TODO: extend plots to include:
 ### Make a new plot for Sagittal moments & COM power 
 ### Making plot a function that uses the same format
