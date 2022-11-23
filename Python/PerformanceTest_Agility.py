@@ -20,7 +20,7 @@ pd.options.mode.chained_assignment = None  # default='warn' set to warn for a lo
 # Define constants and options
 fThresh = 80 #below this force value will be set to 0.
 
-fPath = 'C:/Users/Kate.Harrison/Boa Technology Inc/PFL Team - General/Testing Segments/AgilityPerformanceData/CPD_TongueLocatedDial_Oct2022/Overground/'
+fPath = 'C:\\Users\\bethany.kilpatrick\\Boa Technology Inc\\PFL - General\\Testing Segments\\AgilityPerformanceData\\KneeBrace_Pilot_Nov2022\\Overground\\'
 
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
@@ -205,7 +205,8 @@ peakGRFx = []
 peakPFmom = []
 peakINVmom = []
 peakKneeEXTmom = []
-kneeABDrom = []
+kneeABDrom = [] 
+PkRkneeABDMom = []
 eccWork = []
 peakPower = []
 
@@ -320,6 +321,7 @@ for fName in entries:
                         peakINVmom.append(np.max(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
                         peakKneeEXTmom.append(np.max(dat.RKneeMoment_Sagittal[landings[i]:takeoffs[i]]))
                         kneeABDrom.append(np.max(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]) - np.min(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]))
+                        PkRkneeABDMom.append( np.min( dat.RKneeMoment_Frontal[landings[i]  : takeoffs[i]]))
                         negpower = copy.deepcopy(dat.COM_Power)
                         negpower[negpower>0] = 0
                         eccWork.append(np.sum(negpower[landings[i]:takeoffs[i]])/200*-1)
@@ -346,7 +348,7 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movem
 
 
                          'CT':list(CT), 'impulse_Z':list(impulseZ), 'impulse_X':list(impulseX), 'peakGRF_Z':list(peakGRFz), 'peakGRF_X':list(peakGRFx), 'peakPFmom':list(peakPFmom),
-                         'peakINVmom':list(peakINVmom), 'peakKneeEXTmom':list(peakKneeEXTmom), 'kneeABDrom':list(kneeABDrom), 'eccWork':list(eccWork), 'peakPower':list(peakPower) })
+                         'peakINVmom':list(peakINVmom), 'peakKneeEXTmom':list(peakKneeEXTmom), 'kneeABDrom':list(kneeABDrom),'PK_R_ABD_KneeMome':list(PkRkneeABDMom), 'eccWork':list(eccWork), 'peakPower':list(peakPower) })
 
                        
 
