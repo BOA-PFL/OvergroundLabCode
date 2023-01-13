@@ -322,7 +322,7 @@ for fName in entries:
                         peakPFmom.append(np.min(dat.RAnkleMoment_Sagittal[landings[i]:takeoffs[i]])*-1)
                         peakINVmom.append(np.max(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
                         peakEVmom.append(np.min(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
-                        peakKneeADDmom.append(np.min(dat.RKneeMoment_Frontal[landings[i]:takeoffs[i]])) # looking at an INTERNAL moment, so this is the peak external ABD moment
+                        peakKneeADDmom.append(np.max(dat.RKneeMoment_Frontal[landings[i]:takeoffs[i]])) # looking at an INTERNAL moment, so this is the peak external ABD moment
                         peakKneeEXTmom.append(np.max(dat.RKneeMoment_Sagittal[landings[i]:takeoffs[i]]))
                         kneeABDrom.append(np.max(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]) - np.min(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]))
                         negpower = copy.deepcopy(dat.COM_Power)
