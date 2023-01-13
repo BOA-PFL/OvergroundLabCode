@@ -7,6 +7,8 @@ and append the failing file names to a list while the passing ones write
 results to a csv - DF
 
 """
+import sys
+sys.tracebacklimit = 0
 
 import pandas as pd
 import numpy as np
@@ -22,7 +24,7 @@ fThresh = 80 #below this force value will be set to 0.
 save_on = 0 # turn this on for automatic saving of csv!!!! 
 #fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
 
-fPath = 'C:/Users/Kate.Harrison/Boa Technology Inc/PFL Team - General/Testing Segments/AgilityPerformanceData/CPD_TongueLocatedDial_Oct2022/Overground/'
+fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\Material Testing\\UpperStiffnessA&S_Performance_Jan2023\\Overground\\'
 
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
