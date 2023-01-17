@@ -100,7 +100,7 @@ def findTakeoffs(force, fThresh):
 
 
 
-def delimitTrial(inputDF):
+def delimitTrial(inputDF,FName):
     """
      This function uses ginput to delimit the start and end of a trial
     You will need to indicate on the plot when to start/end the trial. 
@@ -119,19 +119,31 @@ def delimitTrial(inputDF):
     """
 
     # generic function to plot and start/end trial #
-    fig, ax = plt.subplots()
+    if os.path.exists(fPath+FName+'TrialSeg.npy'):
+        trial_segment_old = np.load(fPath+FName+'TrialSeg.npy', allow_pickle =True)
+        trialStart = trial_segment_old[1][0,0]
+        trialEnd = trial_segment_old[1][1,0]
+        inputDF = inputDF.iloc[int(np.floor(trialStart)) : int(np.floor(trialEnd)),:]
+        outputDat = inputDF.reset_index()
+        
+    else: 
+        fig, ax = plt.subplots()
 
-    totForce = inputDF.FP1_GRF_Z + inputDF.FP2_GRF_Z + inputDF.FP3_GRF_Z + inputDF.FP4_GRF_Z
-    print('Select a point on the plot to represent the beginning & end of trial where Y-value is near 0')
+        totForce = inputDF.FP1_GRF_Z + inputDF.FP2_GRF_Z + inputDF.FP3_GRF_Z + inputDF.FP4_GRF_Z
+        print('Select a point on the plot to represent the beginning & end of trial where Y-value is near 0')
 
 
-    ax.plot(totForce, label = 'Total Force')
-    fig.legend()
-    pts = np.asarray(plt.ginput(2, timeout=-1))
-    plt.close()
-    outputDat = inputDF.iloc[int(np.floor(pts[0,0])) : int(np.floor(pts[1,0])),:]
-    outputDat = outputDat.reset_index()
+        ax.plot(totForce, label = 'Total Force')
+        fig.legend()
+        pts = np.asarray(plt.ginput(2, timeout=-1))
+        plt.close()
+        outputDat = inputDF.iloc[int(np.floor(pts[0,0])) : int(np.floor(pts[1,0])),:]
+        outputDat = outputDat.reset_index()
+        trial_segment = np.array([FName, pts])
+        np.save(fPath+FName+'TrialSeg.npy',trial_segment)
+
     return(outputDat)
+
 
 def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
     
@@ -246,7 +258,7 @@ for fName in entries:
         takeoffs = []
         if (tmpMove == 'Skater') or (tmpMove == 'skater'):
             
-            dat = delimitTrial(dat)
+            dat = delimitTrial(dat,fName)
             # create vector of force from vertical signal from each file and make low values 0
             if np.max(abs(dat.FP3_GRF_Z)) > np.max(abs(dat.FP4_GRF_Z)):
 
@@ -278,7 +290,7 @@ for fName in entries:
          
         elif (tmpMove == 'CMJ') or (tmpMove == 'cmj'):
             
-            dat = delimitTrial(dat)
+            dat = delimitTrial(dat,fName)
             
 
             ZForce = dat.FP2_GRF_Z
@@ -369,7 +381,7 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movem
 
 
 
-
+save_on = 1
 if save_on == 1:
     outfileName = fPath + 'CompiledAgilityDataTest.csv'
     outcomes.to_csv(outfileName, index = False)
