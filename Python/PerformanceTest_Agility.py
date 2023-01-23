@@ -26,6 +26,7 @@ save_on = 0 # turn this on for automatic saving of csv!!!!
 
 fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\Material Testing\\UpperStiffnessA&S_Performance_Jan2023\\Overground\\'
 
+
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
@@ -330,13 +331,14 @@ for fName in entries:
                 for i in range(len(landings)):
         
                     try:
-
+                        
+                        tmpCT = round((takeoffs[i] - landings[i])/2) #to use as approximate for propulsive start
                         CT.append((takeoffs[i] - landings[i])/200)
                         impulseZ.append(np.sum(ZForce[landings[i]:takeoffs[i]])/200)
                         impulseX.append(np.sum(XForce[landings[i]:takeoffs[i]])/200)
                         
-                        peakGRFz.append(np.max(ZForce[landings[i]:takeoffs[i]]))
-                        peakGRFx.append(np.max(XForce[landings[i]:takeoffs[i]]))
+                        peakGRFz.append(np.max(ZForce[landings[i]+tmpCT:takeoffs[i]])) #peak propulsive force approximated from 2nd half of contact time
+                        peakGRFx.append(np.max(XForce[landings[i]+tmpCT:takeoffs[i]])) #peak propulsive force approximated from 2nd half of contact time
                     
                         peakPFmom.append(np.min(dat.RAnkleMoment_Sagittal[landings[i]:takeoffs[i]])*-1)
                         peakINVmom.append(np.max(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
