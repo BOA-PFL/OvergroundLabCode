@@ -7,6 +7,8 @@ and append the failing file names to a list while the passing ones write
 results to a csv - DF
 
 """
+import sys
+sys.tracebacklimit = 0
 
 import pandas as pd
 import numpy as np
@@ -22,7 +24,8 @@ fThresh = 80 #below this force value will be set to 0.
 save_on = 0 # turn this on for automatic saving of csv!!!! 
 #fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
 
-fPath = 'C:/Users/daniel.feeney/Boa Technology Inc/PFL Team - General/Testing Segments/AgilityPerformanceData/CPD_TongueLocatedDial_Oct2022/Overground/'
+fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\Material Testing\\UpperStiffnessA&S_Performance_Jan2023\\Overground\\'
+
 
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
@@ -98,7 +101,7 @@ def findTakeoffs(force, fThresh):
 
 
 
-def delimitTrial(inputDF):
+def delimitTrial(inputDF,FName):
     """
      This function uses ginput to delimit the start and end of a trial
     You will need to indicate on the plot when to start/end the trial. 
@@ -117,19 +120,31 @@ def delimitTrial(inputDF):
     """
 
     # generic function to plot and start/end trial #
-    fig, ax = plt.subplots()
+    if os.path.exists(fPath+FName+'TrialSeg.npy'):
+        trial_segment_old = np.load(fPath+FName+'TrialSeg.npy', allow_pickle =True)
+        trialStart = trial_segment_old[1][0,0]
+        trialEnd = trial_segment_old[1][1,0]
+        inputDF = inputDF.iloc[int(np.floor(trialStart)) : int(np.floor(trialEnd)),:]
+        outputDat = inputDF.reset_index()
+        
+    else: 
+        fig, ax = plt.subplots()
 
-    totForce = inputDF.FP1_GRF_Z + inputDF.FP2_GRF_Z + inputDF.FP3_GRF_Z + inputDF.FP4_GRF_Z
-    print('Select a point on the plot to represent the beginning & end of trial where Y-value is near 0')
+        totForce = inputDF.FP1_GRF_Z + inputDF.FP2_GRF_Z + inputDF.FP3_GRF_Z + inputDF.FP4_GRF_Z
+        print('Select a point on the plot to represent the beginning & end of trial where Y-value is near 0')
 
 
-    ax.plot(totForce, label = 'Total Force')
-    fig.legend()
-    pts = np.asarray(plt.ginput(2, timeout=-1))
-    plt.close()
-    outputDat = inputDF.iloc[int(np.floor(pts[0,0])) : int(np.floor(pts[1,0])),:]
-    outputDat = outputDat.reset_index()
+        ax.plot(totForce, label = 'Total Force')
+        fig.legend()
+        pts = np.asarray(plt.ginput(2, timeout=-1))
+        plt.close()
+        outputDat = inputDF.iloc[int(np.floor(pts[0,0])) : int(np.floor(pts[1,0])),:]
+        outputDat = outputDat.reset_index()
+        trial_segment = np.array([FName, pts])
+        np.save(fPath+FName+'TrialSeg.npy',trial_segment)
+
     return(outputDat)
+
 
 def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
     
@@ -244,7 +259,7 @@ for fName in entries:
         takeoffs = []
         if (tmpMove == 'Skater') or (tmpMove == 'skater'):
             
-            dat = delimitTrial(dat)
+            dat = delimitTrial(dat,fName)
             # create vector of force from vertical signal from each file and make low values 0
             if np.max(abs(dat.FP3_GRF_Z)) > np.max(abs(dat.FP4_GRF_Z)):
 
@@ -276,7 +291,7 @@ for fName in entries:
          
         elif (tmpMove == 'CMJ') or (tmpMove == 'cmj'):
             
-            dat = delimitTrial(dat)
+            dat = delimitTrial(dat,fName)
             
 
             ZForce = dat.FP2_GRF_Z
@@ -328,7 +343,7 @@ for fName in entries:
                         peakPFmom.append(np.min(dat.RAnkleMoment_Sagittal[landings[i]:takeoffs[i]])*-1)
                         peakINVmom.append(np.max(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
                         peakEVmom.append(np.min(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
-                        peakKneeADDmom.append(np.min(dat.RKneeMoment_Frontal[landings[i]:takeoffs[i]])) # looking at an INTERNAL moment, so this is the peak external ABD moment
+                        peakKneeADDmom.append(np.max(dat.RKneeMoment_Frontal[landings[i]:takeoffs[i]])) # looking at an INTERNAL moment, so this is the peak external ABD moment
                         peakKneeEXTmom.append(np.max(dat.RKneeMoment_Sagittal[landings[i]:takeoffs[i]]))
                         kneeABDrom.append(np.max(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]) - np.min(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]))
                         negpower = copy.deepcopy(dat.COM_Power)
@@ -368,7 +383,7 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movem
 
 
 
-
+save_on = 1
 if save_on == 1:
     outfileName = fPath + 'CompiledAgilityDataTest.csv'
     outcomes.to_csv(outfileName, index = False)
