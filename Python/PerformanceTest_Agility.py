@@ -335,8 +335,8 @@ for fName in entries:
                         impulseZ.append(np.sum(ZForce[landings[i]:takeoffs[i]])/200)
                         impulseX.append(np.sum(XForce[landings[i]:takeoffs[i]])/200)
                         
-                        peakGRFz.append(np.max(ZForce[landings[i]:takeoffs[i]]))
-                        peakGRFx.append(np.max(XForce[landings[i]:takeoffs[i]]))
+                        peakGRFz.append(np.max(ZForce[round(landings[i]+((takeoffs[i]-landings[i])/2)):takeoffs[i]]))
+                        peakGRFx.append(np.max(XForce[round(landings[i]+((takeoffs[i]-landings[i])/2)):takeoffs[i]]))
                     
                         peakPFmom.append(np.min(dat.RAnkleMoment_Sagittal[landings[i]:takeoffs[i]])*-1)
                         peakINVmom.append(np.max(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
