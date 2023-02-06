@@ -34,6 +34,7 @@ fThresh = 80 #below this force value will be set to 0.
 save_on = 0 # turn this on for automatic saving of csv!!!! 
 #fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
 
+#fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\Material Testing\\2022\\CarbonTest_Speedland_Performance_Oct2022\\Overground\\DistalFootWork\\'
 fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\Material Testing\\UpperStiffnessA&S_Performance_Jan2023\\Overground\\DistalFootWork\\'
 
 fileExt = r".txt"
@@ -305,7 +306,7 @@ for fName in entries:
 
            
         else:
-            print('this movement is not included in Performance Test Analysis')
+            print('this movement is not included in Performance Test Analysis'+tmpMove)
         
         if (tmpMove == 'CMJ') or (tmpMove == 'cmj') or (tmpMove == 'Skater') or (tmpMove == 'skater'):
             
@@ -348,16 +349,17 @@ for fName in entries:
                             RightDistalRFnegWork.append(np.sum(negRightFootPower[landings[i]:takeoffs[i]]))
                             RightDistalRFposWork.append(np.sum(posRightFootPower[landings[i]:takeoffs[i]]))
                             LeftDistalRFposWork.append(np.sum(posLeftFootPower[landings[i]:takeoffs[i]]))
+                            #COMWork.append(np.sum())
                             subName.append(fName.split('_')[0])
                             config.append( config1 )
                             movements.append( tmpMove )
                             
-                            fig, ax = plt.subplots()
-                            plt.plot(dat.RDistalFootPower_FP2[landings[i]:takeoffs[i]])
-                            plt.plot(dat.RightAnklePower[landings[i]:takeoffs[i]])
-                            ax.set_title("Foot and Ankle Power CMJ")
-                            ax.set_ylabel("Power (W)")
-                            ax.legend(['Foot Power', 'Ankle Power'])
+                            # fig, ax = plt.subplots()
+                            # plt.plot(dat.RDistalFootPower_FP2[landings[i]:takeoffs[i]])
+                            # plt.plot(dat.RightAnklePower[landings[i]:takeoffs[i]])
+                            # ax.set_title("Foot and Ankle Power CMJ")
+                            # ax.set_ylabel("Power (W)")
+                            # ax.legend(['Foot Power', 'Ankle Power'])
                             # for counterVar, landing in enumerate(landings):
                             #     GS.append (counterVar)
                                 
@@ -402,12 +404,12 @@ for fName in entries:
                              config.append( config1 )
                              movements.append( tmpMove )
                              
-                             fig, ax = plt.subplots()
-                             plt.plot(dat.RDistalFootPower_FP4[landings[i]:takeoffs[i]])
-                             plt.plot(dat.RightAnklePower[landings[i]:takeoffs[i]])
-                             ax.set_title("Foot and Ankle Power Skater")
-                             ax.set_ylabel("Power (W)")
-                             ax.legend(['Foot Power', 'Ankle Power'])
+                             # fig, ax = plt.subplots()
+                             # plt.plot(dat.RDistalFootPower_FP4[landings[i]:takeoffs[i]])
+                             # plt.plot(dat.RightAnklePower[landings[i]:takeoffs[i]])
+                             # ax.set_title("Foot and Ankle Power Skater")
+                             # ax.set_ylabel("Power (W)")
+                             # ax.legend(['Foot Power', 'Ankle Power'])
                     except:
         
                         print(fName + str(i))
@@ -434,7 +436,7 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movem
 
                        
 
-save_on = 0
+save_on = 1 
 if save_on == 1:
     outfileName = fPath + 'CompiledAgilityDataTest.csv'
     outcomes.to_csv(outfileName, index = False)
@@ -442,5 +444,10 @@ if save_on == 1:
 
 
 
-
+fig, ax = plt.subplots()
+plt.plot(dat.RDistalFootPower_FP4[landings[1]:takeoffs[1]])
+plt.plot(dat.RightAnklePower[landings[1]:takeoffs[1]])
+ax.set_title("Foot and Ankle Power Skater")
+ax.set_ylabel("Power (W)")
+ax.legend(['Foot Power', 'Ankle Power'])
 
