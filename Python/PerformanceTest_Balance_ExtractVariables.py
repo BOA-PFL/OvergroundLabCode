@@ -19,35 +19,97 @@ fPath = 'C:/Users/kate.harrison/Boa Technology Inc/PFL - Documents/General/Power
 entries = os.listdir(fPath)
 
 # list of functions 
-# finding landings on the force plate once the filtered force exceeds the force threshold
-def findLandings(force):
-    lic = []
+def findLandings(force, fThresh):
+    """
+    This function finds the landings from force plate data
+    it uses a heuristic to determine landings from when the smoothed force is
+    0 and then breaches a threshold
+    
+    Parameters
+    ----------
+    force : Pandas Series
+        Vertical force from force plate.
+    fThresh: integer
+        Value force has to be greater than to count as a takeoff/landing
+
+    Returns
+    -------
+    lic : list
+        Indices of landings.
+
+    """
+    lic = [] 
+    
     for step in range(len(force)-1):
-        if force[step] == 0 and force[step + 1] >= fThresh:
-            lic.append(step)
+        if len(lic) == 0: 
+            
+            if force[step] == 0 and force[step + 1] >= fThresh and force [step + 10 ] > 300:
+                lic.append(step)
+    
+        else:
+        
+            if force[step] == 0 and force[step + 1] >= fThresh and step > lic[-1] + 300 and force [step + 10] > 300:
+                lic.append(step)
     return lic
 
-#Find takeoff from FP when force goes from above thresh to 0
-def findTakeoffs(force):
+
+
+def findTakeoffs(force, fThresh):
+    """
+    This function calculates the takeoffs using a heuristic 
+
+    Parameters
+    ----------
+    force : Pandas Series
+        vertical force from force plate.
+    
+    fThresh: integer
+        Value force has to be greater than to count as a takeoff/landing
+    Returns
+    -------
+    lto : list
+        indices of takeoffs obtained from force data. Takeoffs here mean
+        the moment a force signal was > a threshold and then goes to 0
+
+    """
     lto = []
     for step in range(len(force)-1):
-        if force[step] >= fThresh and force[step + 1] == 0:
+        if force[step] >= fThresh and force[step + 1] == 0 and force[step + 5] == 0 and force[step + 10] == 0:
             lto.append(step + 1)
     return lto
 
-def trimLandings(landings, takeoffs):
-    trimTakeoffs = landings
-    if len(takeoffs) > len(landings) and takeoffs[0] > landings[0]:
-        del(trimTakeoffs[0])
-    return(trimTakeoffs)
+# def trimTakeoffs(landing, takeoff):
+#     if landing[0] > takeoff[0]:
+#         takeoff.pop(0)
+#         return(takeoff)
+#     else:
+#         return(takeoff)
 
-def trimTakeoffs(landings, takeoffs):
-    if len(takeoffs) < len(landings):
-        del(landings[-1])
-    return(landings)
 
 #Moving average of length specified in function
 def movAvgForce(force, landing, takeoff, length):
+    """
+    In order to estimate when someone stabilized, we calcualted the moving
+    average force and SD of the force signal. This is one of many published 
+    methods to calcualte when someone is stationary. 
+    
+    Parameters
+    ----------
+    force : Pandas series
+        pandas series of force from force plate.
+    landing : List
+        list of landings calcualted from findLandings.
+    takeoff : List
+        list of takeoffs from findTakeoffs.
+    length : Integer
+        length of time in indices to calculate the moving average.
+
+    Returns
+    -------
+    avgF : list
+        smoothed average force .
+
+    """
     newForce = np.array(force)
     win_len = length; #window length for steady standing
     avgF = []
@@ -57,6 +119,27 @@ def movAvgForce(force, landing, takeoff, length):
 
 #moving SD as calcualted above
 def movSDForce(force, landing, takeoff, length):
+    """
+    This function calculates a rolling standard deviation over an input
+    window length
+    
+    Parameters
+    ----------
+    force : Pandas series
+        pandas series of force from force plate.
+    landing : List
+        list of landings calcualted from findLandings.
+    takeoff : List
+        list of takeoffs from findTakeoffs.
+    length : Integer
+        length of time in indices to calculate the moving average.
+
+    Returns
+    -------
+    avgF : list
+        smoothed rolling SD of forces
+
+    """
     newForce = np.array(force)
     win_len = length; #window length for steady standing
     avgF = []
@@ -64,17 +147,53 @@ def movSDForce(force, landing, takeoff, length):
         avgF.append(np.std(newForce[i : i + win_len]))     
     return avgF
 
-
 #estimated stability after 200 indices
 def findBW(force):
-    BW = np.mean(avgF[200:300])
+    """
+    If you do not have the subject's body weight or want to find from the 
+    steady portion of force, this may be used. This is highly conditional on 
+    the data and how it was collected. The below assumes quiet standing from
+    100 to 200 indices. 
+    
+    Parameters
+    ----------
+    force : Pandas series
+        DESCRIPTION.
+
+    Returns
+    -------
+    BW : floating point number
+        estimate of body weight of the subject to find stabilized weight
+        in Newtons
+
+    """
+    BW = np.mean(avgF[100:200])
     return BW
 
 def findStabilization(avgF, sdF):
+    """
+    Using the rolling average and SD values, this calcualtes when the 
+    actual stabilized force occurs. 
+    
+    Parameters
+    ----------
+    avgF : list, calculated using movAvgForce 
+        rolling average of force.
+    sdF : list, calcualted using movSDForce above
+        rolling SD of force.
+
+    Returns
+    -------
+    floating point number
+        Time to stabilize using the heuristic: force is within +/- 5% of subject
+        mass and the rolling standrd deviation is below 20
+
+    """
     stab = []
     for step in range(len(avgF)-1):
         if avgF[step] >= (subBW - 0.05*subBW) and avgF[step] <= (subBW + 0.05*subBW) and sdF[step] < 20:
-            stab.append(step + 1)
+            stab.append(step + 1) 
+            
     return stab[0]
 
 #Preallocation

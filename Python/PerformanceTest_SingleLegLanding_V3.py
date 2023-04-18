@@ -1,5 +1,3 @@
-
-
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jul  9 13:55:28 2020
@@ -371,4 +369,5 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(tmpConfig),'Mov
 
 if save_on == 1:
     outcomes.to_csv(fPath + 'OGStabilization.csv',header=True,index=False) 
+
 
