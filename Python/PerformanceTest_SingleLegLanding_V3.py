@@ -1,5 +1,3 @@
-
-
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jul  9 13:55:28 2020
@@ -12,23 +10,34 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import scipy.signal as sig
-import seaborn as sns 
+from tkinter import messagebox
 
 
 # Define constants and options
-fThresh = 40; #below this value will be set to 0.
-writeData = 0; #will write to spreadsheet if 1 entered
+fThresh = 40 #below this value will be set to 0.
+save_on = 0 #will write to spreadsheet if 1 entered
+debug = 1 # turn to 1 for degbugging and displaying plots
 
 # Read in balance file
-fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\\WorkWear_Performance\\Elten_Jan2022\\Overground\\Export_V1_ Used for report\\'
+fPath = 'C:\\Users\\eric.honert\\Boa Technology Inc\\PFL Team - General\\Testing Segments\\WorkWear_Performance\\EH_Workwear_DualDialZonal_Performance_Feb2023\\Overground\\'
 fileExt = r".txt"
-entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
+entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt) and fName.count('SLL')]
 
+### set plot font size ###
+SMALL_SIZE = 14
+MEDIUM_SIZE = 16
+BIGGER_SIZE = 18
 
-#entries = os.listdir(fPath)
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+
 
 # list of functions 
-# finding landings on the force plate once the filtered force exceeds the force threshold
 def findLandings(force, fThresh):
     """
     This function finds the landings from force plate data
@@ -228,6 +237,8 @@ def findStabilization(avgF, sdF):
             stab.append(step + 1) 
             
     return stab[0]
+   
+
 
 ## Preallocation
 stabilization = []
@@ -238,109 +249,125 @@ sdFz = []
 subName = []
 movements = []
 tmpConfig = []
+badFileList = []
 
-LankleABDMom = []
-LankleADDMom = []
+RankleABDMom = []
+RankleADDMom = []
 
-LkneeABDMom = []
-LkneeADDMom = []
+RkneeABDMom = []
+RkneeADDMom = []
 
 
-for fName in entries:
-    try:
+for fName in entries[34:]:
+    # try:
         """
         loop through the selected files and obtain values for stabilization time
         Start by looping through files and getting meta data
         Then loop through landings on the force plate for stabilization time
         """
         dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
+        print('Processing:',fName)
         
         ##Parse file name into subject and configuration 
-        config = fName.split(sep = "_")[2]
-        tmpMove = fName.split(sep = "_")[1] 
-        movement = tmpMove.split(sep= ' _ ')[0]
+        config = fName.split(sep = "_")[1]
+        tmpMove = fName.split(sep = "_")[2] 
         # Filter force
-        forceZ = dat.FP1_Z 
+        forceZ = np.array(dat.FP4_GRF_Z)
         forceZ[forceZ<fThresh] = 0 
         
         ## find the landings and offs of the FP as vectors
-        landings = findLandings(forceZ)
-        #takeoffs = findTakeoffs(forceZ) 
-        
-        # landings = trimLandings(landings, takeoffs)
-        # takeoffs = trimTakeoffs(landings, takeoffs)
+        landings = findLandings(forceZ,fThresh)
+
         
         ## For each landing, calculate rolling averages and time to stabilize
+        answer = True
+        if debug == 1:
+            plt.figure(1010)
+            plt.subplot(2,2,1)
+            plt.plot(forceZ)
+            plt.ylabel('Force (N)')
+            plt.title('Vertical Force')
+            plt.subplot(2,2,2)
+            plt.plot(dat.RAnkleMoment_Frontal)
+            plt.ylabel('Moment (Nm)')
+            plt.title('Ankle In/Ev Moment')
+            plt.ylim([-200,200])
+            plt.subplot(2,2,3)
+            plt.plot(dat.RKneeMoment_Sagittal)
+            plt.ylabel('Moment (Nm)')
+            plt.title('Knee Flex/Ex Moment')
+            plt.ylim([-200,200])
+            plt.subplot(2,2,4)
+            plt.plot(dat.RKneeMoment_Frontal)
+            plt.ylim([-200,200])
+            plt.ylabel('Moment (Nm)')
+            plt.title('Knee AB/AD Moment')
+            
+            answer = messagebox.askyesno("Question","Is data clean?")
+            plt.close('all')
         
-        for landing in landings:
-            try:
-                
-                sdFz.append(np.std(forceZ[landing + 100 : landing + 400]))
-                avgF = movAvgForce(forceZ, landing, landing + 200, 10)
-                sdF = movSDForce(forceZ, landing, landing + 200, 10)
-                subBW = findBW(avgF)
-                
+        if answer == False:
+            print('Adding file to bad file list')
+            badFileList.append(fName)
+        
+        if answer == True:
+            plt.close('all')
+            print('Estimating point estimates')
+        
+            for landing in landings:
                 try:
-                    stabilization.append(findStabilization(avgF, sdF))
+                    
+                    sdFz.append(np.std(forceZ[landing + 100 : landing + 400]))
+                    avgF = movAvgForce(forceZ, landing, landing + 200, 10)
+                    sdF = movSDForce(forceZ, landing, landing + 200, 10)
+                    subBW = findBW(avgF)
+                    
+                    try:
+                        stabilization.append(findStabilization(avgF, sdF)/200)
+                    except:
+                        stabilization.append('NaN')
+                    #tmpStab = findStabilization(avgF, sdF)
+                    movements.append(tmpMove)
+                    subName.append(fName.split(sep = "_")[0])
+                    tmpConfig.append(config)
+                    ###   ---- Work ---- ##
+                    # ankleWork.append(sum(abs(dat.LeftAnklePower[landing : landing + tmpStab])))
+                    # kneeWork.append(sum(abs(dat.LeftKneePower[landing : landing + tmpStab])))
+                    #hipWork.append(sum(abs(dat.LHipPower[landing : landing + tmpStab])))
+                   
+                    ###   ---- Pk Moments ---- ##
+                    if np.isnan(sum(dat.RKneeMoment_Frontal[landing : landing + 200])):
+                        RankleADDMom.append(np.nan)
+                        RankleABDMom.append(np.nan)
+                    else:
+                        RankleADDMom.append(max(dat.RAnkleMoment_Frontal[landing : landing + 200]))
+                        RankleABDMom.append(min(dat.RAnkleMoment_Frontal[landing : landing + 200]))
+                   
+                    if np.isnan(sum(dat.RKneeMoment_Frontal[landing : landing + 200])):
+                        RkneeABDMom.append(np.nan)
+                        RkneeADDMom.append(np.nan)
+                    else:
+                        RkneeABDMom.append(min(dat.RKneeMoment_Frontal[landing : landing + 200]))
+                        RkneeADDMom.append(max(dat.RKneeMoment_Frontal[landing : landing + 200]))
+                    
+                   
+                   
+                    
                     
                 except:
-                    stabilization.append('NaN')
-                #tmpStab = findStabilization(avgF, sdF)
-                movements.append(movement)
-                subName.append(fName.split(sep = "_")[0])
-                tmpConfig.append(config)
-                ###   ---- Work ---- ##
-                # ankleWork.append(sum(abs(dat.LeftAnklePower[landing : landing + tmpStab])))
-                # kneeWork.append(sum(abs(dat.LeftKneePower[landing : landing + tmpStab])))
-                #hipWork.append(sum(abs(dat.LHipPower[landing : landing + tmpStab])))
-               
-                ###   ---- Pk Moments ---- ##
-                
-                LankleADDMom.append(max(dat.LAnkleMoment_Frontal[landing : landing + 200]))
-                LankleABDMom.append(min(dat.LAnkleMoment_Frontal[landing : landing + 200]))
-               
-                LkneeABDMom.append(min(dat.LKneeMoment_Frontal[landing : landing + 200]))
-                LkneeADDMom.append(max(dat.LKneeMoment_Frontal[landing : landing + 200]))
-                
-               
-               
-                
-                
-            except:
-                print(landing, fName)
+                    print(landing, fName)
            
 
-    except:
-            print(fName)
-
-# x = np.linspace(landing,landing)
-# avgLKneeAddMom = np.mean(LkneeADDMom, axis = 0)
-# sdLKneeAddMom = np.std(LkneeADDMom, axis = 0)
-# #Plot force
-# plt.plot(x, avgLKneeAddMom, 'k', color='#CC4F1B')
-# plt.xlabel('Time')
-# plt.ylabel('AvgLKneeAddMom Nm')
-# plt.title('Avg Knee ADD Mome')
-# plt.fill_between(x, avgF-sdF, avgF+sdF,
-#      alpha=0.5, edgecolor='#CC4F1B', facecolor='#FF9848')
-    
-#Average Tibial force
-# avgTib = np.mean(preTib,axis=0)
-# sdTib = np.std(preTib, axis = 0)
-# #Plot average Tibial force 
-# plt.plot(x, avgTib, 'k', color='#CC4F1B')
-# plt.title('Ensemble average tibial force')
-# plt.fill_between(x, avgTib-sdTib, avgTib+sdTib,
-#     alpha=0.5, edgecolor='#CC4F1B', facecolor='#FF9848')
-    
+ 
 
 
 
-outcomes = pd.DataFrame({'Sub':list(subName), 'Config': list(tmpConfig),'Movement':list(movements), 'StabTime': list(stabilization), 'sdFz':list(sdFz),
-                          'LankleABDMom':list(LankleABDMom), 'LankleADDMom':list(LankleADDMom),  'LkneeADDMom': list(LkneeADDMom), 
-                          'LkneeABDMom':list(LkneeABDMom)})
+outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(tmpConfig),'Movement':list(movements), 'StabTime': list(stabilization), 'sdFz':list(sdFz),
+                          'RankleABDMom':list(RankleABDMom), 'RankleADDMom':list(RankleADDMom),  'RkneeADDMom': list(RkneeADDMom), 
+                          'RkneeABDMom':list(RkneeABDMom)})
 
 
-outcomes.to_csv("C:/Users/bethany.kilpatrick/Boa Technology Inc/PFL - General/WorkWear_Performance/Elten_Jan2022/Overground/CompiledOvergroundData.csv"
-                      ,mode='a',header=True) 
+if save_on == 1:
+    outcomes.to_csv(fPath + 'OGStabilization.csv',header=True,index=False) 
+
 
