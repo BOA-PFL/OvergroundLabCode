@@ -375,7 +375,7 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movem
                          'CT':list(CT), 'impulse_Z':list(impulseZ), 'impulse_X':list(impulseX), 
                          'peakGRF_Z':list(peakGRFz), 'peakGRF_X':list(peakGRFx), 'peakPFmom':list(peakPFmom),
                          'peakINVmom':list(peakINVmom), 'peakKneeEXTmom':list(peakKneeEXTmom), 
-                         'kneeABDrom':list(kneeABDrom), 'eccWork':list(eccWork), 'peakPower':list(peakPower) })
+                         'kneeABDrom':list(kneeABDrom), 'eccWork':list(eccWork),'conWork':list(conWork), 'peakPower':list(peakPower) })
 
 
 
