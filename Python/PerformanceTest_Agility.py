@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import os
 import copy
 from tkinter import messagebox
+import scipy.integrate as integrate
 
 pd.options.mode.chained_assignment = None  # default='warn' set to warn for a lot of warnings
 
@@ -24,8 +25,9 @@ fThresh = 80 #below this force value will be set to 0.
 save_on = 0 # turn this on for automatic saving of csv!!!! 
 #fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
 
-fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\Material Testing\\UpperStiffnessA&S_Performance_Jan2023\\Overground\\'
+#fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\Material Testing\\UpperStiffnessA&S_Performance_Jan2023\\Overground\\'
 
+fPath = 'C:\\Users\\milena.singletary\\Boa Technology Inc\\PFL Team - Documents\\General\\Testing Segments\\AgilityPerformanceData\\AS_Trail_HeelLockAgility_Perf_Apr23\\Overground\\'
 
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
@@ -146,6 +148,142 @@ def delimitTrial(inputDF,FName):
     return(outputDat)
 
 
+    
+    
+def powILM (Fz, Vz_COM, Fy, Vy_COM, Fx, Vx_COM):
+    """
+    This function finds power using the individual limb methods
+    Parameters
+    ----------
+    Fz : as a series, list, or array
+        vertical force from forceplate
+   
+    Fy : as a series, list, or array
+        a/p force from forceplate
+        
+    Fx : as a series, list, or array
+        medial/lateral force from forceplate
+    
+    Vz_COM : list
+        vertical COM velocity
+   
+    Vy_COM : list
+        a/p COM velocity
+        
+    Vx_COM : list
+        medial/lateral COM velocity 
+        
+    Returns
+    ----------
+    pw : list 
+        COM power
+    """
+    pw = ((Fz * Vz_COM) + (Fy * (Vy_COM)) + (Fx * Vx_COM))
+    return pw
+
+
+
+
+def work(start, stop, signal, frequency):
+    """
+    Parameters
+    ----------
+    start / stop : integer
+        index of foot contact and toe off of task
+   
+    signal : array 
+        power 
+        
+    frequency : float
+        frequency data was collected
+
+        
+    Returns
+    ----------
+    Work : list 
+        work
+    """
+    Work = integrate.trapezoid(signal[start:stop], dx = 1/frequency)
+    return Work
+
+def COMwk(totF_Z, totF_Y, totF_X, mass, landings):
+    '''
+    Finds COM work using ILM
+
+    Parameters
+    ----------
+    totF_Z : series
+        total force in Z for task
+    totF_Y : series
+        total force in Y for task
+    totF_X : series
+        total force in X for task
+    mass : integer
+        mass of subject
+    landings : list
+        landings detected for task
+
+    '''
+    acc_z = (totForce_z/mass) - 9.81
+    acc_y = totForce_y/mass
+    acc_x = totForce_x/mass
+    
+    velo_z = []
+    velo_y = []
+    velo_x = []
+   # for ii, val in enumerate(landings[:(len(landings)-1)]):
+    for ii, val in enumerate(zip(landings, takeoffs)):
+        veloz = integrate.cumtrapz(acc_z[val[0]:val[1]], dx = 1/frequency)
+        veloz = veloz - np.mean(veloz)
+        velo_z.append(veloz)
+        veloy = integrate.cumtrapz(acc_y[val[0]:val[1]], dx = 1/frequency)
+        veloy = veloy - np.mean(veloy)
+        velo_y.append(veloy)
+        velox = integrate.cumtrapz(acc_x[val[0]:val[1]], dx = 1/frequency)
+        velox = velox - np.mean(velox)
+        velo_x.append(velox)
+   
+    
+    pwr = []
+    for ii, val in enumerate(zip(landings, takeoffs)):
+        pwr.append(powILM(totForce_z[val[0]:val[1]-1], velo_z[ii], totForce_y[val[0]:val[1]-1], velo_y[ii], totForce_x[val[0]:val[1]-1], velo_x[ii]))
+        
+    #plot
+    # plt.figure()
+    # plt.title("COM Power")  
+    # for ii in pwr:
+    #     plt.plot(ii)
+    
+    PosPwr = []
+    NegPwr = []
+    pkPwr  =  []
+   
+    for series in (pwr):
+        holdpos = []
+        holdneg = []
+        pkPwr.append(np.max(series))
+        for val in series:
+            if val < 0:
+                holdpos.append(0)
+                holdneg.append(val)
+            else: 
+                holdpos.append(val)
+                holdneg.append(0)
+        PosPwr.append(holdpos)
+        NegPwr.append(holdneg) 
+ 
+   
+    
+    PosWk = []
+    NegWk = []
+    for ii in range(len(pwr)):
+        PosWk.append(work(0, int(len(PosPwr[ii])), PosPwr[ii], frequency)) 
+        NegWk.append(work(0, int(len(NegPwr[ii])), NegPwr[ii], frequency)) 
+    
+    return PosPwr , NegPwr, PosWk, NegWk , pwr, pkPwr
+
+
+
 def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
     
     """
@@ -207,14 +345,24 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
 
         ax3.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
     plt.show()
+
     
-    # fig3, ax = plt.subplots(1,1)
+   # fig3, ax = plt.subplots(1,1)
     # ax.plot(dat.COM_Power)
     # ax.set_ylabel('Power (W)')
     # ax.set_title('COM Power')
     # plt.show()
     
 #makeVizPlot(dat, landings, takeoffs)
+
+def COMplt(COMpower):
+    for ii in pwr:
+        plt.title("COM Power") 
+        plt.xlabel('Indicies')
+        plt.ylabel('Power (W)')
+        plt.plot(ii, color = 'grey')
+    plt.show()
+    
 
 CT = []
 
@@ -253,7 +401,9 @@ for fName in entries:
         
         dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
         dat = dat.fillna(0)
-        
+        descr = pd.read_csv(fPath + "\\" + fName , sep = '\t' , nrows = 5, header = None , skiprows = [2])
+        mass = float(descr.iloc[4,0])
+        frequency = float(descr.iloc[2,0])
         
         landings = [] # erase landings and takeoffs from last loop
         takeoffs = []
@@ -266,12 +416,17 @@ for fName in entries:
                 ZForce = dat.FP3_GRF_Z
 
                 XForce = dat.FP3_GRF_X
+                totForce_z = dat.FP3_GRF_Z 
+                totForce_y = dat.FP3_GRF_Y         
+                totForce_x = dat.FP3_GRF_X 
                 
             else:
                 ZForce = dat.FP4_GRF_Z
                 XForce = dat.FP4_GRF_X 
-
-
+                totForce_z = dat.FP4_GRF_Z 
+                totForce_y = dat.FP4_GRF_Y         
+                totForce_x = dat.FP4_GRF_X 
+            
         
                 
             if abs(np.min(XForce)) > abs(np.max(XForce)):
@@ -280,6 +435,7 @@ for fName in entries:
             #dat = delimitTrialSkate(dat)
             ZForce[ZForce<fThresh] = 0
             
+         
             
             #find the landings from function above
             landings = findLandings(ZForce, fThresh)
@@ -288,6 +444,7 @@ for fName in entries:
             landings[:] = [x for x in landings if x < takeoffs[-1]]
             takeoffs[:] = [x for x in takeoffs if x > landings[0]]
             
+            PosPwr, NegPwr, PosWk, NegWk, pwr, pkPwr = COMwk(totForce_z, totForce_y, totForce_x, mass, landings)
          
         elif (tmpMove == 'CMJ') or (tmpMove == 'cmj'):
             
@@ -298,25 +455,29 @@ for fName in entries:
             ZForce[ZForce<fThresh] = 0
             
             XForce = dat.FP2_GRF_X 
-          
-                    
+            
+            totForce_z = dat.FP2_GRF_Z + dat.FP1_GRF_Z
+            totForce_y = dat.FP2_GRF_Y + dat.FP1_GRF_Y         
+            totForce_x = dat.FP2_GRF_X + dat.FP1_GRF_X
+            
             
             landings = findLandings(ZForce, fThresh)
             takeoffs = findTakeoffs(ZForce, fThresh)
             
-
-           
             landings[:] = [x for x in landings if x < takeoffs[-1]]
             takeoffs[:] = [x for x in takeoffs if x > landings[0]] 
-             
             
-
+            PosPwr, NegPwr, PosWk, NegWk, pwr, pkPwr   =  COMwk(totForce_z, totForce_y, totForce_x, mass, landings)
+            
+           
            
         else:
             print('this movement is not included in Performance Test Analysis')
         
         if (tmpMove == 'CMJ') or (tmpMove == 'cmj') or (tmpMove == 'Skater') or (tmpMove == 'skater'):
             makeVizPlot(dat, landings, takeoffs)
+            plt.figure()
+            COMplt(pwr)
             answer = messagebox.askyesno("Question","Is data clean?")
             
             if answer == False:
@@ -331,6 +492,7 @@ for fName in entries:
                 for i in range(len(landings)):
         
                     try:
+                                 
                         
                         tmpCT = round((takeoffs[i] - landings[i])/2) #to use as approximate for propulsive start
                         CT.append((takeoffs[i] - landings[i])/200)
@@ -346,15 +508,13 @@ for fName in entries:
                         peakKneeADDmom.append(np.max(dat.RKneeMoment_Frontal[landings[i]:takeoffs[i]])) # looking at an INTERNAL moment, so this is the peak external ABD moment
                         peakKneeEXTmom.append(np.max(dat.RKneeMoment_Sagittal[landings[i]:takeoffs[i]]))
                         kneeABDrom.append(np.max(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]) - np.min(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]))
-                        negpower = copy.deepcopy(dat.COM_Power)
-                        negpower[negpower>0] = 0
-                        eccWork.append(np.sum(negpower[landings[i]:takeoffs[i]])/200*-1)
-                        pospower = copy.deepcopy(dat.COM_Power)
-                        pospower[negpower<0] = 0
-                        conWork.append(np.sum(pospower[landings[i]:takeoffs[i]])/200)
-                        peakPower.append(np.max(dat.COM_Power[landings[i]:takeoffs[i]]))
                         
-        
+                        
+                        eccWork.append(abs(NegWk[i]))
+                        conWork.append(PosWk[i])
+                        peakPower.append(pkPwr[i])
+                        
+
                         subName.append(fName.split('_')[0])
                         config.append( config1 )
                         movements.append( tmpMove )
