@@ -184,7 +184,7 @@ def powILM (Fz, Vz_COM, Fy, Vy_COM, Fx, Vx_COM):
 
 
 
-def work(start, stop, signal, frequency):
+def findWork(start, stop, signal, frequency):
     """
     Parameters
     ----------
@@ -277,8 +277,8 @@ def COMwk(totF_Z, totF_Y, totF_X, mass, landings):
     PosWk = []
     NegWk = []
     for ii in range(len(pwr)):
-        PosWk.append(work(0, int(len(PosPwr[ii])), PosPwr[ii], frequency)) 
-        NegWk.append(work(0, int(len(NegPwr[ii])), NegPwr[ii], frequency)) 
+        PosWk.append(findWork(0, int(len(PosPwr[ii])), PosPwr[ii], frequency)) 
+        NegWk.append(findWork(0, int(len(NegPwr[ii])), NegPwr[ii], frequency)) 
     
     return PosPwr , NegPwr, PosWk, NegWk , pwr, pkPwr
 
