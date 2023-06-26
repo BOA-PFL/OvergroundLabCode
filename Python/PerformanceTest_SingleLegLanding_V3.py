@@ -15,11 +15,11 @@ from tkinter import messagebox
 
 # Define constants and options
 fThresh = 40 #below this value will be set to 0.
-save_on = 0 #will write to spreadsheet if 1 entered
-debug = 1 # turn to 1 for degbugging and displaying plots
+save_on = 1 #will write to spreadsheet if 1 entered
+debug = 0 # turn to 1 for degbugging and displaying plots
 
 # Read in balance file
-fPath = 'C:\\Users\\eric.honert\\Boa Technology Inc\\PFL Team - General\\Testing Segments\\WorkWear_Performance\\EH_Workwear_DualDialZonal_Performance_Feb2023\\Overground\\'
+fPath = 'C:\\Users\\eric.honert\\Boa Technology Inc\\PFL Team - General\\Testing Segments\\WorkWear_Performance\\EH_Workwear_MidCutStabilityI_CPDMech_June23\\Overground\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt) and fName.count('SLL')]
 
@@ -251,14 +251,14 @@ movements = []
 tmpConfig = []
 badFileList = []
 
-RankleABDMom = []
-RankleADDMom = []
+RankleEvMom = []
+RankleInMom = []
 
 RkneeABDMom = []
 RkneeADDMom = []
 
 
-for fName in entries[34:]:
+for fName in entries:
     # try:
         """
         loop through the selected files and obtain values for stabilization time
@@ -337,11 +337,11 @@ for fName in entries[34:]:
                    
                     ###   ---- Pk Moments ---- ##
                     if np.isnan(sum(dat.RKneeMoment_Frontal[landing : landing + 200])):
-                        RankleADDMom.append(np.nan)
-                        RankleABDMom.append(np.nan)
+                        RankleInMom.append(np.nan)
+                        RankleEvMom.append(np.nan)
                     else:
-                        RankleADDMom.append(max(dat.RAnkleMoment_Frontal[landing : landing + 200]))
-                        RankleABDMom.append(min(dat.RAnkleMoment_Frontal[landing : landing + 200]))
+                        RankleInMom.append(max(dat.RAnkleMoment_Frontal[landing : landing + 200]))
+                        RankleEvMom.append(min(dat.RAnkleMoment_Frontal[landing : landing + 200]))
                    
                     if np.isnan(sum(dat.RKneeMoment_Frontal[landing : landing + 200])):
                         RkneeABDMom.append(np.nan)
@@ -363,7 +363,7 @@ for fName in entries[34:]:
 
 
 outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(tmpConfig),'Movement':list(movements), 'StabTime': list(stabilization), 'sdFz':list(sdFz),
-                          'RankleABDMom':list(RankleABDMom), 'RankleADDMom':list(RankleADDMom),  'RkneeADDMom': list(RkneeADDMom), 
+                          'RankleEvMom':list(RankleEvMom), 'RankleInMom':list(RankleInMom),  'RkneeADDMom': list(RkneeADDMom), 
                           'RkneeABDMom':list(RkneeABDMom)})
 
 
