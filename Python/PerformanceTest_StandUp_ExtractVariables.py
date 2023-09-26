@@ -13,20 +13,13 @@ import scipy.signal as sig
 from tkinter import messagebox
 
 # Define constants and options
-<<<<<<< Updated upstream
 save_on = 0 #will write to spreadsheet if 1 entered
-=======
-save_on = 1 #will write to spreadsheet if 1 entered
->>>>>>> Stashed changes
 debug = 1
 fThresh = 50
 
 # Read in balance file
-<<<<<<< Updated upstream
-fPath = 'C:\\Users\\eric.honert\\Boa Technology Inc\\PFL Team - General\\Testing Segments\\WorkWear_Performance\\EH_Workwear_DualDialZonal_Performance_Feb2023\\Overground\\'
-=======
 fPath = 'C:\\Users\\milena.singletary\\Boa Technology Inc\\PFL Team - Documents\\General\\Testing Segments\\WorkWear_Performance\\EH_Workwear_MidCutStabilityII_CPDMech_Sept23\\Overground\\'
->>>>>>> Stashed changes
+
 fileExt = r".txt"
 
 # Only extract entries with "SU": Stand Ups
