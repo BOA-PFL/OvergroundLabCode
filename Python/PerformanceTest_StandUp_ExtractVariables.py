@@ -18,7 +18,8 @@ debug = 0
 fThresh = 50
 
 # Read in balance file
-fPath = 'C:\\Users\\eric.honert\\Boa Technology Inc\\PFL Team - General\\Testing Segments\\WorkWear_Performance\\EH_Workwear_MidCutStabilityI_CPDMech_June23\\Overground\\'
+fPath = 'C:\\Users\\milena.singletary\\Boa Technology Inc\\PFL Team - Documents\\General\\Testing Segments\\WorkWear_Performance\\EH_Workwear_MidCutStabilityII_CPDMech_Sept23\\Overground\\'
+
 fileExt = r".txt"
 
 # Only extract entries with "SU": Stand Ups
@@ -102,8 +103,8 @@ for ii in range(0,len(entries)):
     # Load in the trial segmentation variable if it is in the directory
     if os.path.exists(fPath+shortFName+'TrialSeg.npy') == True:
         trial_segment_old = np.load(fPath+shortFName+'TrialSeg.npy',allow_pickle=True)
-        trialStart = trial_segment_old[1][0,0]
-        trialEnd = trial_segment_old[1][1,0]
+        trialStart = trial_segment_old[0][0]
+        trialEnd = trial_segment_old[1][0]
         dat = dat.iloc[int(np.floor(trialStart)) : int(np.floor(trialEnd)),:]
         dat = dat.reset_index()
     else:
