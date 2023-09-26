@@ -13,8 +13,8 @@ import scipy.signal as sig
 from tkinter import messagebox
 
 # Define constants and options
-save_on = 0 #will write to spreadsheet if 1 entered
-debug = 1
+save_on = 1 #will write to spreadsheet if 1 entered
+debug = 0
 fThresh = 50
 
 # Read in balance file
@@ -67,6 +67,9 @@ def findLandings(force, fThresh):
 
 cycle_time = []
 RkneeABDMom = []
+RkneeADDMom = []
+RankleEvMom = []
+RankleInMom = []
 RFD = []
 PeakPosCOMPower = []
 PeakNegCOMPower = []
@@ -85,7 +88,7 @@ config = []
 movements = []
 
 # loop through all of the files
-for ii in range(36,len(entries)):
+for ii in range(0,len(entries)):
     # Pull the data for examination
     fName = entries[ii]
     print(fName)
@@ -162,7 +165,7 @@ for ii in range(36,len(entries)):
            plt.plot(dat.FP2_COP_X,dat.FP2_COP_Y)
            plt.xlabel('AP')
            plt.ylabel('ML')
-           # answer = messagebox.askyesno("Question","Is data clean?")
+           answer = messagebox.askyesno("Question","Is data clean?")
            plt.close('all')
        
         if answer == False:
@@ -198,11 +201,20 @@ for ii in range(36,len(entries)):
                 # Maximum force variability
                 forcemaxCV.append(max(FmoveCV[landing : left_on[jj+1]]))
                 
+                # Ankle Eversion/Inversion Moment
+                if np.isnan(sum(dat.RAnkleMoment_Frontal[landing : left_on[jj+1]])) == False and knee_count > 2:
+                    RankleEvMom.append(min(dat.RKneeMoment_Frontal[landing : left_on[jj+1]]))
+                    RankleInMom.append(max(dat.RKneeMoment_Frontal[landing : left_on[jj+1]]))
+                else:
+                    RankleEvMom.append(np.nan)
                 
+                # Knee ABD Moment
                 if np.isnan(sum(dat.RKneeMoment_Frontal[landing : left_on[jj+1]])) == False and knee_count > 2:
                     RkneeABDMom.append(min(dat.RKneeMoment_Frontal[landing : left_on[jj+1]]))
+                    RkneeADDMom.append(max(dat.RKneeMoment_Frontal[landing : left_on[jj+1]]))
                 else:
                     RkneeABDMom.append(np.nan)
+                    RkneeADDMom.append(np.nan)
                 
                 # Append trial information
                 subName.append(tmpSub)
@@ -215,7 +227,8 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config),'Moveme
                          'cycle_time':list(cycle_time),'PeakPosCOMPower':list(PeakPosCOMPower),
                          'PeakNegCOMPower':list(PeakNegCOMPower),'RFD':list(RFD),'COPEx':list(COPEx),
                          'sdCOP_AP':list(sdCOP_AP),'sdCOP_ML':list(sdCOP_ML),'forcemaxCV':list(forcemaxCV),
-                         'RkneeABDMom':list(RkneeABDMom)})
+                         'RkneeABDMom':list(RkneeABDMom),'RkneeADDMom':list(RkneeADDMom),'RankleEvMom':list(RankleEvMom),
+                         'RankleInMom':list(RankleInMom)})
 
 if save_on == 1:
     outcomes.to_csv(fPath + 'StandUp.csv',header=True,index=False)                    
