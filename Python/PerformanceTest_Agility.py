@@ -284,7 +284,7 @@ def COMwk(totF_Z, totF_Y, totF_X, mass, landings):
 
 
 
-def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
+def makeVizPlot(inputDF, inputLandings, inputTakeoffs, COMpwr):
     
     """
     Parameters
@@ -301,7 +301,7 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
     No variables; just a plot to inspect for clean kinematic/kinetic data.
 
     """
-    fig, ((ax, ax1), (ax2, ax3)) = plt.subplots(2, 2)
+    fig, ((ax, ax1), (ax2, ax3), (ax4, ax5)) = plt.subplots(3, 2)
     ax.plot(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]], 'k')
     # ax.vlines(x = inputLandings[1:], ymin = np.min(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.max(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]),
     #    color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
@@ -346,6 +346,19 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
         ax3.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
     plt.show()
 
+    for i in range(len(inputLandings)):
+        ax4.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
+    for i in COMpwr:
+        ax4.plot(i, 'k')
+    ax4.set_ylim(-5000, 5000)
+    ax4.set_title("COM Power") 
+    ax4.set_xlabel('Indicies')
+    ax4.set_ylabel('Power (W)')
+    
+    plt.tight_layout()
+    plt.show()
+    
+    
     
    # fig3, ax = plt.subplots(1,1)
     # ax.plot(dat.COM_Power)
@@ -355,13 +368,13 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
     
 #makeVizPlot(dat, landings, takeoffs)
 
-def COMplt(COMpower):
-    for ii in pwr:
-        plt.title("COM Power") 
-        plt.xlabel('Indicies')
-        plt.ylabel('Power (W)')
-        plt.plot(ii, color = 'grey')
-    plt.show()
+# def COMplt(COMpower):
+#     for ii in pwr:
+#         plt.title("COM Power") 
+#         plt.xlabel('Indicies')
+#         plt.ylabel('Power (W)')
+#         plt.plot(ii, color = 'grey')
+#     plt.show()
     
 
 CT = []
@@ -475,9 +488,7 @@ for fName in entries:
             print('this movement is not included in Performance Test Analysis')
         
         if (tmpMove == 'CMJ') or (tmpMove == 'cmj') or (tmpMove == 'Skater') or (tmpMove == 'skater'):
-            makeVizPlot(dat, landings, takeoffs)
-            plt.figure()
-            COMplt(pwr)
+            makeVizPlot(dat, landings, takeoffs, pwr)
             answer = messagebox.askyesno("Question","Is data clean?")
             
             if answer == False:
