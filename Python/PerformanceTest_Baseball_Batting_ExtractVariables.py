@@ -2,15 +2,13 @@
 """
 Created on Fri Oct  7 12:04:23 2022
 
-@author: Bethany.Kilpatrick with help from Milena Singletary
+@author: Bethany.Kilpatrick 
 """
 
 
 
 """ 
 This code is used to extract and compile Rapsodo variables from Batting
-
-
 """
 
 
@@ -23,7 +21,7 @@ import os
 
 # Read in files
 # only read .asc files for this work
-fPath = 'C:\\Users\\bethany.kilpatrick\\Boa Technology Inc\\PFL - General\\Testing Segments\\Baseball\Radar\\Bat\\'
+fPath = 'Z:\\Testing Segments\\Baseball\\Baseball_Pilot\\Radar\\Bat\\'
 fileExt = r".csv"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
@@ -56,13 +54,8 @@ for fName in entries:
         loop through the selected files and obtain values for batting radar metrics
         Start by looping through files and getting meta data 
         Output metrics
-        
-       
+
        """
-
-
-
-
 
         subName = fName.split(sep="_")[0]
         tmpConfig = fName.split(sep="_")[2]
@@ -72,22 +65,13 @@ for fName in entries:
         
         #Pulling metrics from the data set
         spin.extend(np.array(dat.spin))
-                
         exitSpeed.extend(np.array(dat.exitSpeed))
-            
         spinAxisX.extend(np.array(dat.launchAngle)) 
-        
         launchDirection.extend(np.array(dat.launchDirection))  
-         
         strikeZoneX.extend(np.array(dat.strikeZoneX))
-        
         strikeZoneY.extend(np.array(dat.strikeZoneY))
-        
-            
         distance.extend(np.array(dat.distance))     
-        
         spinAxisX.extend(np.array(dat.spinAxisX))
-        
         swingcnt = len(dat.spin)
         
          #Apply subject name and config        
@@ -110,5 +94,5 @@ outcomes = pd.DataFrame({'Subject':list(Subject), 'Config': list(Config),  'spin
                            })
 
 
-outfileName = fPath + 'CompiledRadarBattingData.csv'
+outfileName = fPath + '0_CompiledRadarBattingData.csv'
 outcomes.to_csv(outfileName, index = False)
