@@ -15,7 +15,7 @@ fThresh = 100; #below this value will be set to 0.
 writeData = 0; #will write to spreadsheet if 1 entered
 
 # Read in balance file
-fPath = 'C:/Users/kate.harrison/Boa Technology Inc/PFL - Documents/General/PowerPerformance/Ecco_Nov2021/KineticsKinematics/Balance/'
+fPath = 'Z:\\Testing Segments\\PowerPerformance\\2021\\Ecco_Nov2021\\KineticsKinematics\\Balance\\'
 entries = os.listdir(fPath)
 
 # list of functions 

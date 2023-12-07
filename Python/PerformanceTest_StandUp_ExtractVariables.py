@@ -18,7 +18,7 @@ debug = 0
 fThresh = 50
 
 # Read in balance file
-fPath = 'C:\\Users\\milena.singletary\\Boa Technology Inc\\PFL Team - Documents\\General\\Testing Segments\\WorkWear_Performance\\EH_Workwear_MidCutStabilityII_CPDMech_Sept23\\Overground\\'
+fPath = 'Z:\\Testing Segments\\WorkWear_Performance\\EH_Workwear_MidCutStabilityII_CPDMech_Sept23\\Overground\\'
 
 fileExt = r".txt"
 
@@ -231,6 +231,6 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config),'Moveme
                          'RankleInMom':list(RankleInMom)})
 
 if save_on == 1:
-    outcomes.to_csv(fPath + 'StandUp.csv',header=True,index=False)                    
+    outcomes.to_csv(fPath + '0_StandUp.csv',header=True,index=False)                    
     
     
