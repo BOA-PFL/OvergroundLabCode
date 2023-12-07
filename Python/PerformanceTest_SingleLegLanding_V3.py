@@ -19,7 +19,7 @@ save_on = 1 #will write to spreadsheet if 1 entered
 debug = 0 # turn to 1 for degbugging and displaying plots
 
 # Read in balance file
-fPath = 'C:\\Users\\eric.honert\\Boa Technology Inc\\PFL Team - General\\Testing Segments\\WorkWear_Performance\\EH_Workwear_MidCutStabilityI_CPDMech_June23\\Overground\\'
+fPath = 'Z:\\Testing Segments\\WorkWear_Performance\\EH_Workwear_MidCutStabilityI_CPDMech_June23\\Overground\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt) and fName.count('SLL')]
 
@@ -368,6 +368,6 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(tmpConfig),'Mov
 
 
 if save_on == 1:
-    outcomes.to_csv(fPath + 'OGStabilization.csv',header=True,index=False) 
+    outcomes.to_csv(fPath + '0_OGStabilization.csv',header=True,index=False) 
 
 
