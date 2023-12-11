@@ -1,8 +1,8 @@
-'''
+"""
 
 Created on Fri Oct  7 12:04:23 2022
 
-@author: Bethany.Kilpatrick with help from Milena Singletary
+@author: Bethany.Kilpatrick 
 """
 
 
@@ -12,7 +12,7 @@ This code is used to extract and compile Blast IMU variables from batting
 
 
 """
-'''
+
 
 import pandas as pd
 import numpy as np
@@ -23,7 +23,7 @@ import os
 
 # Read in files
 # only read .asc files for this work
-fPath = 'C:\\Users\\bethany.kilpatrick\\Boa Technology Inc\\PFL - General\\Testing Segments\\Baseball\BatIMU\\'
+fPath = 'Z:\\Testing Segments\\Baseball\\Baseball_Pilot\\BatIMU\\'
 fileExt = r".csv"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
@@ -146,5 +146,5 @@ outcomes = pd.DataFrame({'Subject':list(Subject), 'Config': list(Config),  'Plan
                            })
 
 
-outfileName = fPath + 'CompiledRadarBattingIMUData.csv'
+outfileName = fPath + '0_CompiledRadarBattingIMUData.csv'
 outcomes.to_csv(outfileName, index = False)

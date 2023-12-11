@@ -4,7 +4,13 @@ Created on Wed Jun 16 15:53:52 2021
 
 @author: Eric Honert
 """
+  
 
+""" 
+This script identifies the trial order of the golf swing as well as computes and plots
+ the club head speed and max GRF.
+
+"""
 ###### Force Analysis
 
 # packages
@@ -14,9 +20,9 @@ import matplotlib.pyplot as plt
 import os
 
 # Obtain file with condition ordering
-ConOrd = pd.read_excel('C:\\Users\\eric.honert\\Boa Technology Inc\\PFL Team - General\\Testing Segments\\PowerPerformance\\AsicsJapan_Golf_March2022\\AsicsConditionOrder.xlsx')
+ConOrd = pd.read_excel('Z:\\Testing Segments\\PowerPerformance\\AsicsJapan_Golf_March2022\\AsicsConditionOrder.xlsx')
 
-fPath = 'C:\\Users\\eric.honert\\Boa Technology Inc\\PFL Team - General\\Testing Segments\\PowerPerformance\\AsicsJapan_Golf_March2022\\Overground\\'
+fPath = 'Z:\\Testing Segments\\PowerPerformance\\AsicsJapan_Golf_March2022\\Overground\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 
@@ -97,4 +103,4 @@ for ii,fName in enumerate(entries):
 outcomes = pd.DataFrame({'Subject':list(Subject),'Config':list(Config),'Sesh':list(Sesh),'Order':list(Order), 'MaxForce':list(MaxForce)
                                           })
 
-outcomes.to_csv('C:\\Users\\eric.honert\\Boa Technology Inc\\PFL Team - General\\Testing Segments\\PowerPerformance\\AsicsJapan_Golf_March2022\\CompiledForce.csv', index = False)
+outcomes.to_csv('Z:\\Testing Segments\\PowerPerformance\\AsicsJapan_Golf_March2022\\CompiledForce.csv', index = False)
