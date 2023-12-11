@@ -15,8 +15,8 @@ import math
 from tkinter import messagebox
 
 
-fPath = 'C:/Users/Kate.Harrison/Boa Technology Inc/PFL Team - General/Testing Segments/Baseball/Baseball_Pilot/Mocap/Throw/'
-rf_fPath = 'C:/Users/Kate.Harrison/Boa Technology Inc/PFL Team - General/Testing Segments/Baseball/Baseball_Pilot/DistalFootWork/Throw/'
+fPath = 'Z:/Testing Segments/Baseball/Baseball_Pilot/Mocap/Throw/'
+rf_fPath = 'Z:/Testing Segments/Baseball/Baseball_Pilot/DistalFootWork/Throw/'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 rf_entries = [fName for fName in os.listdir(rf_fPath) if fName.endswith(fileExt)]
