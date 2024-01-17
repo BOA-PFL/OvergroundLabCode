@@ -26,10 +26,10 @@ badFileList = []
 
 for i in range(len(entries)):
     
-    #i = 0
+    i = 1
     fName = entries[i]
     rf_fName = rf_entries[i]
-    plt.close('all')
+    #plt.close('all')
 
     sub = fName.split(sep = '_')[0]
     hand = fName.split(sep = '_')[1]
@@ -44,6 +44,7 @@ for i in range(len(entries)):
     startTime = str(dat2[2].iloc[0][0:8])
 
     dat['PelvisRotationVel'] = np.gradient(dat.PelvisRotation, 0.005)
+    
     dat.LeftFootPosition[dat.LeftFootPosition >6] = 'Nan'
     dat.LeftFootVel = np.gradient(dat.LeftFootPosition, 0.005)
     dat.RightFootPosition[dat.RightFootPosition >6] = 'Nan'
@@ -52,6 +53,7 @@ for i in range(len(entries)):
     plt.figure()
     
     if hand == 'Right':
+        
         plt.plot(dat.LeftFootVel)
         footFwd= find_peaks(dat.LeftFootVel, height = 1)
         pkVels = dat.LeftFootVel[footFwd[0]]
@@ -115,7 +117,7 @@ for i in range(len(entries)):
         
         try:
            
-            #j = 0 
+            j = 9
             
             td = []
             for k in range(len(dat.FP4_GRF_Z[throwStart[j]:throwStart[j]+400])):
@@ -148,12 +150,16 @@ for i in range(len(entries)):
             fig, ((ax, ax1), (ax2, ax3)) = plt.subplots(2, 2)
             
             
-            if hand == 'Right':
-                ax.plot(tmpdat.RightWristElbowDiff_Y, 'r')
-            if hand == 'Left':
-                ax.plot(tmpdat.LeftWristElbowDiff_Y, 'r')
-            ax.set_title('Wrist vs. Elbow Postition')
-            ax.set_ylabel('distance (m)')
+            # if hand == 'Right':
+            #     ax.plot(tmpdat.RightWristElbowDiff_Y, 'r')
+            # if hand == 'Left':
+            #     ax.plot(tmpdat.LeftWristElbowDiff_Y, 'r')
+            # ax.set_title('Wrist vs. Elbow Postition')
+            # ax.set_ylabel('distance (m)')
+            
+            ax.plot(tmpdat.FP4_GRF_Y)
+            ax.set_title('Lead Foot Braking Force')
+            ax.set_ylabel('Force (N)')
             
             
             if hand =='Right':
@@ -194,6 +200,25 @@ for i in range(len(entries)):
             plt.tight_layout()
             
             answer = messagebox.askyesno("Question","Is data clean?")
+            
+            tmpdat['Time'] = tmpdat['Sample #'] /1000 
+            tmpdat['Time'] = tmpdat.Time - tmpdat.Time[0]
+            
+            plt.figure('fy')
+            plt.plot(tmpdat.Time, tmpdat.FP4_GRF_Y, label = 'BOA')
+            plt.xlabel('Time (s)')
+            plt.ylabel('Force (N)')
+            
+            plt.figure('fy')
+            plt.plot(tmpdat.Time, tmpdat.FP4_GRF_Y, 'r', label = 'Lace')
+            plt.legend()
+            
+            
+            plt.xlabel('Time (s)')
+            plt.ylabel('Angular velocity (deg/s)')
+            
+            plt.figure('Check')
+            plt.plot(rf_tmpdat.LDistalFootPower_FP4)
             
             if answer == False:
                 plt.close('all')
