@@ -2,6 +2,8 @@
 """
 Created on Mon May 17 14:48:59 2021
 
+Updating 2/6/24 to turn on/off plot vizualization - MS
+
 Updating 11/7/22 to include data visualization plots to 'pass' or fail
 and append the failing file names to a list while the passing ones write
 results to a csv - DF
@@ -23,11 +25,10 @@ pd.options.mode.chained_assignment = None  # default='warn' set to warn for a lo
 # Define constants and options
 fThresh = 80 #below this force value will be set to 0.
 save_on = 0 # turn this on for automatic saving of csv!!!! 
-#fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
+debug = 1 #turn off to skip makeVizPlot
 
-#fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\Material Testing\\UpperStiffnessA&S_Performance_Jan2023\\Overground\\'
 
-fPath = 'C:\\Users\\milena.singletary\\Boa Technology Inc\\PFL Team - Documents\\General\\Testing Segments\\AgilityPerformanceData\\AS_Trail_HeelLockAgility_Perf_Apr23\\Overground\\'
+fPath = 'Z:\\Testing Segments\\AgilityPerformanceData\\AS_Train_ExternalvsInternalPanels_Mech_Jan24\\Overground\\'
 
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
@@ -284,7 +285,7 @@ def COMwk(totF_Z, totF_Y, totF_X, mass, landings):
 
 
 
-def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
+def makeVizPlot(inputDF, inputLandings, inputTakeoffs, COMpwr):
     
     """
     Parameters
@@ -301,7 +302,7 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
     No variables; just a plot to inspect for clean kinematic/kinetic data.
 
     """
-    fig, ((ax, ax1), (ax2, ax3)) = plt.subplots(2, 2)
+    fig, ((ax, ax1), (ax2, ax3), (ax4, ax5)) = plt.subplots(3, 2)
     ax.plot(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]], 'k')
     # ax.vlines(x = inputLandings[1:], ymin = np.min(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.max(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]),
     #    color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
@@ -346,22 +347,19 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
         ax3.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
     plt.show()
 
+    for i in range(len(inputLandings)):
+        ax4.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
+    for i in COMpwr:
+        ax4.plot(i, 'k')
+    ax4.set_ylim(-5000, 5000)
+    ax4.set_title("COM Power") 
+    ax4.set_xlabel('Indicies')
+    ax4.set_ylabel('Power (W)')
     
-   # fig3, ax = plt.subplots(1,1)
-    # ax.plot(dat.COM_Power)
-    # ax.set_ylabel('Power (W)')
-    # ax.set_title('COM Power')
-    # plt.show()
-    
-#makeVizPlot(dat, landings, takeoffs)
-
-def COMplt(COMpower):
-    for ii in pwr:
-        plt.title("COM Power") 
-        plt.xlabel('Indicies')
-        plt.ylabel('Power (W)')
-        plt.plot(ii, color = 'grey')
+    plt.tight_layout()
     plt.show()
+    
+    
     
 
 CT = []
@@ -475,10 +473,12 @@ for fName in entries:
             print('this movement is not included in Performance Test Analysis')
         
         if (tmpMove == 'CMJ') or (tmpMove == 'cmj') or (tmpMove == 'Skater') or (tmpMove == 'skater'):
-            makeVizPlot(dat, landings, takeoffs)
-            plt.figure()
-            COMplt(pwr)
-            answer = messagebox.askyesno("Question","Is data clean?")
+            
+            if debug == 1:
+                makeVizPlot(dat, landings, takeoffs, pwr)
+                answer = messagebox.askyesno("Question","Is data clean?")
+            else: answer = True
+            
             
             if answer == False:
                 plt.close('all')
