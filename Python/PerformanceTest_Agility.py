@@ -2,6 +2,8 @@
 """
 Created on Mon May 17 14:48:59 2021
 
+Updating 2/6/24 to turn on/off plot vizualization - MS
+
 Updating 11/7/22 to include data visualization plots to 'pass' or fail
 and append the failing file names to a list while the passing ones write
 results to a csv - DF
@@ -23,11 +25,10 @@ pd.options.mode.chained_assignment = None  # default='warn' set to warn for a lo
 # Define constants and options
 fThresh = 80 #below this force value will be set to 0.
 save_on = 0 # turn this on for automatic saving of csv!!!! 
-#fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
+debug = 1 #turn off to skip makeVizPlot
 
-#fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\Material Testing\\UpperStiffnessA&S_Performance_Jan2023\\Overground\\'
 
-fPath = 'C:\\Users\\milena.singletary\\Boa Technology Inc\\PFL Team - Documents\\General\\Testing Segments\\AgilityPerformanceData\\AS_Trail_HeelLockAgility_Perf_Apr23\\Overground\\'
+fPath = 'Z:\\Testing Segments\\AgilityPerformanceData\\AS_Train_ExternalvsInternalPanels_Mech_Jan24\\Overground\\'
 
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
@@ -360,22 +361,6 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs, COMpwr):
     
     
     
-   # fig3, ax = plt.subplots(1,1)
-    # ax.plot(dat.COM_Power)
-    # ax.set_ylabel('Power (W)')
-    # ax.set_title('COM Power')
-    # plt.show()
-    
-#makeVizPlot(dat, landings, takeoffs)
-
-# def COMplt(COMpower):
-#     for ii in pwr:
-#         plt.title("COM Power") 
-#         plt.xlabel('Indicies')
-#         plt.ylabel('Power (W)')
-#         plt.plot(ii, color = 'grey')
-#     plt.show()
-    
 
 CT = []
 
@@ -488,8 +473,12 @@ for fName in entries:
             print('this movement is not included in Performance Test Analysis')
         
         if (tmpMove == 'CMJ') or (tmpMove == 'cmj') or (tmpMove == 'Skater') or (tmpMove == 'skater'):
-            makeVizPlot(dat, landings, takeoffs, pwr)
-            answer = messagebox.askyesno("Question","Is data clean?")
+            
+            if debug == 1:
+                makeVizPlot(dat, landings, takeoffs, pwr)
+                answer = messagebox.askyesno("Question","Is data clean?")
+            else: answer = True
+            
             
             if answer == False:
                 plt.close('all')
