@@ -27,7 +27,7 @@ save_on = 0 # turn this on for automatic saving of csv!!!!
 
 #fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\Material Testing\\UpperStiffnessA&S_Performance_Jan2023\\Overground\\'
 
-fPath = 'C:\\Users\\milena.singletary\\Boa Technology Inc\\PFL Team - Documents\\General\\Testing Segments\\AgilityPerformanceData\\AS_Trail_HeelLockAgility_Perf_Apr23\\Overground\\'
+fPath = 'Z:\\Testing Segments\\Material Testing\\DrapeA&S\\Overground\\'
 
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
@@ -394,7 +394,7 @@ badFileList = []
 for fName in entries:
     try:
         
-        #fName = entries[1]
+       # fName = entries[1]
         config1 = fName.split('_')[1]
         tmpMove = fName.split('_')[2]
 
@@ -547,6 +547,7 @@ save_on = 1
 if save_on == 1:
     outfileName = fPath + 'CompiledAgilityDataTest.csv'
     outcomes.to_csv(outfileName, index = False)
+
 
 
 
