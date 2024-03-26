@@ -5,15 +5,15 @@ Created on Fri Jan 13 13:15:08 2023
 @author: Adam.Luftglass
 """
 
-# -*- coding: utf-8 -*-
 """
-Created on Mon May 17 14:48:59 2021
+This script compiles power and work data at the foot and ankle
 
 Updating 11/7/22 to include data visualization plots to 'pass' or fail
 and append the failing file names to a list while the passing ones write
 results to a csv - DF
 
-"""
+""" 
+
 import sys
 sys.tracebacklimit = 0
 
@@ -31,10 +31,9 @@ pd.options.mode.chained_assignment = None  # default='warn' set to warn for a lo
 
 # Define constants and options
 fThresh = 80 #below this force value will be set to 0.
-save_on = 0 # turn this on for automatic saving of csv!!!! 
-#fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
+save_on = 0 # turn this on for automatic saving of csv!!!! #fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
 
-fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\Material Testing\\UpperStiffnessA&S_Performance_Jan2023\\Overground\\DistalFootWork\\'
+fPath = 'Z:\\Testing Segments\\Material Testing\\UpperStiffnessA&S_Performance_Jan2023\\Overground\\DistalFootWork\\'
 
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
@@ -191,22 +190,7 @@ def delimitTrial(inputDF,FName):
 
 CT = []
 GS = []
-# impulseZ = []
-# impulseX = []
-# peakGRFz = []
-# peakGRFx = []
-# peakPFmom = []
-# peakINVmom = []
-# peakEVmom = []
-# peakKneeEXTmom = []
-# peakKneeADDmom = [] # Internal
-# kneeABDrom = []
-# eccWork = []
-# conWork = []
-# peakPower = []
 
-# impulse = []
-# jumpTime = []
 peakposRAnkPwr = []
 RAnkposWork = []
 RAnknegWork = []
@@ -436,7 +420,7 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movem
 
 save_on = 0
 if save_on == 1:
-    outfileName = fPath + 'CompiledAgilityDataTest.csv'
+    outfileName = fPath + '0_CompiledPowerWorkData.csv'
     outcomes.to_csv(outfileName, index = False)
 
 

@@ -19,7 +19,7 @@ from dataclasses import dataclass
 
 # select files
 
-fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
+fPath = 'Z:\\Testing Segments\\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 entries = os.listdir(fPath)

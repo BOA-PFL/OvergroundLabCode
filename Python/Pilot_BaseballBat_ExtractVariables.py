@@ -5,6 +5,12 @@ Created on Wed Sep 21 13:26:47 2022
 @author: Kate.Harrison
 """
 
+"""
+This script extracts joint kinematic variables and distal foot work
+
+"""
+
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,11 +21,12 @@ import math
 from tkinter import messagebox
 
 
-fPath = 'C:/Users/Kate.Harrison/Boa Technology Inc/PFL Team - General/Testing Segments/Baseball/Baseball_Pilot/Mocap/Bat/'
-rf_fPath = 'C:/Users/Kate.Harrison/Boa Technology Inc/PFL Team - General/Testing Segments/Baseball/Baseball_Pilot/DistalFootWork/Batting/'
+fPath = 'Z:/Testing Segments/Baseball/Baseball_Pilot/Mocap/Bat/'
+rf_fPath = 'Z:/Testing Segments/Baseball/Baseball_Pilot/DistalFootWork/Batting/'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
 rf_entries = [fName for fName in os.listdir(rf_fPath) if fName.endswith(fileExt)]
+
 
 
 badFileList = []
@@ -84,6 +91,7 @@ for i in range(len(entries)):
     pBF = []
     pVGRF = []
     pAF = []
+    
     
     
     for j in range(len(ballContact)):
