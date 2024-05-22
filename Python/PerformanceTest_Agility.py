@@ -296,6 +296,8 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs, COMpwrILM):
         list of landings from findLandings function.
     inputTakeoffs : list
         list of takeoffs from findTakeoffs function.
+    COMpwrILM: list
+        list of COM pwr
 
     Returns
     -------
@@ -347,8 +349,8 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs, COMpwrILM):
         ax3.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
     plt.show()
 
-    for pwr in range(len(COMpwrILM)):
-        ax4.axvspan(COMpwrILM[pwr],'k')
+    for i in range(len(COMpwrILM)):
+        ax4.plot(COMpwrILM[i],'k')
     ax4.set_title("Center of Mass Power") 
     ax4.set_xlabel('Indicies')
     ax4.set_ylabel('Power (W)')
@@ -410,7 +412,7 @@ impulse = []
 jumpTime = []
 
 
-subName = []
+subNamelist = []
 config = []
 movements = []
 
@@ -421,6 +423,8 @@ for fName in entries:
     try:
         
         #fName = entries[1]
+        print(fName)
+        subName = fName.split('_')[0]
         config1 = fName.split('_')[1]
         tmpMove = fName.split('_')[2]
 
@@ -561,7 +565,7 @@ for fName in entries:
                         peakPower.append(pkPwr[i])
                         
 
-                        subName.append(fName.split('_')[0])
+                        subNamelist.append(subName)
                         config.append( config1 )
                         movements.append( tmpMove )
                         
