@@ -16,10 +16,10 @@ from tkinter import messagebox
 # Define constants and options
 fThresh = 40 #below this value will be set to 0.
 save_on = 1 #will write to spreadsheet if 1 entered
-debug = 0 # turn to 1 for degbugging and displaying plots
+debug = 1 # turn to 1 for degbugging and displaying plots
 
 # Read in balance file
-fPath = 'Z:\\Testing Segments\\WorkWear_Performance\\EH_Workwear_MidCutStabilityI_CPDMech_June23\\Overground\\'
+fPath = 'C:\\Users\\bethany.kilpatrick\\Boa Technology Inc\\PFL - General\\Testing Segments\\Hike\\EH_Hike_MidcutSD_Mech_April2024\\Overground\\'
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt) and fName.count('SLL')]
 
@@ -303,7 +303,18 @@ for fName in entries:
             plt.ylabel('Moment (Nm)')
             plt.title('Knee AB/AD Moment')
             
-            answer = messagebox.askyesno("Question","Is data clean?")
+            answer = messagebox.askyesno("Question","Is data clean?") 
+            saveFolder = fPath + 'SLL-Overground_2DPlots'
+            
+            if answer == True:
+                if os.path.exists(saveFolder) == False:
+                    os.mkdir(saveFolder) 
+                    
+                plt.savefig(saveFolder + '/' + entries  +'.png')
+             
+            
+            
+            
             plt.close('all')
         
         if answer == False:
@@ -368,6 +379,6 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(tmpConfig),'Mov
 
 
 if save_on == 1:
-    outcomes.to_csv(fPath + '0_OGStabilization.csv',header=True,index=False) 
+    outcomes.to_csv(fPath + '0_Stabilization.csv',header=True,index=False, mode = 'a') 
 
 
