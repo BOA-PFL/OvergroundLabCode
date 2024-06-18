@@ -2,6 +2,8 @@
 """
 Created on Mon May 17 14:48:59 2021
 
+Updating 2/6/24 to turn on/off plot vizualization - MS
+
 Updating 11/7/22 to include data visualization plots to 'pass' or fail
 and append the failing file names to a list while the passing ones write
 results to a csv - DF
@@ -23,11 +25,10 @@ pd.options.mode.chained_assignment = None  # default='warn' set to warn for a lo
 # Define constants and options
 fThresh = 80 #below this force value will be set to 0.
 save_on = 0 # turn this on for automatic saving of csv!!!! 
-#fPath = 'C:\\Users\\daniel.feeney\\Boa Technology Inc\\PFL Team - General\\Testing Segments\AgilityPerformanceData\\CPD_TongueLocatedDial_Oct2022\\Overground\\'
+debug = 1 #turn off to skip makeVizPlot
+ts_plot = 0 # turn this on for timeseries plotting of extracted variables
 
-#fPath = 'C:\\Users\\adam.luftglass\\OneDrive - Boa Technology Inc\\General\\Testing Segments\\Material Testing\\UpperStiffnessA&S_Performance_Jan2023\\Overground\\'
-
-fPath = 'C:\\Users\\milena.singletary\\Boa Technology Inc\\PFL Team - Documents\\General\\Testing Segments\\AgilityPerformanceData\\AS_Trail_HeelLockAgility_Perf_Apr23\\Overground\\'
+fPath = 'Z:\\Testing Segments\\AgilityPerformanceData\\AS_Train_ExternalvsInternalPanels_Mech_Jan24\\Overground\\'
 
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
@@ -284,7 +285,7 @@ def COMwk(totF_Z, totF_Y, totF_X, mass, landings):
 
 
 
-def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
+def makeVizPlot(inputDF, inputLandings, inputTakeoffs, COMpwrILM):
     
     """
     Parameters
@@ -295,13 +296,15 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
         list of landings from findLandings function.
     inputTakeoffs : list
         list of takeoffs from findTakeoffs function.
+    COMpwrILM: list
+        list of COM pwr
 
     Returns
     -------
     No variables; just a plot to inspect for clean kinematic/kinetic data.
 
     """
-    fig, ((ax, ax1), (ax2, ax3)) = plt.subplots(2, 2)
+    fig, ((ax, ax1), (ax2, ax3), (ax4, ax5)) = plt.subplots(3, 2)
     ax.plot(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]], 'k')
     # ax.vlines(x = inputLandings[1:], ymin = np.min(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]), ymax = np.max(inputDF.RAnkleMoment_Sagittal[inputLandings[0]:inputTakeoffs[-1]]),
     #    color = 'coral', label = 'Landings',linewidth=3.0, ls='--')
@@ -346,24 +349,49 @@ def makeVizPlot(inputDF, inputLandings, inputTakeoffs):
         ax3.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
     plt.show()
 
-    
-   # fig3, ax = plt.subplots(1,1)
-    # ax.plot(dat.COM_Power)
-    # ax.set_ylabel('Power (W)')
-    # ax.set_title('COM Power')
-    # plt.show()
-    
-#makeVizPlot(dat, landings, takeoffs)
+    for i in range(len(COMpwrILM)):
+        ax4.plot(COMpwrILM[i],'k')
+    ax4.set_title("Center of Mass Power") 
+    ax4.set_xlabel('Indicies')
+    ax4.set_ylabel('Power (W)')
+    for i in range(len(inputLandings)):
 
-def COMplt(COMpower):
-    for ii in pwr:
-        plt.title("COM Power") 
-        plt.xlabel('Indicies')
-        plt.ylabel('Power (W)')
-        plt.plot(ii, color = 'grey')
+        ax4.axvspan(inputLandings[i], inputTakeoffs[i], color = 'lightgray', alpha = 0.5)
     plt.show()
     
 
+from scipy.interpolate import interp1d
+
+def interpMet(metric, landings, takeoffs):
+    fig = plt.figure()
+    normMetric = []
+    xx = np.array(np.linspace(0, 100, 101)) # Return evenly spaced numbers over a specified interval (0,100) with 101 
+    for value1, value2 in zip(landings, takeoffs):
+        x = np.array(range(value1, value2))
+        y = np.array(metric[value1 :value2])
+        f = interp1d(x,y, 'linear' ,  fill_value= 'extrapolate')
+        xnorm = np.linspace(value1, value2, 101)
+        ynorm = np.array([f(x) for x in xnorm])
+        normMetric.append(ynorm)
+        #plt.figure()
+        plt.plot(xx, ynorm)
+        
+        titleName = [name for name, value in globals().items() if value is metric][0]
+        plt.title('Interpolated {0}'.format(titleName))
+        # plt.ylabel('Force (N)')
+        plt.xlabel ('Percentage of Task')
+        
+    saveFolder= fPath + '2DPlots'
+    
+    if os.path.exists(saveFolder) == False:
+        os.mkdir(saveFolder)
+        
+    plt.savefig(saveFolder + '/' + subName + '_'  + tmpMove + '_' + config1 + '_' + titleName +'.png')
+    return fig  
+
+    
+    
+################# initiate variables
 CT = []
 
 impulseZ = []
@@ -384,7 +412,7 @@ impulse = []
 jumpTime = []
 
 
-subName = []
+subNamelist = []
 config = []
 movements = []
 
@@ -395,6 +423,8 @@ for fName in entries:
     try:
         
         #fName = entries[1]
+        print(fName)
+        subName = fName.split('_')[0]
         config1 = fName.split('_')[1]
         tmpMove = fName.split('_')[2]
 
@@ -445,6 +475,11 @@ for fName in entries:
             takeoffs[:] = [x for x in takeoffs if x > landings[0]]
             
             PosPwr, NegPwr, PosWk, NegWk, pwr, pkPwr = COMwk(totForce_z, totForce_y, totForce_x, mass, landings)
+            
+            ankPFmom = dat.RAnkleMoment_Sagittal
+            ankIEmom = dat.RAnkleMoment_Frontal
+            kFEmom = dat.RKneeMoment_Sagittal
+            kAbAdmom = dat.RKneeMoment_Frontal
          
         elif (tmpMove == 'CMJ') or (tmpMove == 'cmj'):
             
@@ -469,16 +504,31 @@ for fName in entries:
             
             PosPwr, NegPwr, PosWk, NegWk, pwr, pkPwr   =  COMwk(totForce_z, totForce_y, totForce_x, mass, landings)
             
+            ankPFmom = dat.RAnkleMoment_Sagittal
+            ankIEmom = dat.RAnkleMoment_Frontal
+            kFEmom = dat.RKneeMoment_Sagittal
+            kAbAdmom = dat.RKneeMoment_Frontal
            
            
         else:
             print('this movement is not included in Performance Test Analysis')
         
         if (tmpMove == 'CMJ') or (tmpMove == 'cmj') or (tmpMove == 'Skater') or (tmpMove == 'skater'):
-            makeVizPlot(dat, landings, takeoffs)
-            plt.figure()
-            COMplt(pwr)
-            answer = messagebox.askyesno("Question","Is data clean?")
+            
+            if debug == 1:
+                makeVizPlot(dat, landings, takeoffs, pwr)
+                if ts_plot == 1: # plot all relavent metrics 
+                    interpMet(totForce_z, landings, takeoffs)
+                    interpMet(totForce_y, landings, takeoffs)
+                    interpMet(totForce_x, landings, takeoffs)
+                    interpMet(ankPFmom, landings, takeoffs)
+                    interpMet(ankIEmom, landings, takeoffs)
+                    interpMet(kFEmom, landings, takeoffs)
+                    interpMet(kAbAdmom, landings, takeoffs)
+                
+                answer = messagebox.askyesno("Question","Is data clean?")
+            else: answer = True
+            
             
             if answer == False:
                 plt.close('all')
@@ -515,7 +565,7 @@ for fName in entries:
                         peakPower.append(pkPwr[i])
                         
 
-                        subName.append(fName.split('_')[0])
+                        subNamelist.append(subName)
                         config.append( config1 )
                         movements.append( tmpMove )
                         
@@ -535,7 +585,7 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movem
                          'CT':list(CT), 'impulse_Z':list(impulseZ), 'impulse_X':list(impulseX), 
                          'peakGRF_Z':list(peakGRFz), 'peakGRF_X':list(peakGRFx), 'peakPFmom':list(peakPFmom),
                          'peakINVmom':list(peakINVmom), 'peakKneeEXTmom':list(peakKneeEXTmom), 
-                         'kneeABDrom':list(kneeABDrom), 'eccWork':list(eccWork),'conWork':list(conWork), 'peakPower':list(peakPower) })
+                         'kneeABDrom':list(kneeABDrom), 'PeakKneeAbMoment': list(peakKneeADDmom),'eccWork':list(eccWork),'conWork':list(conWork), 'peakPower':list(peakPower) })
 
 
 
@@ -545,6 +595,7 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movem
 
 save_on = 1
 if save_on == 1:
+    np.save(fPath+'0_badFile.npy', badFileList)
     outfileName = fPath + 'CompiledAgilityDataTest.csv'
     outcomes.to_csv(outfileName, index = False)
 
