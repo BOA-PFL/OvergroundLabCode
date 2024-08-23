@@ -332,6 +332,7 @@ for fName in entries:
                     movements.append(tmpMove)
                     subName.append(fName.split(sep = "_")[0])
                     tmpConfig.append(config)
+                    order.append(forder)
                     ###   ---- Work ---- ##
                     # ankleWork.append(sum(abs(dat.LeftAnklePower[landing : landing + tmpStab])))
                     # kneeWork.append(sum(abs(dat.LeftKneePower[landing : landing + tmpStab])))
