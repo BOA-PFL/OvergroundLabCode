@@ -249,6 +249,7 @@ sdFz = []
 subName = []
 movements = []
 tmpConfig = []
+order = []
 badFileList = []
 
 RankleEvMom = []
@@ -271,6 +272,7 @@ for fName in entries:
         ##Parse file name into subject and configuration 
         config = fName.split(sep = "_")[1]
         tmpMove = fName.split(sep = "_")[2] 
+        forder = fName.split(sep = "_")[3][0]
         # Filter force
         forceZ = np.array(dat.FP4_GRF_Z)
         forceZ[forceZ<fThresh] = 0 
@@ -330,6 +332,7 @@ for fName in entries:
                     movements.append(tmpMove)
                     subName.append(fName.split(sep = "_")[0])
                     tmpConfig.append(config)
+                    order.append(forder)
                     ###   ---- Work ---- ##
                     # ankleWork.append(sum(abs(dat.LeftAnklePower[landing : landing + tmpStab])))
                     # kneeWork.append(sum(abs(dat.LeftKneePower[landing : landing + tmpStab])))
@@ -362,7 +365,7 @@ for fName in entries:
 
 
 
-outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(tmpConfig),'Movement':list(movements), 'StabTime': list(stabilization), 'sdFz':list(sdFz),
+outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(tmpConfig), 'Order': list(order), 'Movement':list(movements), 'StabTime': list(stabilization), 'sdFz':list(sdFz),
                           'RankleEvMom':list(RankleEvMom), 'RankleInMom':list(RankleInMom),  'RkneeADDMom': list(RkneeADDMom), 
                           'RkneeABDMom':list(RkneeABDMom)})
 
