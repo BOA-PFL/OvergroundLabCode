@@ -203,8 +203,8 @@ for ii in range(0,len(entries)):
                 
                 # Ankle Eversion/Inversion Moment
                 if np.isnan(sum(dat.RAnkleMoment_Frontal[landing : left_on[jj+1]])) == False and knee_count > 2:
-                    RankleEvMom.append(min(dat.RKneeMoment_Frontal[landing : left_on[jj+1]]))
-                    RankleInMom.append(max(dat.RKneeMoment_Frontal[landing : left_on[jj+1]]))
+                    RankleEvMom.append(min(dat.RAnkleMoment_Frontal[landing : left_on[jj+1]]))
+                    RankleInMom.append(max(dat.RAnkleMoment_Frontal[landing : left_on[jj+1]]))
                 else:
                     RankleEvMom.append(np.nan)
                 
