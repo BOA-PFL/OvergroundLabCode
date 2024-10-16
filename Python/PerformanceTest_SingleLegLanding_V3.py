@@ -257,7 +257,7 @@ RankleInMom = []
 
 RkneeABDMom = []
 RkneeADDMom = []
-
+RkneeAbAdROM = []
 
 for fName in entries:
     # try:
@@ -352,8 +352,13 @@ for fName in entries:
                     else:
                         RkneeABDMom.append(min(dat.RKneeMoment_Frontal[landing : landing + 200]))
                         RkneeADDMom.append(max(dat.RKneeMoment_Frontal[landing : landing + 200]))
-                    
-                   
+                        
+                    if np.isnan(sum(dat.RKneeAngle_Frontal[landing : landing + 200])):
+                        RkneeAbAdROM.append(np.nan)
+                    else:
+                        RkneeAbAdROM.append(max(dat.RKneeAngle_Frontal[landing : landing + 200]) - min(dat.RKneeAngle_Frontal[landing : landing + 200]))
+
+               
                    
                     
                     
@@ -367,7 +372,7 @@ for fName in entries:
 
 outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(tmpConfig), 'Order': list(order), 'Movement':list(movements), 'StabTime': list(stabilization), 'sdFz':list(sdFz),
                           'RankleEvMom':list(RankleEvMom), 'RankleInMom':list(RankleInMom),  'RkneeADDMom': list(RkneeADDMom), 
-                          'RkneeABDMom':list(RkneeABDMom)})
+                          'RkneeABDMom':list(RkneeABDMom), 'RkneeAbAdROM':list(RkneeAbAdROM)})
 
 
 if save_on == 1:
