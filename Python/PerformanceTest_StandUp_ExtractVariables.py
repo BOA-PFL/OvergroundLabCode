@@ -86,6 +86,7 @@ badFileList = []
 subName = []
 config = []
 movements = []
+order = []
 
 # loop through all of the files
 for ii in range(0,len(entries)):
@@ -97,6 +98,7 @@ for ii in range(0,len(entries)):
     tmpSub = fName.split(sep = "_")[0]
     tmpConfig = fName.split(sep = "_")[1]
     tmpMove = fName.split(sep = "_")[2] 
+    tmpOrd = fName.split(sep = "_")[3][0] 
     
     # Segment the trial: sometimes people did not go right into the trial
     shortFName = fName.split('.')[0]
@@ -220,10 +222,10 @@ for ii in range(0,len(entries)):
                 subName.append(tmpSub)
                 config.append(tmpConfig)
                 movements.append(tmpMove)
-                
+                order.append(tmpOrd)
 
 
-outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config),'Movement':list(movements),
+outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Order':list(order),'Movement':list(movements),
                          'cycle_time':list(cycle_time),'PeakPosCOMPower':list(PeakPosCOMPower),
                          'PeakNegCOMPower':list(PeakNegCOMPower),'RFD':list(RFD),'COPEx':list(COPEx),
                          'sdCOP_AP':list(sdCOP_AP),'sdCOP_ML':list(sdCOP_ML),'forcemaxCV':list(forcemaxCV),
