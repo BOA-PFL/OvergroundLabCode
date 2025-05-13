@@ -415,6 +415,7 @@ jumpTime = []
 subNamelist = []
 config = []
 movements = []
+oSesh = []
 
 badFileList = []
 
@@ -427,6 +428,7 @@ for fName in entries:
         subName = fName.split('_')[0]
         config1 = fName.split('_')[1]
         tmpMove = fName.split('_')[2]
+        tmpSesh = fName.split('_')[3][0]
 
         
         dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
@@ -568,7 +570,7 @@ for fName in entries:
                         subNamelist.append(subName)
                         config.append( config1 )
                         movements.append( tmpMove )
-                        
+                        oSesh.append(tmpSesh)
         
                     except:
         
@@ -581,7 +583,7 @@ for fName in entries:
 
 
 
-outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movement':list(movements),
+outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movement':list(movements), 'Order':list(oSesh),
                          'CT':list(CT), 'impulse_Z':list(impulseZ), 'impulse_X':list(impulseX), 
                          'peakGRF_Z':list(peakGRFz), 'peakGRF_X':list(peakGRFx), 'peakPFmom':list(peakPFmom),
                          'peakINVmom':list(peakINVmom), 'peakKneeEXTmom':list(peakKneeEXTmom), 
