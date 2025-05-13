@@ -24,11 +24,11 @@ pd.options.mode.chained_assignment = None  # default='warn' set to warn for a lo
 
 # Define constants and options
 fThresh = 80 #below this force value will be set to 0.
-save_on = 0 # turn this on for automatic saving of csv!!!! 
+save_on = 1 # turn this on for automatic saving of csv!!!! 
 debug = 1 #turn off to skip makeVizPlot
 ts_plot = 0 # turn this on for timeseries plotting of extracted variables
 
-fPath = 'Z:\\Testing Segments\\AgilityPerformanceData\\AS_Train_ExternalvsInternalPanels_Mech_Jan24\\Overground\\'
+fPath = 'C:\\Users\\bethany.kilpatrick\\BOA Technology Inc\\PFL Team - General\\Testing Segments\\AgilityPerformanceData\\AS_Court_WomensPanelStiffnessI_Mech_Jan25\\Overground\\'
 
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
@@ -143,7 +143,7 @@ def delimitTrial(inputDF,FName):
         plt.close()
         outputDat = inputDF.iloc[int(np.floor(pts[0,0])) : int(np.floor(pts[1,0])),:]
         outputDat = outputDat.reset_index()
-        trial_segment = np.array([FName, pts])
+        trial_segment = np.array([FName, pts],dtype=object)
         np.save(fPath+FName+'TrialSeg.npy',trial_segment)
 
     return(outputDat)
@@ -234,13 +234,13 @@ def COMwk(totF_Z, totF_Y, totF_X, mass, landings):
     velo_x = []
    # for ii, val in enumerate(landings[:(len(landings)-1)]):
     for ii, val in enumerate(zip(landings, takeoffs)):
-        veloz = integrate.cumtrapz(acc_z[val[0]:val[1]], dx = 1/frequency)
+        veloz = integrate.cumulative_trapezoid(acc_z[val[0]:val[1]], dx = 1/frequency)
         veloz = veloz - np.mean(veloz)
         velo_z.append(veloz)
-        veloy = integrate.cumtrapz(acc_y[val[0]:val[1]], dx = 1/frequency)
+        veloy = integrate.cumulative_trapezoid(acc_y[val[0]:val[1]], dx = 1/frequency)
         veloy = veloy - np.mean(veloy)
         velo_y.append(veloy)
-        velox = integrate.cumtrapz(acc_x[val[0]:val[1]], dx = 1/frequency)
+        velox = integrate.cumulative_trapezoid(acc_x[val[0]:val[1]], dx = 1/frequency)
         velox = velox - np.mean(velox)
         velo_x.append(velox)
    
@@ -423,7 +423,7 @@ badFileList = []
 for fName in entries:
     try:
         
-        #fName = entries[1]
+        # fName = entries[1]
         print(fName)
         subName = fName.split('_')[0]
         config1 = fName.split('_')[1]
@@ -584,6 +584,7 @@ for fName in entries:
 
 
 outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movement':list(movements), 'Order':list(oSesh),
+
                          'CT':list(CT), 'impulse_Z':list(impulseZ), 'impulse_X':list(impulseX), 
                          'peakGRF_Z':list(peakGRFz), 'peakGRF_X':list(peakGRFx), 'peakPFmom':list(peakPFmom),
                          'peakINVmom':list(peakINVmom), 'peakKneeEXTmom':list(peakKneeEXTmom), 
