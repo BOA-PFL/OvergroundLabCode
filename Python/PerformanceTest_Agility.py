@@ -401,6 +401,7 @@ peakGRFx = []
 peakPFmom = []
 peakINVmom = []
 peakEVmom = []
+peakEVvel = []
 peakKneeEXTmom = []
 peakKneeADDmom = [] # Internal
 kneeABDrom = []
@@ -557,6 +558,7 @@ for fName in entries:
                         peakPFmom.append(np.min(dat.RAnkleMoment_Sagittal[landings[i]:takeoffs[i]])*-1)
                         peakINVmom.append(np.max(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
                         peakEVmom.append(np.min(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
+                        peakEVvel.append(np.min(dat.RAnkleAngVel_Frontal[landings[i]:takeoffs[i]]))
                         peakKneeADDmom.append(np.max(dat.RKneeMoment_Frontal[landings[i]:takeoffs[i]])) # looking at an INTERNAL moment, so this is the peak external ABD moment
                         peakKneeEXTmom.append(np.max(dat.RKneeMoment_Sagittal[landings[i]:takeoffs[i]]))
                         kneeABDrom.append(np.max(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]) - np.min(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]))
@@ -587,8 +589,10 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movem
 
                          'CT':list(CT), 'impulse_Z':list(impulseZ), 'impulse_X':list(impulseX), 
                          'peakGRF_Z':list(peakGRFz), 'peakGRF_X':list(peakGRFx), 'peakPFmom':list(peakPFmom),
-                         'peakINVmom':list(peakINVmom), 'peakKneeEXTmom':list(peakKneeEXTmom), 
-                         'kneeABDrom':list(kneeABDrom), 'PeakKneeAbMoment': list(peakKneeADDmom),'eccWork':list(eccWork),'conWork':list(conWork), 'peakPower':list(peakPower) })
+                         'peakINVmom':list(peakINVmom), 'peakEVmom':list(peakEVmom), 'peakEVvel':list(peakEVvel),
+                         'peakKneeEXTmom':list(peakKneeEXTmom), 
+                         'kneeABDrom':list(kneeABDrom), 'PeakKneeAbMoment': list(peakKneeADDmom),
+                         'eccWork':list(eccWork),'conWork':list(conWork), 'peakPower':list(peakPower) })
 
 
 
@@ -598,9 +602,16 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movem
 
 save_on = 1
 if save_on == 1:
+    outfileName = fPath + '0_CompiledAgilityData.csv'
     np.save(fPath+'0_badFile.npy', badFileList)
-    outfileName = fPath + 'CompiledAgilityDataTest.csv'
-    outcomes.to_csv(outfileName, index = False)
+    if os.path.exists(outfileName) == False:
+        outcomes.to_csv(outfileName, header=True, index = False)
+ 
+    else:
+        outcomes.to_csv(outfileName, mode='a', header=False, index = False)
+    
+    
+
 
 
 
