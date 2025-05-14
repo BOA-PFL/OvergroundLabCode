@@ -558,7 +558,7 @@ for fName in entries:
                         peakPFmom.append(np.min(dat.RAnkleMoment_Sagittal[landings[i]:takeoffs[i]])*-1)
                         peakINVmom.append(np.max(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
                         peakEVmom.append(np.min(dat.RAnkleMoment_Frontal[landings[i]:takeoffs[i]]))
-                        peakEVvel.append(np.min(dat.RAnkleAngVel_Frontal[landings[i]:takeoffs[i]]))
+                        peakEVvel.append(np.min(dat.RAnkleAngVel_Frontal[landings[i]:takeoffs[i]])*-1)
                         peakKneeADDmom.append(np.max(dat.RKneeMoment_Frontal[landings[i]:takeoffs[i]])) # looking at an INTERNAL moment, so this is the peak external ABD moment
                         peakKneeEXTmom.append(np.max(dat.RKneeMoment_Sagittal[landings[i]:takeoffs[i]]))
                         kneeABDrom.append(np.max(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]) - np.min(dat.RKneeAngle_Frontal[landings[i]:takeoffs[i]]))
@@ -585,7 +585,7 @@ for fName in entries:
 
 
 
-outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Movement':list(movements), 'Order':list(oSesh),
+outcomes = pd.DataFrame({'Subject':list(subNamelist), 'Config': list(config), 'Movement':list(movements), 'Order':list(oSesh),
 
                          'CT':list(CT), 'impulse_Z':list(impulseZ), 'impulse_X':list(impulseX), 
                          'peakGRF_Z':list(peakGRFz), 'peakGRF_X':list(peakGRFx), 'peakPFmom':list(peakPFmom),
