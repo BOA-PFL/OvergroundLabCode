@@ -28,7 +28,7 @@ save_on = 1 # turn this on for automatic saving of csv!!!!
 debug = 1 #turn off to skip makeVizPlot
 ts_plot = 0 # turn this on for timeseries plotting of extracted variables
 
-fPath = 'C:\\Users\\bethany.kilpatrick\\BOA Technology Inc\\PFL Team - General\\Testing Segments\\AgilityPerformanceData\\AS_Court_WomensPanelStiffnessI_Mech_Jan25\\Overground\\'
+fPath = 'C:\\Users\\adam.luftglass\\OneDrive - BOA Technology Inc\\General\\Testing Segments\\Material Testing\\2025_A&SDrape2_Materials_NB\\Overground\\'
 
 fileExt = r".txt"
 entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
