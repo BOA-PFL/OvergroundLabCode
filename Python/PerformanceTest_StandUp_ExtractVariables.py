@@ -18,7 +18,7 @@ debug = 0
 fThresh = 50
 
 # Read in balance file
-fPath = 'Z:\\Testing Segments\\WorkWear_Performance\\EH_Workwear_MidCutStabilityII_CPDMech_Sept23\\Overground\\'
+fPath = 'C:\\Users\\milena.singletary\\OneDrive - BOA Technology Inc\\General - PFL Team\\Testing Segments\\WorkWear_Performance\\2025_Performance_HighCutPFSWorwearII_TimberlandPro\\overground\\'
 
 fileExt = r".txt"
 
@@ -123,7 +123,8 @@ for ii in range(0,len(entries)):
         dat = dat.iloc[int(np.floor(pts[0,0])) : int(np.floor(pts[1,0])),:]
         dat = dat.reset_index()
         # Save the trial segmentation
-        trial_segment = np.array([shortFName,pts])
+        # trial_segment = np.array([shortFName,pts])
+        trial_segment = np.array([shortFName,round(pts[0,1]),round(pts[1,0])])
         np.save(fPath+shortFName+'TrialSeg.npy',trial_segment)
     
      
