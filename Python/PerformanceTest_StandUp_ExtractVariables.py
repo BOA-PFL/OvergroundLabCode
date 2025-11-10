@@ -105,9 +105,9 @@ for ii in range(0,len(entries)):
     # Load in the trial segmentation variable if it is in the directory
     if os.path.exists(fPath+shortFName+'TrialSeg.npy') == True:
         trial_segment_old = np.load(fPath+shortFName+'TrialSeg.npy',allow_pickle=True)
-        trialStart = trial_segment_old[0][0]
-        trialEnd = trial_segment_old[1][0]
-        dat = dat.iloc[int(np.floor(trialStart)) : int(np.floor(trialEnd)),:]
+        trialStart = trial_segment_old[1]
+        trialEnd = trial_segment_old[2]
+        dat = dat.iloc[int(trialStart) : int(trialEnd),:]
         dat = dat.reset_index()
     else:
             
@@ -210,6 +210,7 @@ for ii in range(0,len(entries)):
                     RankleInMom.append(max(dat.RAnkleMoment_Frontal[landing : left_on[jj+1]]))
                 else:
                     RankleEvMom.append(np.nan)
+                    RankleInMom.append(np.nan)
                 
                 # Knee ABD Moment
                 if np.isnan(sum(dat.RKneeMoment_Frontal[landing : left_on[jj+1]])) == False and knee_count > 2:
