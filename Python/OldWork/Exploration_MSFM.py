@@ -95,6 +95,13 @@ for fName in entries:
     #fName = entries[0]
 
     # extract info from filename
+    # Clear the previous trial's cyclic detections. They are assigned
+    # inside conditionals, so a trial that skips a detection would keep
+    # the last trial's events and be processed against them silently.
+    hs = []
+    to = []
+    jerkPeak = []
+
     info = fName.split(sep = "/")[-1]
     sub = info.split(sep = "_")[0]
     config = info.split(sep = "_")[2]

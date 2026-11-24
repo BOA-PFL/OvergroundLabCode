@@ -10,19 +10,61 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import scipy.signal as sig
+import tkinter as tk
 from tkinter import messagebox
+from OvergroundFunctions import (findLandings, findTakeoffs, movAvgForce,
+                                 movSDForce, findBW, findStabilization,
+                                 loadProcessingDecisions, saveProcessingDecision)
 
 
 # Define constants and options
 fThresh = 40 #below this value will be set to 0.
 save_on = 1 #will write to spreadsheet if 1 entered
-debug = 0 # turn to 1 for degbugging and displaying plots
+# 0 = no data check, nothing is asked or recorded
+# 1 = ask only about trials with no recorded decision (the normal setting)
+# 2 = re-review EVERY trial, including ones previously rejected. Use after
+#     changing processing, when earlier decisions may no longer hold. This
+#     mode is good for reruning files with a different threshold or examining
+#     files after a different filter has been applied.
+data_check = 1
 
 # Read in balance file
 fPath = 'C:\\Users\\milena.singletary\\OneDrive - BOA Technology Inc\\General - PFL Team\\Testing Segments\\Hike\\2025_Mechanistic_LiteHikeInternalPanels_Adidas\\Overground\\'
 fileExt = r".txt"
 #entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt) and fName.count('SLL')]
-entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
+entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt) and not fName.startswith('0_')]
+
+# Names this script's decision file, 0_ProcessingDecisions_<scriptName>.csv.
+# One data folder is often read by several scripts, and a trial that is no
+# good for one analysis can be fine for another, so each keeps its own
+# record rather than one script's rejection governing the rest.
+scriptName = 'OvergroundHike'
+
+# Data-quality decisions recorded by previous runs of this script. Loading
+# these is what stops a trial being judged twice. Rejected files are left
+# where they are so they can still be opened and looked at - it is this
+# record, not the folder, that decides what gets processed.
+decisions = loadProcessingDecisions(fPath, scriptName)
+
+# Results from an out-of-date copy of this script will not match anyone
+# else's. Asked only when nothing has been decided here yet: a decision file
+# means the question was answered on an earlier run of this dataset.
+if len(decisions) == 0:
+    # Give this dialog its own window and put it in front. It is the first
+    # thing the script does, so unlike the data check further down there is no
+    # figure on screen to pull focus, and a borrowed default root can open the
+    # box behind Spyder - which just looks like the script has hung.
+    dialogRoot = tk.Tk()
+    dialogRoot.withdraw()
+    dialogRoot.attributes('-topmost', True)
+    upToDate = messagebox.askyesno("Question", "Is this script up to date with main?",
+                                   parent = dialogRoot)
+    dialogRoot.destroy()
+    # A plain error rather than SystemExit: these scripts get run a cell at a
+    # time, and SystemExit can take the console with it. This stops just as
+    # firmly, prints the reason, and leaves the console alone.
+    if upToDate == False:
+        raise RuntimeError('Pull this script from main before processing')
 
 
 ### set plot font size ###
@@ -40,205 +82,14 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 
 # list of functions 
-def findLandings(force, fThresh):
-    """
-    This function finds the landings from force plate data
-    it uses a heuristic to determine landings from when the smoothed force is
-    0 and then breaches a threshold
-    
-    Parameters
-    ----------
-    force : Pandas Series
-        Vertical force from force plate.
-    fThresh: integer
-        Value force has to be greater than to count as a takeoff/landing
-
-    Returns
-    -------
-    lic : list
-        Indices of landings.
-
-    """
-    lic = [] 
-    
-    for step in range(len(force)-1):
-        if len(lic) == 0: 
-            
-            if force[step] == 0 and force[step + 1] >= fThresh and force [step + 10 ] > 300:
-                lic.append(step)
-    
-        else:
-        
-            if force[step] == 0 and force[step + 1] >= fThresh and step > lic[-1] + 300 and force [step + 10] > 300:
-                lic.append(step)
-    return lic
-
-
-# def trimLandings(landings, takeoffs):
-    """
-    This function is used to trim falsely detected landings if the last
-    landing occured after the last takeoff
-    
-    Parameters
-    ----------
-    landings : Series
-        Indices of ground contact obtained from findLandings function
-    takeoffs: Series
-        Indices of takeoffs from findTakeoffs function
-
-    Returns
-    -------
-    trimTakeoffs : list
-        Indices of takeoffs excluding any potential takeoffs before 1st
-        landing
-    
-    """
-#     trimTakeoffs = landings
-#     if len(takeoffs) > len(landings) and takeoffs[0] > landings[0]:
-#         del(trimTakeoffs[0])
-#     return(trimTakeoffs)
-
-def findTakeoffs(force, fThresh):
-    """
-    This function calculates the takeoffs using a heuristic 
-
-    Parameters
-    ----------
-    force : Pandas Series
-        vertical force from force plate.
-    
-    fThresh: integer
-        Value force has to be greater than to count as a takeoff/landing
-    Returns
-    -------
-    lto : list
-        indices of takeoffs obtained from force data. Takeoffs here mean
-        the moment a force signal was > a threshold and then goes to 0
-
-    """
-    lto = []
-    for step in range(len(force)-1):
-        if force[step] >= fThresh and force[step + 1] == 0 and force[step + 5] == 0 and force[step + 10] == 0:
-            lto.append(step + 1)
-    return lto
-
-# def trimTakeoffs(landing, takeoff):
-#     if landing[0] > takeoff[0]:
-#         takeoff.pop(0)
-#         return(takeoff)
-#     else:
-#         return(takeoff)
 
 
 #Moving average of length specified in function
-def movAvgForce(force, landing, takeoff, length):
-    """
-    In order to estimate when someone stabilized, we calcualted the moving
-    average force and SD of the force signal. This is one of many published 
-    methods to calcualte when someone is stationary. 
-    
-    Parameters
-    ----------
-    force : Pandas series
-        pandas series of force from force plate.
-    landing : List
-        list of landings calcualted from findLandings.
-    takeoff : List
-        list of takeoffs from findTakeoffs.
-    length : Integer
-        length of time in indices to calculate the moving average.
-
-    Returns
-    -------
-    avgF : list
-        smoothed average force .
-
-    """
-    newForce = np.array(force)
-    win_len = length; #window length for steady standing
-    avgF = []
-    for i in range(landing, takeoff):
-        avgF.append(np.mean(newForce[i : i + win_len]))     
-    return avgF
 
 #moving SD as calcualted above
-def movSDForce(force, landing, takeoff, length):
-    """
-    This function calculates a rolling standard deviation over an input
-    window length
-    
-    Parameters
-    ----------
-    force : Pandas series
-        pandas series of force from force plate.
-    landing : List
-        list of landings calcualted from findLandings.
-    takeoff : List
-        list of takeoffs from findTakeoffs.
-    length : Integer
-        length of time in indices to calculate the moving average.
-
-    Returns
-    -------
-    avgF : list
-        smoothed rolling SD of forces
-
-    """
-    newForce = np.array(force)
-    win_len = length; #window length for steady standing
-    avgF = []
-    for i in range(landing, takeoff):
-        avgF.append(np.std(newForce[i : i + win_len]))     
-    return avgF
 
 #estimated stability after 200 indices
-def findBW(force):
-    """
-    If you do not have the subject's body weight or want to find from the 
-    steady portion of force, this may be used. This is highly conditional on 
-    the data and how it was collected. The below assumes quiet standing from
-    100 to 200 indices. 
-    
-    Parameters
-    ----------
-    force : Pandas series
-        DESCRIPTION.
 
-    Returns
-    -------
-    BW : floating point number
-        estimate of body weight of the subject to find stabilized weight
-        in Newtons
-
-    """
-    BW = np.mean(avgF[100:200])
-    return BW
-
-def findStabilization(avgF, sdF):
-    """
-    Using the rolling average and SD values, this calcualtes when the 
-    actual stabilized force occurs. 
-    
-    Parameters
-    ----------
-    avgF : list, calculated using movAvgForce 
-        rolling average of force.
-    sdF : list, calcualted using movSDForce above
-        rolling SD of force.
-
-    Returns
-    -------
-    floating point number
-        Time to stabilize using the heuristic: force is within +/- 5% of subject
-        mass and the rolling standrd deviation is below 20
-
-    """
-    stab = []
-    for step in range(len(avgF)-1):
-        if avgF[step] >= (subBW - 0.05*subBW) and avgF[step] <= (subBW + 0.05*subBW) and sdF[step] < 20:
-            stab.append(step + 1) 
-            
-    return stab[0]
    
 
 
@@ -246,9 +97,6 @@ def findStabilization(avgF, sdF):
 stabilization = []
 sdFz = []
 ct = []
-# ankleWork = []
-# kneeWork = []
-# hipWork = []
 subName = []
 movements = []
 tmpConfig = []
@@ -279,9 +127,25 @@ for fName in entries:
         Start by looping through files and getting meta data
         Then loop through landings on the force plate for stabilization time
         """
+        # Clear the previous trial's cyclic detections. They are assigned
+        # inside conditionals, so a trial that skips a detection would keep
+        # the last trial's events and be processed against them silently.
+        landings = []
+        takeoffs = []
+        landings2 = []
+        takeoffs2 = []
 
         dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
         print('Processing:',fName)
+
+        # The collection frequency comes from the file header rather than
+        # being assumed. Line 4 of the export reads "200.000 // Sampling
+        # rate"; skiprows=[2] drops the source-file line, which carries four
+        # fields rather than two, and the blank line is skipped by pandas.
+        descr = pd.read_csv(fPath + fName, sep = '\t', nrows = 5, header = None,
+                            skiprows = [2])
+        frequency = float(descr.iloc[2, 0])
+
         
         ##Parse file name into subject and configuration 
         config = fName.split(sep = "_")[1]
@@ -298,10 +162,14 @@ for fName in entries:
         forceZ4[forceZ4<fThresh] = 0
         
         ## find the landings and takeoffs of the FP as vectors
-        landings = findLandings(forceZ, fThresh)
-        takeoffs = findTakeoffs(forceZ, fThresh)
-        landings2 = findLandings(forceZ4, fThresh)
-        takeoffs2 = findTakeoffs(forceZ4, fThresh)
+        # Hiking landings are discrete and well separated, so the
+        # detection can be strict: the force has to still be above 300 N
+        # ten samples on, no two landings inside 300 samples, and a
+        # takeoff has to still read zero 5 and 10 samples later.
+        landings = findLandings(forceZ, fThresh, confirmForce = 300, minGap = 300)
+        takeoffs = findTakeoffs(forceZ, fThresh, holdOffsets = (5, 10))
+        landings2 = findLandings(forceZ4, fThresh, confirmForce = 300, minGap = 300)
+        takeoffs2 = findTakeoffs(forceZ4, fThresh, holdOffsets = (5, 10))
         
         
         if len(landings) > len(takeoffs):
@@ -328,9 +196,19 @@ for fName in entries:
         # plt.plot(dat.LKneeMoment_Frontal)
         # plt.plot(dat.LKneeAngle_Frontal)
         
+        # A trial rejected in a previous run is skipped. The file is still
+        # there to open and look at: the recorded decision governs, not the
+        # folder
+        priorDecision = decisions.get(fName, '')
+        if priorDecision == 'bad' and data_check != 2:
+            print('Previously excluded, skipping: ' + fName)
+            continue
+
         ## For each landing, calculate rolling averages and time to stabilize
-        answer = True
-        if debug == 1:
+        answer = True # if data check is off.
+        if priorDecision == 'good' and data_check == 1:
+            print('Previously accepted, not asking again: ' + fName)
+        elif data_check >= 1:
             plt.figure(0)
             plt.subplot(6,2,1)
             plt.plot(forceZ)
@@ -381,7 +259,18 @@ for fName in entries:
             plt.autoscale()
             answer = messagebox.askyesno("Question","Is data clean?")
             plt.close('all')
-        
+
+        # Record the decision straight away, inside the loop, so a run that
+        # fails later keeps every decision made so far
+        if priorDecision == '' or data_check == 2:
+            if answer == False:
+                saveProcessingDecision(fPath, scriptName, fName, 'bad',
+                                       Subject=tmpName, Config=config,
+                                       reason='rejected at the data check')
+            else:
+                saveProcessingDecision(fPath, scriptName, fName, 'good',
+                                       Subject=tmpName, Config=config)
+
         if answer == False:
             print('Adding file to bad file list')
             badFileList.append(fName)
@@ -404,7 +293,7 @@ for fName in entries:
                         subBW = findBW(avgF)
                         
                         try:
-                            stabilization.append(findStabilization(avgF, sdF)/200)
+                            stabilization.append(findStabilization(avgF, sdF, subBW)/frequency)
                         except:
                             stabilization.append('NaN')
                             
@@ -412,14 +301,9 @@ for fName in entries:
                         stabilization.append('NaN')
                         sdFz.append('NaN')
                     #tmpStab = findStabilization(avgF, sdF)
-
-                    ###   ---- Work ---- ##
-                    # ankleWork.append(sum(abs(dat.LeftAnklePower[landing : landing + tmpStab])))
-                    # kneeWork.append(sum(abs(dat.LeftKneePower[landing : landing + tmpStab])))
-                    #hipWork.append(sum(abs(dat.LHipPower[landing : landing + tmpStab])))
                     
                     ###   ---- Contact Time ---- ##
-                    ct.append((takeoffs[ind] - landings[ind])/200)
+                    ct.append((takeoffs[ind] - landings[ind])/frequency)
                     
                     
                     ###   ---- Pk Moments ---- ##
@@ -472,13 +356,8 @@ for fName in entries:
                     stabilization.append('NaN') # stabilizing only happened on plate2
                     sdFz.append('NaN')
                     
-                    ###   ---- Work ---- ##
-                    # ankleWork.append(sum(abs(dat.LeftAnklePower[landing : landing + tmpStab])))
-                    # kneeWork.append(sum(abs(dat.LeftKneePower[landing : landing + tmpStab])))
-                    #hipWork.append(sum(abs(dat.LHipPower[landing : landing + tmpStab])))
-                    
                     ###   ---- Contact Time ---- ##
-                    ct.append((takeoffs2[ind] - landings2[ind])/200)
+                    ct.append((takeoffs2[ind] - landings2[ind])/frequency)
                     
                     
                     ###   ---- Pk Moments ---- ##
@@ -534,7 +413,9 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(tmpConfig), 'Or
                           'LkneeABDMom':list(LkneeABDMom), 'LkneeAbAdROM':list(LkneeAbAdROM)})
 
 
-if save_on == 1:
-    outcomes.to_csv(fPath + '0_OGHike.csv',header=True,index=False) 
+if save_on == 1 and data_check < 2:
+    # Note: written fresh each run, never appended. Appending duplicates
+    # every row when a study is re-processed after more data is collected.
+    outcomes.to_csv(fPath + '0_OGHike.csv',header=True,index=False)
 
 

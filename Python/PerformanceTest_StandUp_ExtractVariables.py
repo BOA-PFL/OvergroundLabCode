@@ -10,11 +10,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import scipy.signal as sig
+import tkinter as tk
 from tkinter import messagebox
+from OvergroundFunctions import (findLandings, loadProcessingDecisions,
+                                 saveProcessingDecision)
 
 # Define constants and options
 save_on = 1 #will write to spreadsheet if 1 entered
-debug = 0
+# 0 = no data check, nothing is asked or recorded
+# 1 = ask only about trials with no recorded decision (the normal setting)
+# 2 = re-review EVERY trial, including ones previously rejected. Use after
+#     changing processing, when earlier decisions may no longer hold. This
+#     mode is good for reruning files with a different threshold or examining
+#     files after a different filter has been applied.
+data_check = 1
 fThresh = 50
 
 # Read in balance file
@@ -23,7 +32,39 @@ fPath = 'C:\\Users\\milena.singletary\\OneDrive - BOA Technology Inc\\General - 
 fileExt = r".txt"
 
 # Only extract entries with "SU": Stand Ups
-entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt) and fName.count('SU')]
+entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt) and fName.count('SU') and not fName.startswith('0_')]
+
+# Names this script's decision file, 0_ProcessingDecisions_<scriptName>.csv.
+# One data folder is often read by several scripts, and a trial that is no
+# good for one analysis can be fine for another, so each keeps its own
+# record rather than one script's rejection governing the rest.
+scriptName = 'StandUp'
+
+# Data-quality decisions recorded by previous runs of this script. Loading
+# these is what stops a trial being judged twice. Rejected files are left
+# where they are so they can still be opened and looked at - it is this
+# record, not the folder, that decides what gets processed.
+decisions = loadProcessingDecisions(fPath, scriptName)
+
+# Results from an out-of-date copy of this script will not match anyone
+# else's. Asked only when nothing has been decided here yet: a decision file
+# means the question was answered on an earlier run of this dataset.
+if len(decisions) == 0:
+    # Give this dialog its own window and put it in front. It is the first
+    # thing the script does, so unlike the data check further down there is no
+    # figure on screen to pull focus, and a borrowed default root can open the
+    # box behind Spyder - which just looks like the script has hung.
+    dialogRoot = tk.Tk()
+    dialogRoot.withdraw()
+    dialogRoot.attributes('-topmost', True)
+    upToDate = messagebox.askyesno("Question", "Is this script up to date with main?",
+                                   parent = dialogRoot)
+    dialogRoot.destroy()
+    # A plain error rather than SystemExit: these scripts get run a cell at a
+    # time, and SystemExit can take the console with it. This stops just as
+    # firmly, prints the reason, and leaves the console alone.
+    if upToDate == False:
+        raise RuntimeError('Pull this script from main before processing')
 
 ### set plot font size ###
 SMALL_SIZE = 14
@@ -39,31 +80,6 @@ plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 # List of functions
-def findLandings(force, fThresh):
-    """
-    This function finds the landings from force plate data
-    it uses a heuristic to determine landings from when the smoothed force is
-    0 and then breaches a threshold
-    
-    Parameters
-    ----------
-    force : Pandas Series
-        Vertical force from force plate.
-    fThresh: integer
-        Value force has to be greater than to count as a takeoff/landing
-
-    Returns
-    -------
-    lic : list
-        Indices of landings.
-
-    """
-    lic = [] 
-    
-    for step in range(len(force)-1):
-            if force[step] == 0 and force[step + 1] >= fThresh :
-                lic.append(step)
-    return lic
 
 cycle_time = []
 RkneeABDMom = []
@@ -93,7 +109,22 @@ for ii in range(0,len(entries)):
     # Pull the data for examination
     fName = entries[ii]
     print(fName)
+    # A trial rejected in a previous run is skipped. The file is still
+    # there to open and look at: the recorded decision governs, not the
+    # folder
+    priorDecision = decisions.get(fName, '')
+    if priorDecision == 'bad' and data_check != 2:
+        print('Previously excluded, skipping: ' + fName)
+        continue
     dat = pd.read_csv(fPath+fName,sep='\t', skiprows = 8, header = 0)
+
+    # The collection frequency comes from the file header rather than
+    # being assumed. Line 4 of the export reads "200.000 // Sampling
+    # rate"; skiprows=[2] drops the source-file line, which carries four
+    # fields rather than two, and the blank line is skipped by pandas.
+    descr = pd.read_csv(fPath + fName, sep = '\t', nrows = 5, header = None,
+                        skiprows = [2])
+    frequency = float(descr.iloc[2, 0])
     
     tmpSub = fName.split(sep = "_")[0]
     tmpConfig = fName.split(sep = "_")[1]
@@ -130,8 +161,7 @@ for ii in range(0,len(entries)):
      
     # Detect foot contact onto FP3
     FC_sig = np.array(dat.FP3_GRF_Z)
-    freq = 200
-    w = 1 / (freq / 2) # Normalize the frequency
+    w = 1 / (frequency / 2) # Normalize the frequency
     b, a = sig.butter(2, w, 'low')
     FC_sig = sig.filtfilt(b, a, FC_sig)
     FC_sig[FC_sig<fThresh] = 0
@@ -151,8 +181,10 @@ for ii in range(0,len(entries)):
                 knee_count = knee_count + 1
                 dum.extend(dat.RKneeMoment_Frontal[landing : left_on[jj+1]])
         
-        answer = True # Defaulting to true: In case "debug" is not used
-        if debug == 1:
+        answer = True # if data check is off.
+        if priorDecision == 'good' and data_check == 1:
+            print('Previously accepted, not asking again: ' + fName)
+        elif data_check >= 1:
            plt.figure(ii)
            plt.subplot(2,2,1)
            # plt.plot(dum)
@@ -170,7 +202,18 @@ for ii in range(0,len(entries)):
            plt.ylabel('ML')
            answer = messagebox.askyesno("Question","Is data clean?")
            plt.close('all')
-       
+
+        # Record the decision straight away, inside the loop, so a run that
+        # fails later keeps every decision made so far
+        if priorDecision == '' or data_check == 2:
+            if answer == False:
+                saveProcessingDecision(fPath, scriptName, fName, 'bad',
+                                       Subject=tmpSub, Config=tmpConfig,
+                                       reason='rejected at the data check')
+            else:
+                saveProcessingDecision(fPath, scriptName, fName, 'good',
+                                       Subject=tmpSub, Config=tmpConfig)
+
         if answer == False:
            print('Adding file to bad file list')
            badFileList.append(fName)
@@ -188,9 +231,9 @@ for ii in range(0,len(entries)):
                 PeakPosCOMPower.append(np.max(dat.COM_Power[landing : left_on[jj+1]]))
                 PeakNegCOMPower.append(np.min(dat.COM_Power[landing : left_on[jj+1]]))
                 # Rate of Force Development
-                RFD.append(np.max(np.gradient(dat.FP2_GRF_Z[landing : left_on[jj+1]],1/200)))
+                RFD.append(np.max(np.gradient(dat.FP2_GRF_Z[landing : left_on[jj+1]],1/frequency)))
                 # Time to go from standing to the next standing position
-                cycle_time.append((left_on[jj+1]-landing)/200)
+                cycle_time.append((left_on[jj+1]-landing)/frequency)
                 # Center-of-Pressure Metrics
                 COP_ML_demean = np.array(dat.FP2_COP_Y[landing : left_on[jj+1]] - np.mean(dat.FP2_COP_Y[landing : left_on[jj+1]]))
                 COP_AP_demean = np.array(dat.FP2_COP_X[landing : left_on[jj+1]] - np.mean(dat.FP2_COP_X[landing : left_on[jj+1]]))
@@ -234,7 +277,9 @@ outcomes = pd.DataFrame({'Subject':list(subName), 'Config': list(config), 'Order
                          'RkneeABDMom':list(RkneeABDMom),'RkneeADDMom':list(RkneeADDMom),'RankleEvMom':list(RankleEvMom),
                          'RankleInMom':list(RankleInMom)})
 
-if save_on == 1:
+if save_on == 1 and data_check < 2:
+    # Note: written fresh each run, never appended. Appending duplicates
+    # every row when a study is re-processed after more data is collected.
     outcomes.to_csv(fPath + '0_StandUp.csv',header=True,index=False)                    
     
     

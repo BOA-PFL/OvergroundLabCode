@@ -17,7 +17,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import copy
+import tkinter as tk
 from tkinter import messagebox
+from OvergroundFunctions import (delimitTrial, findLandings, findTakeoffs,
+                                 loadProcessingDecisions, saveProcessingDecision)
 import scipy.integrate as integrate
 
 pd.options.mode.chained_assignment = None  # default='warn' set to warn for a lot of warnings
@@ -25,13 +28,51 @@ pd.options.mode.chained_assignment = None  # default='warn' set to warn for a lo
 # Define constants and options
 fThresh = 80 #below this force value will be set to 0.
 save_on = 1 # turn this on for automatic saving of csv!!!! 
-debug = 1 #turn off to skip makeVizPlot
+# 0 = no data check, nothing is asked or recorded
+# 1 = ask only about trials with no recorded decision (the normal setting)
+# 2 = re-review EVERY trial, including ones previously rejected. Use after
+#     changing processing, when earlier decisions may no longer hold. This
+#     mode is good for reruning files with a different threshold or examining
+#     files after a different filter has been applied.
+data_check = 1
 ts_plot = 0 # turn this on for timeseries plotting of extracted variables
 
-fPath = 'C:\\Users\\bethany.kilpatrick\\BOA Technology Inc\\PFL Team - General\\Testing Segments\\AgilityPerformanceData\\AS_Court_WomensPanelStiffnessI_Mech_Jan25\\Overground\\'
+fPath = 'Z:/Testing Segments/Athletic/Court/2026_Performance_Court_FullShoeStability_Asics/Overground/'
 
 fileExt = r".txt"
-entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt)]
+entries = [fName for fName in os.listdir(fPath) if fName.endswith(fileExt) and not fName.startswith('0_')]
+
+# Names this script's decision file, 0_ProcessingDecisions_<scriptName>.csv.
+# One data folder is often read by several scripts, and a trial that is no
+# good for one analysis can be fine for another, so each keeps its own
+# record rather than one script's rejection governing the rest.
+scriptName = 'Agility'
+
+# Data-quality decisions recorded by previous runs of this script. Loading
+# these is what stops a trial being judged twice. Rejected files are left
+# where they are so they can still be opened and looked at - it is this
+# record, not the folder, that decides what gets processed.
+decisions = loadProcessingDecisions(fPath, scriptName)
+
+# Results from an out-of-date copy of this script will not match anyone
+# else's. Asked only when nothing has been decided here yet: a decision file
+# means the question was answered on an earlier run of this dataset.
+if len(decisions) == 0:
+    # Give this dialog its own window and put it in front. It is the first
+    # thing the script does, so unlike the data check further down there is no
+    # figure on screen to pull focus, and a borrowed default root can open the
+    # box behind Spyder - which just looks like the script has hung.
+    dialogRoot = tk.Tk()
+    dialogRoot.withdraw()
+    dialogRoot.attributes('-topmost', True)
+    upToDate = messagebox.askyesno("Question", "Is this script up to date with main?",
+                                   parent = dialogRoot)
+    dialogRoot.destroy()
+    # A plain error rather than SystemExit: these scripts get run a cell at a
+    # time, and SystemExit can take the console with it. This stops just as
+    # firmly, prints the reason, and leaves the console alone.
+    if upToDate == False:
+        raise RuntimeError('Pull this script from main before processing')
 
 ### set plot font size ###
 SMALL_SIZE = 14
@@ -46,111 +87,9 @@ plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-def findLandings(force, fThresh):
-    """
-    This function finds the landings from force plate data
-    it uses a heuristic to determine landings from when the smoothed force is
-    0 and then breaches a threshold
-    
-    Parameters
-    ----------
-    force : Pandas Series
-        Vertical force from force plate.
-    fThresh: integer
-        Value force has to be greater than to count as a takeoff/landing
-
-    Returns
-    -------
-    lic : list
-        Indices of landings.
-
-    """
-    lic = [] 
-    
-    for step in range(len(force)-1):
-    
-            
-            if force[step] == 0 and force[step + 1] >= fThresh :
-                lic.append(step)
-    
-        
-    return lic
 
 
 
-def findTakeoffs(force, fThresh):
-    """
-    This function calculates the takeoffs using a heuristic 
-
-    Parameters
-    ----------
-    force : Pandas Series
-        vertical force from force plate.
-    
-    fThresh: integer
-        Value force has to be greater than to count as a takeoff/landing
-    Returns
-    -------
-    lto : list
-        indices of takeoffs obtained from force data. Takeoffs here mean
-        the moment a force signal was > a threshold and then goes to 0
-
-    # """
-    lto = []
-    for step in range(len(force)-1):
-        if force[step] >= fThresh and force[step + 1] == 0 :
-            lto.append(step + 1)
-    return lto 
-
-
-
-def delimitTrial(inputDF,FName):
-    """
-     This function uses ginput to delimit the start and end of a trial
-    You will need to indicate on the plot when to start/end the trial. 
-    You must use tkinter or plotting outside the console to use this function
-    Parameters
-    ----------
-    inputDF : Pandas DataFrame
-        DF containing all desired output variables.
-    zForce : numpy array 
-        of force data from which we will subset the dataframe
-
-    Returns
-    -------
-    outputDat: dataframe subset to the beginning and end of jumps.
-
-    """
-
-    # generic function to plot and start/end trial #
-    if os.path.exists(fPath+FName+'TrialSeg.npy'):
-        trial_segment_old = np.load(fPath+FName+'TrialSeg.npy', allow_pickle =True)
-        trialStart = trial_segment_old[1][0,0]
-        trialEnd = trial_segment_old[1][1,0]
-        inputDF = inputDF.iloc[int(np.floor(trialStart)) : int(np.floor(trialEnd)),:]
-        outputDat = inputDF.reset_index()
-        
-    else: 
-        fig, ax = plt.subplots()
-
-        totForce = inputDF.FP1_GRF_Z + inputDF.FP2_GRF_Z + inputDF.FP3_GRF_Z + inputDF.FP4_GRF_Z
-        print('Select a point on the plot to represent the beginning & end of trial where Y-value is near 0')
-
-
-        ax.plot(totForce, label = 'Total Force')
-        fig.legend()
-        pts = np.asarray(plt.ginput(2, timeout=-1))
-        plt.close()
-        outputDat = inputDF.iloc[int(np.floor(pts[0,0])) : int(np.floor(pts[1,0])),:]
-        outputDat = outputDat.reset_index()
-        trial_segment = np.array([FName, pts],dtype=object)
-        np.save(fPath+FName+'TrialSeg.npy',trial_segment)
-
-    return(outputDat)
-
-
-    
-    
 def powILM (Fz, Vz_COM, Fy, Vy_COM, Fx, Vx_COM):
     """
     This function finds power using the individual limb methods
@@ -181,9 +120,6 @@ def powILM (Fz, Vz_COM, Fy, Vy_COM, Fx, Vx_COM):
     """
     pw = ((Fz * Vz_COM) + (Fy * (Vy_COM)) + (Fx * Vx_COM))
     return pw
-
-
-
 
 def findWork(start, stop, signal, frequency):
     """
@@ -282,8 +218,6 @@ def COMwk(totF_Z, totF_Y, totF_X, mass, landings):
         NegWk.append(findWork(0, int(len(NegPwr[ii])), NegPwr[ii], frequency)) 
     
     return PosPwr , NegPwr, PosWk, NegWk , pwr, pkPwr
-
-
 
 def makeVizPlot(inputDF, inputLandings, inputTakeoffs, COMpwrILM):
     
@@ -423,9 +357,14 @@ badFileList = []
 ## save configuration names from files
 for fName in entries:
     try:
-        
-        # fName = entries[1]
         print(fName)
+        # A trial rejected in a previous run is skipped. The file is still
+        # there to open and look at: the recorded decision governs, not the
+        # folder
+        priorDecision = decisions.get(fName, '')
+        if priorDecision == 'bad' and data_check != 2:
+            print('Previously excluded, skipping: ' + fName)
+            continue
         subName = fName.split('_')[0]
         config1 = fName.split('_')[1]
         tmpMove = fName.split('_')[2]
@@ -442,7 +381,12 @@ for fName in entries:
         takeoffs = []
         if (tmpMove == 'Skater') or (tmpMove == 'skater'):
             
-            dat = delimitTrial(dat,fName)
+            # Agility trials cross the whole runway, so the plot to click
+            # on sums all four plates. delimitTrial used to sum them
+            # itself, which is right here and wrong for every other
+            # script in this folder.
+            totForce = dat.FP1_GRF_Z + dat.FP2_GRF_Z + dat.FP3_GRF_Z + dat.FP4_GRF_Z
+            dat = delimitTrial(dat, fName, fPath, totForce)
             # create vector of force from vertical signal from each file and make low values 0
             if np.max(abs(dat.FP3_GRF_Z)) > np.max(abs(dat.FP4_GRF_Z)):
 
@@ -486,7 +430,12 @@ for fName in entries:
          
         elif (tmpMove == 'CMJ') or (tmpMove == 'cmj'):
             
-            dat = delimitTrial(dat,fName)
+            # Agility trials cross the whole runway, so the plot to click
+            # on sums all four plates. delimitTrial used to sum them
+            # itself, which is right here and wrong for every other
+            # script in this folder.
+            totForce = dat.FP1_GRF_Z + dat.FP2_GRF_Z + dat.FP3_GRF_Z + dat.FP4_GRF_Z
+            dat = delimitTrial(dat, fName, fPath, totForce)
             
 
             ZForce = dat.FP2_GRF_Z
@@ -518,7 +467,10 @@ for fName in entries:
         
         if (tmpMove == 'CMJ') or (tmpMove == 'cmj') or (tmpMove == 'Skater') or (tmpMove == 'skater'):
             
-            if debug == 1:
+            answer = True # if data check is off.
+            if priorDecision == 'good' and data_check == 1:
+                print('Previously accepted, not asking again: ' + fName)
+            elif data_check >= 1:
                 makeVizPlot(dat, landings, takeoffs, pwr)
                 if ts_plot == 1: # plot all relavent metrics 
                     interpMet(totForce_z, landings, takeoffs)
@@ -530,9 +482,18 @@ for fName in entries:
                     interpMet(kAbAdmom, landings, takeoffs)
                 
                 answer = messagebox.askyesno("Question","Is data clean?")
-            else: answer = True
-            
-            
+
+            # Record the decision straight away, inside the loop, so a run
+            # that fails later keeps every decision made so far
+            if priorDecision == '' or data_check == 2:
+                if answer == False:
+                    saveProcessingDecision(fPath, scriptName, fName, 'bad',
+                                           Subject=subName, Config=config1,
+                                           reason='rejected at the data check')
+                else:
+                    saveProcessingDecision(fPath, scriptName, fName, 'good',
+                                           Subject=subName, Config=config1)
+
             if answer == False:
                 plt.close('all')
                 print('Adding file to bad file list')
@@ -545,12 +506,13 @@ for fName in entries:
                 for i in range(len(landings)):
         
                     try:
-                                 
-                        
                         tmpCT = round((takeoffs[i] - landings[i])/2) #to use as approximate for propulsive start
-                        CT.append((takeoffs[i] - landings[i])/200)
-                        impulseZ.append(np.sum(ZForce[landings[i]:takeoffs[i]])/200)
-                        impulseX.append(np.sum(XForce[landings[i]:takeoffs[i]])/200)
+                        # frequency is read from the file header above and
+                        # already used for the work and power terms. These
+                        # three divided by a literal 200 instead.
+                        CT.append((takeoffs[i] - landings[i])/frequency)
+                        impulseZ.append(np.sum(ZForce[landings[i]:takeoffs[i]])/frequency)
+                        impulseX.append(np.sum(XForce[landings[i]:takeoffs[i]])/frequency)
                         
                         peakGRFz.append(np.max(ZForce[landings[i]+tmpCT:takeoffs[i]])) #peak propulsive force approximated from 2nd half of contact time
                         peakGRFx.append(np.max(XForce[landings[i]+tmpCT:takeoffs[i]])) #peak propulsive force approximated from 2nd half of contact time
@@ -600,15 +562,13 @@ outcomes = pd.DataFrame({'Subject':list(subNamelist), 'Config': list(config), 'M
 
 
 
-save_on = 1
-if save_on == 1:
-    outfileName = fPath + '0_CompiledAgilityData.csv'
+outfileName = fPath + '0_CompiledAgilityData.csv'
+if save_on == 1 and data_check < 2:
     np.save(fPath+'0_badFile.npy', badFileList)
-    if os.path.exists(outfileName) == False:
-        outcomes.to_csv(outfileName, header=True, index = False)
- 
-    else:
-        outcomes.to_csv(outfileName, mode='a', header=False, index = False)
+    # Written fresh each run, never appended. Appending duplicates every
+    # row when a study is re-processed after more data is collected, and a
+    # trial rejected on a later pass keeps its old row beside the rejection.
+    outcomes.to_csv(outfileName, header=True, index = False)
     
     
 
